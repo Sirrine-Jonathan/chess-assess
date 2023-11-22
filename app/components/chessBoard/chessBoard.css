@@ -1,0 +1,55 @@
+.board {
+    --dark-squares: #6d6d6d; 
+    --light-squares: #faebd7;
+
+    border: 5px solid var(--dark-squares);
+    box-shadow: 4px 4px 6px #000;
+    border-radius: 5px;
+
+    .row:nth-child(odd) {
+        .square:nth-child(odd) {
+            background: var(--dark-squares);
+        }
+        .square:nth-child(even) {
+            background: var(--light-squares);
+        }
+    }
+    
+    .row:nth-child(even) {
+        .square:nth-child(odd) {
+            background: var(--light-squares);
+        }
+        .square:nth-child(even) {
+            background: var(--dark-squares);
+        }
+    }
+
+    .square {
+        width: 100px;
+        aspect-ratio: 1;
+        position: relative;
+        display: flex;
+
+        .piece {
+            align-self: center;
+            margin: 0 auto;
+            
+            svg {
+                pointer-events: none;
+            }
+        }
+
+        span.squareName {
+            position: absolute;
+            font-size: 12px;
+            color: black;
+            background: white;
+            border-bottom-right-radius: 11px;
+            width: 20px;
+            aspect-ratio: 1;
+            padding: 2px;
+        }
+    }
+    
+}
+
