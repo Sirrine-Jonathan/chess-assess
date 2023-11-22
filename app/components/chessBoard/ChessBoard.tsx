@@ -8,7 +8,7 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { DndContext } from "@dnd-kit/core";
+import { DndContext, DragStartEvent, DragEndEvent } from "@dnd-kit/core";
 import { PieceColor, Rook, Knight, Bishop, Queen, King, Pawn } from "./pieces";
 import { Square } from "./Square";
 import "./chessBoard.css";
@@ -88,8 +88,30 @@ export const useChessBoardContext = () => {
 };
 
 export const ChessBoardInner = () => {
+  const handleDragStart = useCallback(function handleDragStart({
+    active,
+  }: DragStartEvent) {
+    console.log("piece active", active);
+  },
+  []);
+
+  const handleDragEnd = useCallback(function handleDragEnd(
+    event: DragEndEvent
+  ) {
+    console.log("drag end");
+  },
+  []);
+
+  const handleDragCancel = useCallback(() => {
+    console.log("drag cancel");
+  }, []);
+
   return (
-    <DndContext>
+    <DndContext
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
+    >
       <div className="board flex flex-col">
         <div className="row flex flex-row">
           <Square name="a8">
