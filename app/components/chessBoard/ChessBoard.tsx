@@ -13,6 +13,72 @@ import { PieceColor, Rook, Knight, Bishop, Queen, King, Pawn } from "./pieces";
 import { Square } from "./Square";
 import "./chessBoard.css";
 
+enum Sq {
+  "A1" = "a1",
+  "A2" = "a2",
+  "A3" = "a3",
+  "A4" = "a4",
+  "A5" = "a5",
+  "A6" = "a6",
+  "A7" = "a7",
+  "A8" = "a8",
+  "B1" = "b1",
+  "B2" = "b2",
+  "B3" = "b3",
+  "B4" = "b4",
+  "B5" = "b5",
+  "B6" = "b6",
+  "B7" = "b7",
+  "B8" = "b8",
+  "C1" = "c1",
+  "C2" = "c2",
+  "C3" = "c3",
+  "C4" = "c4",
+  "C5" = "c5",
+  "C6" = "c6",
+  "C7" = "c7",
+  "C8" = "c8",
+  "D1" = "d1",
+  "D2" = "d2",
+  "D3" = "d3",
+  "D4" = "d4",
+  "D5" = "d5",
+  "D6" = "d6",
+  "D7" = "d7",
+  "D8" = "d8",
+  "E1" = "e1",
+  "E2" = "e2",
+  "E3" = "e3",
+  "E4" = "e4",
+  "E5" = "e5",
+  "E6" = "e6",
+  "E7" = "e7",
+  "E8" = "e8",
+  "F1" = "f1",
+  "F2" = "f2",
+  "F3" = "f3",
+  "F4" = "f4",
+  "F5" = "f5",
+  "F6" = "f6",
+  "F7" = "f7",
+  "F8" = "f8",
+  "G1" = "g1",
+  "G2" = "g2",
+  "G3" = "g3",
+  "G4" = "g4",
+  "G5" = "g5",
+  "G6" = "g6",
+  "G7" = "g7",
+  "G8" = "g8",
+  "H1" = "h1",
+  "H2" = "h2",
+  "H3" = "h3",
+  "H4" = "h4",
+  "H5" = "h5",
+  "H6" = "h6",
+  "H7" = "h7",
+  "H8" = "h8",
+}
 interface ChessBoardState {
   activePiece: string | null;
 }
@@ -114,120 +180,120 @@ export const ChessBoardInner = () => {
     >
       <div className="board flex flex-col">
         <div className="row flex flex-row">
-          <Square name="a8">
+          <Square name={Sq.A8}>
             <Rook color={PieceColor.Black} />
           </Square>
-          <Square name="b8">
+          <Square name={Sq.B8}>
             <Knight color={PieceColor.Black} />
           </Square>
-          <Square name="c8">
+          <Square name={Sq.C8}>
             <Bishop color={PieceColor.Black} />
           </Square>
-          <Square name="d8">
+          <Square name={Sq.D8}>
             <Queen color={PieceColor.Black} />
           </Square>
-          <Square name="e8">
+          <Square name={Sq.E8}>
             <King color={PieceColor.Black} />
           </Square>
-          <Square name="f8">
+          <Square name={Sq.F8}>
             <Bishop color={PieceColor.Black} />
           </Square>
-          <Square name="g8">
+          <Square name={Sq.G8}>
             <Knight color={PieceColor.Black} />
           </Square>
-          <Square name="h8">
+          <Square name={Sq.H8}>
             <Rook color={PieceColor.Black} />
           </Square>
         </div>
         <div className="row flex flex-row">
-          <Square name="a7">
+          <Square name={Sq.A7}>
             <Pawn color={PieceColor.Black} />
           </Square>
-          <Square name="b7">
+          <Square name={Sq.B7}>
             <Pawn color={PieceColor.Black} />
           </Square>
-          <Square name="c7">
+          <Square name={Sq.C7}>
             <Pawn color={PieceColor.Black} />
           </Square>
-          <Square name="d7">
+          <Square name={Sq.D7}>
             <Pawn color={PieceColor.Black} />
           </Square>
-          <Square name="e7">
+          <Square name={Sq.E7}>
             <Pawn color={PieceColor.Black} />
           </Square>
-          <Square name="f7">
+          <Square name={Sq.F7}>
             <Pawn color={PieceColor.Black} />
           </Square>
-          <Square name="g7">
+          <Square name={Sq.G7}>
             <Pawn color={PieceColor.Black} />
           </Square>
-          <Square name="h7">
+          <Square name={Sq.H7}>
             <Pawn color={PieceColor.Black} />
           </Square>
         </div>
         <div className="row flex flex-row">
-          <Square name="a6" />
-          <Square name="b6" />
-          <Square name="c6" />
-          <Square name="d6" />
-          <Square name="e6" />
-          <Square name="f6" />
-          <Square name="g6" />
-          <Square name="h6" />
+          <Square name={Sq.A6} />
+          <Square name={Sq.B6} />
+          <Square name={Sq.C6} />
+          <Square name={Sq.D6} />
+          <Square name={Sq.E6} />
+          <Square name={Sq.F6} />
+          <Square name={Sq.G6} />
+          <Square name={Sq.H6} />
         </div>
         <div className="row flex flex-row">
-          <Square name="a5" />
-          <Square name="b5" />
-          <Square name="c5" />
-          <Square name="d5" />
-          <Square name="e5" />
-          <Square name="f5" />
-          <Square name="g5" />
-          <Square name="h5" />
+          <Square name={Sq.A5} />
+          <Square name={Sq.B5} />
+          <Square name={Sq.C5} />
+          <Square name={Sq.D5} />
+          <Square name={Sq.E5} />
+          <Square name={Sq.F5} />
+          <Square name={Sq.G5} />
+          <Square name={Sq.H5} />
         </div>
         <div className="row flex flex-row">
-          <Square name="a4" />
-          <Square name="b4" />
-          <Square name="c4" />
-          <Square name="d4" />
-          <Square name="e4" />
-          <Square name="f4" />
-          <Square name="g4" />
-          <Square name="h4" />
+          <Square name={Sq.A4} />
+          <Square name={Sq.B4} />
+          <Square name={Sq.C4} />
+          <Square name={Sq.D4} />
+          <Square name={Sq.E4} />
+          <Square name={Sq.F4} />
+          <Square name={Sq.G4} />
+          <Square name={Sq.H4} />
         </div>
         <div className="row flex flex-row">
-          <Square name="a3" />
-          <Square name="b3" />
-          <Square name="c3" />
-          <Square name="d3" />
-          <Square name="e3" />
-          <Square name="f3" />
-          <Square name="g3" />
-          <Square name="h3" />
+          <Square name={Sq.A3} />
+          <Square name={Sq.B3} />
+          <Square name={Sq.C3} />
+          <Square name={Sq.D3} />
+          <Square name={Sq.E3} />
+          <Square name={Sq.F3} />
+          <Square name={Sq.G3} />
+          <Square name={Sq.H3} />
         </div>
         <div className="row flex flex-row">
-          <Square name="a2">
+          <Square name={Sq.A2}>
             <Pawn color={PieceColor.White} />
           </Square>
-          <Square name="b2">
+          <Square name={Sq.B2}>
             <Pawn color={PieceColor.White} />
           </Square>
-          <Square name="c2">
+          <Square name={Sq.C2}>
             <Pawn color={PieceColor.White} />
           </Square>
-          <Square name="d2">
+          <Square name={Sq.D2}>
             <Pawn color={PieceColor.White} />
           </Square>
-          <Square name="e2">
+          <Square name={Sq.E2}>
             <Pawn color={PieceColor.White} />
           </Square>
-          <Square name="f2">
+          <Square name={Sq.F2}>
             <Pawn color={PieceColor.White} />
           </Square>
-          <Square name="g2">
+          <Square name={Sq.G2}>
             <Pawn color={PieceColor.White} />
           </Square>
-          <Square name="h2">
+          <Square name={Sq.H2}>
             <Pawn color={PieceColor.White} />
           </Square>
         </div>
@@ -235,25 +301,25 @@ export const ChessBoardInner = () => {
           <Square name="a1">
             <Rook color={PieceColor.White} />
           </Square>
-          <Square name="b1">
+          <Square name={Sq.B1}>
             <Knight color={PieceColor.White} />
           </Square>
-          <Square name="c1">
+          <Square name={Sq.C1}>
             <Bishop color={PieceColor.White} />
           </Square>
-          <Square name="d1">
+          <Square name={Sq.D1}>
             <Queen color={PieceColor.White} />
           </Square>
-          <Square name="e1">
+          <Square name={Sq.E1}>
             <King color={PieceColor.White} />
           </Square>
-          <Square name="f1">
+          <Square name={Sq.F1}>
             <Bishop color={PieceColor.White} />
           </Square>
-          <Square name="g1">
+          <Square name={Sq.G1}>
             <Knight color={PieceColor.White} />
           </Square>
-          <Square name="h1">
+          <Square name={Sq.H1}>
             <Rook color={PieceColor.White} />
           </Square>
         </div>
