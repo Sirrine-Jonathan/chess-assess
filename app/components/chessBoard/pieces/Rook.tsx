@@ -3,7 +3,7 @@ import {
   PieceType,
   BasePiece,
   type BasePieceProps,
-} from "./basePiece";
+} from "./BasePiece";
 
 interface RookProps extends Omit<BasePieceProps, "type"> {
   color: PieceColor;
