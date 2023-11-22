@@ -1,6 +1,7 @@
 "use client";
 
 import type { Dispatch, ReactNode } from "react";
+import { PieceColor, PieceType } from "./pieces";
 import React, {
   createContext,
   useContext,
@@ -9,11 +10,11 @@ import React, {
   useCallback,
 } from "react";
 import { DndContext, DragStartEvent, DragEndEvent } from "@dnd-kit/core";
-import { PieceColor, Rook, Knight, Bishop, Queen, King, Pawn } from "./pieces";
+import { Rook, Knight, Bishop, Queen, King, Pawn } from "./pieces";
 import { Square } from "./Square";
 import "./chessBoard.css";
 
-enum Sq {
+export enum Sq {
   "A1" = "a1",
   "A2" = "a2",
   "A3" = "a3",
@@ -94,10 +95,15 @@ const ChessBoardContext = createContext<{
 
 enum ActionTypeNames {
   SetActivePiece = "SET_ACTIVE_PIECE",
+  UpdateDroppables = "UPDATE_DROPPABLES",
 }
 
 type ActionsPayload = {
   [ActionTypeNames.SetActivePiece]: string;
+  [ActionTypeNames.UpdateDroppables]: {
+    piece: { type: PieceType; color: PieceColor };
+    square: Sq;
+  };
 };
 
 type ActionMap<M extends { [index: string]: unknown }> = {
@@ -114,6 +120,10 @@ const reducer = (state: ChessBoardState, action: ActionType) => {
       return {
         ...state,
         activePiece: action.payload,
+      };
+    case ActionTypeNames.UpdateDroppables:
+      return {
+        ...state,
       };
     default:
       return state;
@@ -147,6 +157,19 @@ export const useChessBoardContext = () => {
           payload: piece,
         });
       },
+      updateDroppables: ({
+        piece,
+        square,
+      }: {
+        piece: { type: PieceType; color: PieceColor };
+        square: Sq;
+      }) => {
+        console.log("dispatching start of move", { piece, square });
+        dispatch({
+          type: ActionTypeNames.UpdateDroppables,
+          payload: { piece, square },
+        });
+      },
     };
   }, [state, dispatch]);
 
@@ -164,7 +187,7 @@ export const ChessBoardInner = () => {
   const handleDragEnd = useCallback(function handleDragEnd(
     event: DragEndEvent
   ) {
-    console.log("drag end");
+    console.log("drag end", event);
   },
   []);
 

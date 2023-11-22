@@ -1,22 +1,10 @@
 "use client";
 
-import React, { useRef, useEffect, useState, type RefObject } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { RW, NW, BW, KW, QW, PW, RB, NB, BB, QB, KB, PB } from "./svg";
-
-export enum PieceType {
-  Rook = "ROOK",
-  Knight = "KNIGHT",
-  Bishop = "BISHOP",
-  Queen = "QUEEN",
-  King = "KING",
-  Pawn = "PAWN",
-}
-
-export enum PieceColor {
-  White = "WHITE",
-  Black = "Black",
-}
+import type { BasePieceProps } from "./index";
+import { PieceColor, PieceType } from "./index";
 
 const colorTypeMap: Record<PieceColor, Record<PieceType, any>> = {
   [PieceColor.White]: {
@@ -36,11 +24,6 @@ const colorTypeMap: Record<PieceColor, Record<PieceType, any>> = {
     [PieceType.Pawn]: PB,
   },
 };
-
-export interface BasePieceProps {
-  type: PieceType;
-  color: PieceColor;
-}
 
 export const BasePiece = ({ color, type }: BasePieceProps) => {
   const pieceRef = useRef<HTMLDivElement>(null);

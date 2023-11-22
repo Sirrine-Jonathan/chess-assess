@@ -1,9 +1,6 @@
-import {
-  PieceColor,
-  PieceType,
-  BasePiece,
-  type BasePieceProps,
-} from "./BasePiece";
+import type { BasePieceProps } from "./index";
+import { PieceColor, PieceType } from "./index";
+import { BasePiece } from "./BasePiece";
 
 interface KnightProps extends Omit<BasePieceProps, "type"> {
   color: PieceColor;
