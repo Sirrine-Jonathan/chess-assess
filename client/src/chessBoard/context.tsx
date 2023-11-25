@@ -1,5 +1,11 @@
 import type { Dispatch, ReactNode } from "react";
-import { createContext, useContext, useReducer, useMemo } from "react";
+import {
+  createContext,
+  useContext,
+  useReducer,
+  useMemo,
+  useEffect,
+} from "react";
 import {
   PieceColor,
   PieceType,
@@ -9,6 +15,7 @@ import {
   type Move,
   type Piece,
 } from "./chessTypes";
+import { socket } from "./ChessBoard";
 
 const initialState = {
   activePiece: null,
@@ -97,13 +104,21 @@ const reducer = (state: ChessBoardState, action: ActionType) => {
 };
 
 export const ChessBoardContextProvider = ({
+  fen,
   children,
 }: {
+  fen?: string;
   children: ReactNode;
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const contextValue = useMemo(() => ({ state, dispatch }), [state, dispatch]);
+
+  useEffect(() => {
+    if (fen) {
+      socket.emit("load", fen);
+    }
+  }, []);
 
   return (
     <ChessBoardContext.Provider value={contextValue}>
@@ -122,6 +137,14 @@ export const useChessBoardContext = () => {
           type: ActionTypeNames.SetActivePiece,
           payload: piece,
         });
+        if (piece) {
+          socket.emit("moving", piece.from);
+        } else {
+          socket.emit("moves");
+        }
+      },
+      move: (move: { to: Sq; from: Sq }) => {
+        socket.emit("move", move);
       },
       updateDroppables: ({
         piece,
@@ -130,7 +153,6 @@ export const useChessBoardContext = () => {
         piece: { type: PieceType; color: PieceColor };
         square: Sq;
       }) => {
-        console.log("dispatching start of move", { piece, square });
         dispatch({
           type: ActionTypeNames.UpdateDroppables,
           payload: { piece, square },

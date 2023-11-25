@@ -10,7 +10,7 @@
 
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  margin: 20px auto 0;
+  margin: 0 auto 0;
   box-shadow:
     4px 4px #eee,
     -4px 4px #eee,
@@ -98,7 +98,8 @@
       pointer-events: none;
     }
 
-    &:hover {
+    &:hover,
+    &.isActive {
       .squareName {
         display: flex;
         align-items: center;
@@ -116,4 +117,14 @@
       }
     }
   }
+}
+
+div#information {
+  font-size: 12px !important;
+  padding: 0 20px;
+}
+
+div#boardContainer {
+  display: flex;
+  margin-top: 40px;
 }

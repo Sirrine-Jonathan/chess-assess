@@ -40,6 +40,7 @@ export const BasePiece = ({ color, type, canMove }: BasePieceProps) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: `${piece}-${square}`,
   });
+
   const style = transform
     ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
@@ -55,6 +56,7 @@ export const BasePiece = ({ color, type, canMove }: BasePieceProps) => {
       style={style}
       {...(canMove ? listeners : {})}
       {...(canMove ? attributes : {})}
+      tabIndex={-1}
     >
       <div ref={pieceRef} id={piece} data-color={color} data-type={type}>
         <Piece />

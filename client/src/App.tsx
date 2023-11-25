@@ -14,7 +14,6 @@ function App() {
       <div id="chessBoardWrapper">
         <ChessBoard onConnectionChange={handleConnectionChange} />
       </div>
-      <div id="message">{isConnected ? "Connected" : "Connecting"}</div>
     </div>
   );
 }

@@ -50,11 +50,32 @@ export type Move = {
   promotion?: string;
 };
 
+type HistoryItem = {
+  before: string;
+  after: string;
+  color: PieceColor;
+  piece: PieceType;
+  from: Sq;
+  to: Sq;
+  san: string;
+  lan: string;
+  flags: string;
+};
+
 export type Update = {
   ascii: string;
   board: Board;
   turn: PieceColor;
   moves: Move[];
+  inCheck: boolean;
+  isCheckmate: boolean;
+  isDraw: boolean;
+  isInsufficientMaterial: boolean;
+  isGameOver: boolean;
+  isStalemate: boolean;
+  isThreefoldRepetition: boolean;
+  fen: string;
+  history: HistoryItem[];
 };
 
 export type ShowMoves = {
