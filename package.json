@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "@fontsource-variable/rubik": "^5.0.19",
-    "react-zoom-pan-pinch": "^3.3.0",
-    "sass": "^1.69.5"
-  }
-}
