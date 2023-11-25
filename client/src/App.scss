@@ -1,0 +1,11 @@
+#chessBoardWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+#message {
+  display: block;
+  width: min-content;
+  margin: 20px auto;
+  text-align: center;
+}

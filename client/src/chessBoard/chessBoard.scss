@@ -1,0 +1,119 @@
+.board {
+  $squareSize: 70px;
+  $darkSquares: #d65757;
+  $darkSquaresTeamOption: #333; // darken($darkSquares, 50%);
+  $darkSquaresPieceOption: #333;
+  $lightSquares: #fff;
+  $lightSquaresTeamOption: #333; // dark($lightSquares, 50%);
+  $lightSquaresPieceOption: #333;
+  $optionBorderSize: 12px;
+
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  margin: 20px auto 0;
+  box-shadow:
+    4px 4px #eee,
+    -4px 4px #eee,
+    4px -4px #eee,
+    -4px -4px #eee;
+  border-radius: 5px;
+
+  .square[id*="8"],
+  .square[id*="6"],
+  .square[id*="4"],
+  .square[id*="2"] {
+    &:nth-child(odd) {
+      background: $darkSquares;
+      &.canMoveHere {
+        background: $darkSquaresTeamOption;
+        border: $optionBorderSize solid $darkSquares;
+      }
+      &.pieceCanMoveHere {
+        background: $darkSquaresPieceOption;
+        border: $optionBorderSize solid $darkSquares;
+      }
+    }
+    &:nth-child(even) {
+      background: $lightSquares;
+      &.canMoveHere {
+        background: $lightSquaresTeamOption;
+        border: $optionBorderSize solid $lightSquares;
+      }
+      &.pieceCanMoveHere {
+        background: $lightSquaresPieceOption;
+        border: $optionBorderSize solid $lightSquares;
+      }
+    }
+  }
+
+  .square[id*="7"],
+  .square[id*="5"],
+  .square[id*="3"],
+  .square[id*="1"] {
+    &:nth-child(odd) {
+      background: $lightSquares;
+      &.canMoveHere {
+        background: $lightSquaresTeamOption;
+        border: $optionBorderSize solid $lightSquares;
+      }
+      &.pieceCanMoveHere {
+        background: $lightSquaresPieceOption;
+        border: $optionBorderSize solid $lightSquares;
+      }
+    }
+    &:nth-child(even) {
+      background: $darkSquares;
+      &.canMoveHere {
+        background: $darkSquaresTeamOption;
+        border: $optionBorderSize solid $darkSquares;
+      }
+      &.pieceCanMoveHere {
+        background: $darkSquaresPieceOption;
+        border: $optionBorderSize solid $darkSquares;
+      }
+    }
+  }
+
+  .square {
+    width: $squareSize;
+    height: $squareSize;
+    position: relative;
+    display: flex;
+    border: 2px solid white;
+    box-sizing: border-box;
+
+    .piece {
+      align-self: center;
+      margin: 0 auto;
+
+      svg {
+        width: calc($squareSize - 10px);
+        height: calc($squareSize - 10px);
+        pointer-events: none;
+      }
+    }
+
+    .squareName {
+      display: none;
+      pointer-events: none;
+    }
+
+    &:hover {
+      .squareName {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        font-size: 20px;
+        color: #333;
+        background: #ffffffaa;
+        width: 100%;
+        height: 100%;
+        padding: 2px;
+        text-align: center;
+        border: 5px solid #333;
+        box-sizing: border-box;
+      }
+    }
+  }
+}
