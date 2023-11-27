@@ -1,11 +1,7 @@
-#chessBoardWrapper {
-  display: flex;
-  justify-content: center;
-}
+.App {
+  height: 100%;
 
-#message {
-  display: block;
-  width: min-content;
-  margin: 20px auto;
-  text-align: center;
+  & > div {
+    height: 100%;
+  }
 }

@@ -1,5 +1,7 @@
 require("dotenv").config();
 import "reflect-metadata";
+import express from "express";
+import path from "path";
 import { createServer } from "http";
 import Websocket from "./modules/websocket/websocket";
 import ChessSocket from "./modules/websocket/chess.socket";
@@ -9,7 +11,7 @@ import {
   RoutingControllersOptions,
 } from "routing-controllers";
 
-const port = process.env.APP_PORT || 4000;
+const port = process.env.APP_PORT || 3000;
 
 const routingControllerOptions: RoutingControllersOptions = {
   routePrefix: "v1",
@@ -21,6 +23,12 @@ const routingControllerOptions: RoutingControllersOptions = {
 };
 
 const app = createExpressServer(routingControllerOptions);
+
+app.use(express.static(path.resolve(__dirname, "../../client/build")));
+
+app.get("/", function (req, res) {
+  res.sendFile(path.resolve(__dirname, "../../client/build", "index.html"));
+});
 
 const httpServer = createServer(app);
 const io = Websocket.getInstance(httpServer);

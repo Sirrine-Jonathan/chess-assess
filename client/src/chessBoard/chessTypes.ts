@@ -25,14 +25,34 @@ export interface BasePieceProps {
 }
 
 export interface PieceProps extends Omit<BasePieceProps, "type"> {}
+export interface Options {
+  showAxisLabels: boolean;
+  showDefenseLayer: boolean;
+  showEnemyDefenseLayer: boolean;
+  defenseLayerColor: string;
+  enemyDefenseLayerColor: string;
+  disputedTerritoryLayerColor: string;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+}
 
 export interface ChessBoardState {
   activePiece: Piece | null;
   isConnected: boolean;
   board: Board;
   moves: Move[];
+  enemyMoves: Move[];
   turn: PieceColor;
   ascii: string;
+  inCheck: boolean;
+  isCheckmate: boolean;
+  isDraw: boolean;
+  isInsufficientMaterial: boolean;
+  isGameOver: boolean;
+  isStalemate: boolean;
+  isThreefoldRepetition: boolean;
+  history: HistoryItem[];
 }
 
 export type Board = { square: string; type: string; color: string }[][];
@@ -50,7 +70,7 @@ export type Move = {
   promotion?: string;
 };
 
-type HistoryItem = {
+export type HistoryItem = {
   before: string;
   after: string;
   color: PieceColor;
@@ -67,6 +87,7 @@ export type Update = {
   board: Board;
   turn: PieceColor;
   moves: Move[];
+  enemyMoves: Move[];
   inCheck: boolean;
   isCheckmate: boolean;
   isDraw: boolean;
@@ -80,6 +101,7 @@ export type Update = {
 
 export type ShowMoves = {
   moves: Move[];
+  enemyMoves?: Move[];
 };
 
 export enum Sq {

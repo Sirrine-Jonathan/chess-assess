@@ -12,8 +12,10 @@ import {
   Sq,
   type ChessBoardState,
   type Board,
-  type Move,
   type Piece,
+  type Update,
+  type HistoryItem,
+  type ShowMoves,
 } from "./chessTypes";
 import { socket } from "./ChessBoard";
 
@@ -22,8 +24,17 @@ const initialState = {
   isConnected: false,
   board: [],
   moves: [],
+  enemyMoves: [],
   turn: PieceColor.White,
   ascii: "",
+  inCheck: false,
+  isCheckmate: false,
+  isDraw: false,
+  isInsufficientMaterial: false,
+  isGameOver: false,
+  isStalemate: false,
+  isThreefoldRepetition: false,
+  history: [],
 };
 
 const ChessBoardContext = createContext<{
@@ -39,6 +50,8 @@ enum ActionTypeNames {
   SetMoves = "SET_MOVES",
   SetTurn = "SET_TURN",
   SetAscii = "SET_ASCII",
+  SetState = "SET_STATE",
+  SetHistory = "SET_HISTORY",
 }
 
 type ActionsPayload = {
@@ -49,9 +62,11 @@ type ActionsPayload = {
   };
   [ActionTypeNames.SetIsConnected]: boolean;
   [ActionTypeNames.SetBoard]: Board;
-  [ActionTypeNames.SetMoves]: Move[];
+  [ActionTypeNames.SetMoves]: ShowMoves;
   [ActionTypeNames.SetTurn]: PieceColor;
   [ActionTypeNames.SetAscii]: string;
+  [ActionTypeNames.SetState]: Partial<Update>;
+  [ActionTypeNames.SetHistory]: HistoryItem[];
 };
 
 type ActionMap<M extends { [index: string]: unknown }> = {
@@ -86,7 +101,7 @@ const reducer = (state: ChessBoardState, action: ActionType) => {
     case ActionTypeNames.SetMoves:
       return {
         ...state,
-        moves: action.payload,
+        ...action.payload,
       };
     case ActionTypeNames.SetTurn:
       return {
@@ -97,6 +112,16 @@ const reducer = (state: ChessBoardState, action: ActionType) => {
       return {
         ...state,
         ascii: action.payload,
+      };
+    case ActionTypeNames.SetState:
+      return {
+        ...state,
+        ...action.payload,
+      };
+    case ActionTypeNames.SetHistory:
+      return {
+        ...state,
+        history: action.payload,
       };
     default:
       return state;
@@ -118,7 +143,7 @@ export const ChessBoardContextProvider = ({
     if (fen) {
       socket.emit("load", fen);
     }
-  }, []);
+  }, [fen]);
 
   return (
     <ChessBoardContext.Provider value={contextValue}>
@@ -170,7 +195,7 @@ export const useChessBoardContext = () => {
           payload: board,
         });
       },
-      setMoves: (moves: Move[]) => {
+      setMoves: (moves: ShowMoves) => {
         dispatch({
           type: ActionTypeNames.SetMoves,
           payload: moves,
@@ -186,6 +211,18 @@ export const useChessBoardContext = () => {
         dispatch({
           type: ActionTypeNames.SetAscii,
           payload: ascii,
+        });
+      },
+      setState: (state: Partial<Update>) => {
+        dispatch({
+          type: ActionTypeNames.SetState,
+          payload: state,
+        });
+      },
+      setHistory: (history: HistoryItem[]) => {
+        dispatch({
+          type: ActionTypeNames.SetHistory,
+          payload: history,
         });
       },
     };

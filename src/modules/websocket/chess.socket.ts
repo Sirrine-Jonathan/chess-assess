@@ -1,7 +1,6 @@
 import { Socket } from "socket.io";
 import MySocketInterface from "./mySocketInterface";
 import { Chess, validateFen } from "chess.js";
-import { aiMove, Game } from "js-chess-engine";
 
 class ChessSocket implements MySocketInterface {
   private chess;
@@ -12,7 +11,6 @@ class ChessSocket implements MySocketInterface {
     socket.emit("ping", true);
 
     this.chess = new Chess();
-    this.game = new Game();
     this.socket = socket;
 
     this.update();
@@ -25,7 +23,8 @@ class ChessSocket implements MySocketInterface {
 
     socket.on("moves", () => {
       socket.emit("showMoves", {
-        moves: this.getPlayersMoves(),
+        moves: this.getPlayersMoves("w"),
+        enemyMoves: this.getPlayersMoves("b"),
       });
     });
 
@@ -59,12 +58,11 @@ class ChessSocket implements MySocketInterface {
     });
   }
 
-  getPlayersMoves(player = "w") {
+  getPlayersMoves(player) {
     const fen = this.chess.fen();
     const splitFen = fen.split(" ");
     splitFen[1] = player;
     const newFen = splitFen.join(" ");
-    console.log("newFen", newFen);
     validateFen(newFen);
     const temp = new Chess(newFen);
     return temp.moves({ verbose: true });
@@ -73,7 +71,7 @@ class ChessSocket implements MySocketInterface {
   update() {
     this.socket.emit("update", {
       board: this.chess.board(),
-      moves: this.getPlayersMoves(),
+      moves: this.getPlayersMoves("w"),
       ascii: this.chess.ascii(),
       turn: this.chess.turn(),
       history: this.chess.history({ verbose: true }),
@@ -86,7 +84,6 @@ class ChessSocket implements MySocketInterface {
       isThreefoldRepetition: this.chess.isThreefoldRepetition(),
       fen: this.chess.fen(),
     });
-    console.log(this.chess.ascii());
   }
 
   middlewareImplementation(socket: Socket, next) {

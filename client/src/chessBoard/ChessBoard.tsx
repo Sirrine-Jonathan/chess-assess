@@ -1,5 +1,5 @@
 import type { Update, ShowMoves, Piece } from "./chessTypes";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { PieceColor, PieceType, Sq } from "./chessTypes";
 import { useCallback } from "react";
 import {
@@ -13,20 +13,24 @@ import {
 } from "@dnd-kit/core";
 import { BasePiece } from "./pieces/BasePiece";
 import { Square } from "./Square";
-import { useChessBoardContext, ChessBoardContextProvider } from "./context";
+import Sidebar from "./Sidebar";
+import { useChessBoardContext, ChessBoardContextProvider } from "./gameContext";
+import { OptionsContextProvider, useOptions } from "./optionsContext";
 import "./chessBoard.scss";
 import io from "socket.io-client";
+import clsx from "clsx";
 
-export const socket = io("ws://localhost:4000/chess", {
+const SERVER_PORT = process.env.NODE_ENV === "production" ? 3000 : 4000;
+
+export const socket = io(`ws://localhost:${SERVER_PORT}/chess`, {
   autoConnect: false,
 });
 
-export const ChessBoardInner = ({
-  onConnectionChange,
-}: {
-  onConnectionChange: (isConnected: boolean) => void;
-}) => {
+export const ChessBoardInner = () => {
+  const { Options } = useOptions();
   const { Actions, State } = useChessBoardContext();
+
+  const displayWrapperRef = useRef<HTMLDivElement>(null);
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: { distance: 15 },
@@ -54,8 +58,18 @@ export const ChessBoardInner = ({
       Actions.setBoard(update.board);
       Actions.setTurn(update.turn);
       Actions.setAscii(update.ascii);
-      Actions.setMoves(update.moves);
+      Actions.setMoves({ moves: update.moves, enemyMoves: update.enemyMoves });
       Actions.setActivePiece(null);
+      Actions.setState({
+        inCheck: update.inCheck,
+        isCheckmate: update.isCheckmate,
+        isDraw: update.isDraw,
+        isInsufficientMaterial: update.isInsufficientMaterial,
+        isGameOver: update.isGameOver,
+        isStalemate: update.isStalemate,
+        isThreefoldRepetition: update.isThreefoldRepetition,
+      });
+      Actions.setHistory(update.history);
 
       window.history.replaceState(
         null,
@@ -66,7 +80,7 @@ export const ChessBoardInner = ({
 
     function onShowMoves(showMoves: ShowMoves) {
       console.log("checkMoves", showMoves);
-      Actions.setMoves(showMoves.moves);
+      Actions.setMoves(showMoves);
     }
 
     socket.on("connect", onConnect);
@@ -81,11 +95,6 @@ export const ChessBoardInner = ({
       socket.off("showMoves", onShowMoves);
     };
   });
-
-  useEffect(() => {
-    console.log("connection change", { isConnected: State.isConnected });
-    onConnectionChange(State.isConnected);
-  }, [State.isConnected, onConnectionChange]);
 
   const handleDragStart = useCallback(
     function handleDragStart(event: DragStartEvent) {
@@ -108,82 +117,141 @@ export const ChessBoardInner = ({
     [Actions]
   );
 
+  useEffect(() => {
+    if (displayWrapperRef.current) {
+      const styleString = Object.entries({
+        "--primary-color": Options.primaryColor,
+        "--secondary-color": Options.secondaryColor,
+        "--accent-color": Options.accentColor,
+        "--defense-color": Options.defenseLayerColor,
+        "--enemy-defense-color": Options.enemyDefenseLayerColor,
+        "--disputed-color": Options.disputedTerritoryLayerColor,
+      }).reduce((acc: string, [key, val]: string[]) => {
+        return acc + `${key}: ${val};`;
+      }, "");
+      displayWrapperRef.current.setAttribute("style", styleString);
+    }
+  }, [displayWrapperRef, Options]);
+
   return (
     <DndContext
       sensors={sensors}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div id="boardContainer">
-        <div
-          key={State.ascii}
-          className="board"
-          onKeyDown={(e) => {
-            if (e.code === "Escape") {
-              Actions.setActivePiece(null);
-            }
-          }}
-        >
-          {State.board.flat().map((piece, index) => {
-            const rank = ["a", "b", "c", "d", "e", "f", "g", "h"][index % 8];
-            const fileNum = ((index - (index % 8)) % 9) - 1;
-            const file = fileNum < 0 ? 8 : fileNum;
+      <div
+        ref={displayWrapperRef}
+        className={clsx(["displayWrapper", !State.isConnected && "loading"])}
+      >
+        {State.isConnected ? (
+          <>
+            <div className="chessBoardWrapper">
+              <>
+                <div className="outerBoardContainer">
+                  <div className="innerBoardContainer">
+                    {Options.showAxisLabels ? (
+                      <div className="rankRuler">
+                        {[8, 7, 6, 5, 4, 3, 2, 1].map((number) => (
+                          <div className="gridLabel rankLabel">{number}</div>
+                        ))}
+                      </div>
+                    ) : null}
+                    {Options.showAxisLabels ? (
+                      <div className="fileRuler">
+                        {["a", "b", "c", "d", "e", "f", "g", "h"].map(
+                          (letter) => (
+                            <div className="gridLabel fileLabel">{letter}</div>
+                          )
+                        )}
+                      </div>
+                    ) : null}
+                    <div
+                      key={State.ascii}
+                      className="board"
+                      onKeyDown={(e) => {
+                        if (e.code === "Escape") {
+                          Actions.setActivePiece(null);
+                        }
+                      }}
+                    >
+                      {State.board.flat().map((piece, index) => {
+                        const rank = ["a", "b", "c", "d", "e", "f", "g", "h"][
+                          index % 8
+                        ];
+                        const fileNum = ((index - (index % 8)) % 9) - 1;
+                        const file = fileNum < 0 ? 8 : fileNum;
 
-            const name = `${rank}${file}`;
+                        const name = `${rank}${file}`;
 
-            return (
-              <Square
-                key={name}
-                name={name}
-                canMoveHere={
-                  !State.activePiece
-                    ? !!State.moves?.find((move) => name === move.to)
-                    : false
-                }
-                pieceCanMoveHere={
-                  State.activePiece
-                    ? !!State.moves?.find((move) => name === move.to)
-                    : false
-                }
-              >
-                {piece ? (
-                  <BasePiece
-                    type={piece.type as PieceType}
-                    color={piece.color as PieceColor}
-                    canMove={
-                      !!State.moves?.find(
-                        (move) =>
-                          move.piece === piece.type &&
-                          move.color === piece.color
-                      )
-                    }
-                  />
-                ) : null}
-              </Square>
-            );
-          })}
-        </div>
-        <div id="information">
-          <div>Status: {State.isConnected ? "Connected" : "Connecting..."}</div>
-          <div>Turn: {State.turn === "w" ? "White" : "Black"}</div>
-        </div>
+                        return (
+                          <Square
+                            key={name}
+                            name={name}
+                            enemyDefending={
+                              !State.activePiece
+                                ? !!State.enemyMoves?.find(
+                                    (move) => name === move.to
+                                  )
+                                : false
+                            }
+                            canMoveHere={
+                              !State.activePiece
+                                ? !!State.moves?.find(
+                                    (move) => name === move.to
+                                  )
+                                : false
+                            }
+                            pieceCanMoveHere={
+                              State.activePiece
+                                ? !!State.moves?.find(
+                                    (move) => name === move.to
+                                  )
+                                : false
+                            }
+                          >
+                            {piece ? (
+                              <BasePiece
+                                type={piece.type as PieceType}
+                                color={piece.color as PieceColor}
+                                canMove={
+                                  !!State.moves?.find(
+                                    (move) =>
+                                      move.piece === piece.type &&
+                                      move.color === piece.color
+                                  )
+                                }
+                              />
+                            ) : null}
+                          </Square>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </>
+            </div>
+            <Sidebar />
+          </>
+        ) : (
+          <div className="loadingSpinner">
+            <div />
+          </div>
+        )}
       </div>
     </DndContext>
   );
 };
 
-export const ChessBoard = ({
-  onConnectionChange,
-}: {
-  onConnectionChange: (isConnected: boolean) => void;
-}) => {
+export const ChessBoard = () => {
   const url = new URL(window.location.href);
   const fen = decodeURIComponent(url.pathname.split("/")[1]);
   return (
     <div>
-      <ChessBoardContextProvider fen={fen}>
-        <ChessBoardInner onConnectionChange={onConnectionChange} />
-      </ChessBoardContextProvider>
+      <OptionsContextProvider>
+        <ChessBoardContextProvider fen={fen}>
+          <ChessBoardInner />
+        </ChessBoardContextProvider>
+      </OptionsContextProvider>
     </div>
   );
 };

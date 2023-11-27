@@ -1,4 +1,8 @@
-.board {
+@use "sass:color";
+
+@import "../toggle.scss";
+
+.displayWrapper {
   $squareSize: 70px;
   $darkSquares: #d65757;
   $darkSquaresTeamOption: #333; // darken($darkSquares, 50%);
@@ -6,125 +10,429 @@
   $lightSquares: #fff;
   $lightSquaresTeamOption: #333; // dark($lightSquares, 50%);
   $lightSquaresPieceOption: #333;
-  $optionBorderSize: 12px;
+  $optionBorderSize: 8px;
+  $topSpacing: 40px;
 
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  margin: 0 auto 0;
-  box-shadow:
-    4px 4px #eee,
-    -4px 4px #eee,
-    4px -4px #eee,
-    -4px -4px #eee;
-  border-radius: 5px;
+  display: flex;
+  height: 100%;
 
-  .square[id*="8"],
-  .square[id*="6"],
-  .square[id*="4"],
-  .square[id*="2"] {
-    &:nth-child(odd) {
-      background: $darkSquares;
-      &.canMoveHere {
-        background: $darkSquaresTeamOption;
-        border: $optionBorderSize solid $darkSquares;
-      }
-      &.pieceCanMoveHere {
-        background: $darkSquaresPieceOption;
-        border: $optionBorderSize solid $darkSquares;
-      }
-    }
-    &:nth-child(even) {
-      background: $lightSquares;
-      &.canMoveHere {
-        background: $lightSquaresTeamOption;
-        border: $optionBorderSize solid $lightSquares;
-      }
-      &.pieceCanMoveHere {
-        background: $lightSquaresPieceOption;
-        border: $optionBorderSize solid $lightSquares;
-      }
-    }
+  &.loading {
+    justify-content: center;
   }
 
-  .square[id*="7"],
-  .square[id*="5"],
-  .square[id*="3"],
-  .square[id*="1"] {
-    &:nth-child(odd) {
-      background: $lightSquares;
-      &.canMoveHere {
-        background: $lightSquaresTeamOption;
-        border: $optionBorderSize solid $lightSquares;
-      }
-      &.pieceCanMoveHere {
-        background: $lightSquaresPieceOption;
-        border: $optionBorderSize solid $lightSquares;
-      }
-    }
-    &:nth-child(even) {
-      background: $darkSquares;
-      &.canMoveHere {
-        background: $darkSquaresTeamOption;
-        border: $optionBorderSize solid $darkSquares;
-      }
-      &.pieceCanMoveHere {
-        background: $darkSquaresPieceOption;
-        border: $optionBorderSize solid $darkSquares;
-      }
-    }
-  }
-
-  .square {
-    width: $squareSize;
-    height: $squareSize;
-    position: relative;
+  .chessBoardWrapper {
     display: flex;
-    border: 2px solid white;
-    box-sizing: border-box;
+    flex-direction: column;
+    padding: $topSpacing 20px;
+    flex: 1;
+    flex-shrink: 0;
 
-    .piece {
-      align-self: center;
-      margin: 0 auto;
+    .board {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      box-shadow:
+        4px 4px #fff,
+        -4px 4px #fff,
+        4px -4px #fff,
+        -4px -4px #fff;
+      border-radius: 5px;
+      width: 40%;
+      aspect-ratio: 1;
 
-      svg {
-        width: calc($squareSize - 10px);
-        height: calc($squareSize - 10px);
-        pointer-events: none;
+      .square[id*="8"],
+      .square[id*="6"],
+      .square[id*="4"],
+      .square[id*="2"] {
+        &:nth-child(odd) {
+          background: var(--primary-color);
+          &.canMoveHere {
+            background: $darkSquaresTeamOption;
+            border: $optionBorderSize solid var(--primary-color);
+          }
+          &.pieceCanMoveHere {
+            background: $darkSquaresPieceOption;
+            border: $optionBorderSize solid var(--primary-color);
+          }
+        }
+        &:nth-child(even) {
+          background: var(--secondary-color);
+          &.canMoveHere {
+            background: $lightSquaresTeamOption;
+            border: $optionBorderSize solid var(--secondary-color);
+          }
+          &.pieceCanMoveHere {
+            background: $lightSquaresPieceOption;
+            border: $optionBorderSize solid var(--secondary-color);
+          }
+        }
+      }
+
+      .square[id*="7"],
+      .square[id*="5"],
+      .square[id*="3"],
+      .square[id*="1"] {
+        &:nth-child(odd) {
+          background: var(--secondary-color);
+          &.canMoveHere {
+            background: $lightSquaresTeamOption;
+            border: $optionBorderSize solid var(--secondary-color);
+          }
+          &.pieceCanMoveHere {
+            background: $lightSquaresPieceOption;
+            border: $optionBorderSize solid var(--secondary-color);
+          }
+        }
+        &:nth-child(even) {
+          background: var(--primary-color);
+          &.canMoveHere {
+            background: $darkSquaresTeamOption;
+            border: $optionBorderSize solid var(--primary-color);
+          }
+          &.pieceCanMoveHere {
+            background: $darkSquaresPieceOption;
+            border: $optionBorderSize solid var(--primary-color);
+          }
+        }
+      }
+
+      .square {
+        position: relative;
+        display: flex;
+        border: 2px solid white;
+        box-sizing: border-box;
+        justify-content: center;
+        align-items: center;
+
+        .piece {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin: 0 auto;
+          z-index: 1;
+
+          svg {
+            pointer-events: none;
+            width: 100%;
+            height: 100%;
+          }
+        }
+
+        .squareName {
+          display: none;
+          pointer-events: none;
+        }
+
+        &:hover,
+        &.isActive {
+          .squareName {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            font-size: 20px;
+            color: #000;
+            background: #ffffffaa;
+            width: 100%;
+            height: 100%;
+            padding: 2px;
+            text-align: center;
+            border: 5px solid var(--accent-color);
+            box-sizing: border-box;
+            z-index: 2;
+          }
+        }
+
+        .layer {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          // width: 60%;
+          // height: 60%;
+          border-radius: 30%;
+          width: 70%;
+          height: 70%;
+          z-index: 0;
+
+          &.disputedLayer {
+            background-color: var(--disputed-color);
+          }
+
+          &.enemyDefenseLayer {
+            background-color: var(--enemy-defense-color);
+          }
+
+          &.defenseLayer {
+            background-color: var(--defense-color);
+          }
+
+          &.moveLayer {
+            background-color: #000;
+          }
+        }
       }
     }
 
-    .squareName {
-      display: none;
-      pointer-events: none;
+    .innerBoardContainer {
+      display: flex;
+      justify-content: center;
+      position: relative;
     }
 
-    &:hover,
-    &.isActive {
-      .squareName {
+    .rankRuler {
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      width: 30px;
+      padding-right: 4px;
+      margin-right: 10px;
+
+      .gridLabel.rankLabel {
+        box-sizing: border-box;
+        text-align: center;
+        border-top: 1px solid var(--accent-color);
+        border-bottom: 1px solid var(--accent-color);
+        flex: 1;
         display: flex;
         align-items: center;
         justify-content: center;
-        position: absolute;
-        font-size: 20px;
-        color: #333;
-        background: #ffffffaa;
-        width: 100%;
-        height: 100%;
-        padding: 2px;
-        text-align: center;
-        border: 5px solid #333;
+
+        &:first-of-type {
+          border-top: none;
+          margin-top: 2px;
+        }
+
+        &:last-of-type {
+          border-bottom: none;
+          margin-bottom: 2px;
+        }
+      }
+    }
+
+    .fileRuler {
+      color: #fff;
+      display: flex;
+      margin-left: 40px;
+      width: 40%;
+      margin-top: 10px;
+      height: 13px;
+      position: absolute;
+      bottom: -33px;
+
+      .gridLabel.fileLabel {
         box-sizing: border-box;
+        border-left: 1px solid var(--accent-color);
+        border-right: 1px solid var(--accent-color);
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        &:first-of-type {
+          border-left: none;
+          margin-left: 2px;
+        }
+
+        &:last-of-type {
+          border-right: none;
+          margin-right: 2px;
+        }
       }
     }
   }
-}
 
-div#information {
-  font-size: 12px !important;
-  padding: 0 20px;
-}
+  .sidebar {
+    padding: $topSpacing 20px;
+    color: #000;
+    background: #fff;
+    font-size: 14px;
+    width: clamp(150px, 20vw, 300px);
 
-div#boardContainer {
-  display: flex;
-  margin-top: 40px;
+    svg.turnIcon {
+      width: 27px;
+      height: 27px;
+      border-width: 2px;
+      border-style: solid;
+      border-color: transparent;
+      border-radius: 40px;
+      padding: 7px;
+
+      &.isTurn {
+        border-color: var(--accent-color);
+      }
+    }
+
+    .controlRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+
+      &:last-of-type {
+        margin-bottom: 0;
+      }
+    }
+
+    .toggleRow {
+      display: flex;
+      align-items: center;
+
+      .optionsToggle {
+        background: #333;
+        position: relative;
+        display: inline-flex;
+        height: 20px;
+        width: 40px;
+        flex-shrink: 0;
+        cursor: pointer;
+        border-radius: 100px;
+        border: 2px solid transparent;
+        padding: 0;
+        margin-right: 10px;
+
+        .optionsToggleThumb {
+          pointer-events: none;
+          display: inline-block;
+          height: 17px;
+          width: 17px;
+          border-radius: 100px;
+          background-color: white;
+          transition: all 0.3s;
+          transform: translateX(20px);
+        }
+
+        &[data-headlessui-state~="checked"] {
+          background: var(--primary-color);
+
+          .optionsToggleThumb {
+            transform: none;
+          }
+        }
+
+        &.defenseLayerSwitch {
+          &[data-headlessui-state~="checked"] {
+            background: var(--defense-color);
+          }
+        }
+
+        &.enemyDefenseLayerSwitch {
+          &[data-headlessui-state~="checked"] {
+            background: var(--enemy-defense-color);
+          }
+        }
+
+        &.disputedLayerSwitch {
+          &[data-headlessui-state~="checked"] {
+            background: var(--disputed-color);
+          }
+        }
+
+        &:focus {
+          outline: none;
+        }
+      }
+    }
+
+    .colorPicker {
+      position: relative;
+
+      .hiddenColorLabel {
+        display: none;
+      }
+
+      button.colorPickerPreview {
+        position: relative;
+        width: 20px;
+        height: 20px;
+        border: 2px solid black;
+        margin-left: 10px;
+        cursor: pointer;
+
+        &.showLabel {
+          margin-right: 10px;
+        }
+      }
+
+      .twitterPicker {
+        position: absolute;
+        right: -10px;
+        top: 25px;
+        z-index: 2;
+      }
+    }
+
+    .sidebarSection {
+      padding-bottom: 20px;
+      padding-top: 20px;
+      border-bottom: 1px solid #000;
+
+      .sidebarSubSection {
+        padding-bottom: 20px;
+
+        &:last-of-type {
+          padding-bottom: 0;
+        }
+      }
+
+      &:first-of-type {
+        padding-top: 0;
+      }
+
+      &:last-of-type {
+        padding-bottom: 0;
+        border-bottom: none;
+      }
+    }
+
+    .optionsSwitch {
+      margin: 5px 0;
+    }
+  }
+
+  .loadingSpinner {
+    display: flex;
+    justify-content: center;
+    height: calc(($squareSize * 8) + 8px);
+    align-items: center;
+    margin-top: $topSpacing;
+
+    & > div {
+      height: 125px;
+      width: 125px;
+      border: 8px solid #fff;
+      border-radius: 20px;
+      background-image: conic-gradient(
+        $darkSquares 0,
+        $darkSquares 90deg,
+        $lightSquares 90deg,
+        $lightSquares 180deg,
+        $darkSquares 180deg,
+        $darkSquares 270deg,
+        $lightSquares 270deg,
+        $lightSquares 360deg
+      );
+      animation-name: loading;
+      animation-duration: 5s;
+      animation-iteration-count: infinite;
+    }
+  }
+
+  @keyframes loading {
+    20% {
+      transform: rotate(90deg);
+    }
+    40% {
+      transform: rotate(180deg);
+    }
+    60% {
+      transform: rotate(270deg);
+    }
+    80% {
+      transform: rotate(360deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
 }

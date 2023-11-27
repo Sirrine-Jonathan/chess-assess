@@ -1,24 +1,29 @@
 import type { PropsWithChildren } from "react";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import clsx from "clsx";
-import { useChessBoardContext } from "./context";
+import { useChessBoardContext } from "./gameContext";
 import { Sq, type PieceColor, type PieceType } from "./chessTypes";
+import { socket } from "./ChessBoard";
+import { useOptions } from "./optionsContext";
 
 interface SquareProps {
   name: string;
   canMoveHere: boolean;
   pieceCanMoveHere: boolean;
+  enemyDefending: boolean;
 }
 
 export const Square = ({
   name,
   canMoveHere,
   pieceCanMoveHere,
+  enemyDefending,
   children,
 }: PropsWithChildren<SquareProps>) => {
   const nameRef = useRef<HTMLSpanElement>(null);
   const { State, Actions } = useChessBoardContext();
+  const { Options } = useOptions();
   const { isOver, setNodeRef } = useDroppable({ id: name });
 
   const pieceOnThisSquare = State.board
@@ -27,28 +32,54 @@ export const Square = ({
   const isActive =
     pieceOnThisSquare && pieceOnThisSquare?.square === State.activePiece?.from;
 
+  const getLayer = () => {
+    if (pieceCanMoveHere) {
+      return <span className="layer moveLayer" />;
+    } else {
+      if (Options.showDefenseLayer && canMoveHere) {
+        return (
+          <span
+            className={clsx([
+              "layer",
+              enemyDefending ? "disputedLayer" : "defenseLayer",
+            ])}
+          />
+        );
+      }
+      if (Options.showEnemyDefenseLayer && enemyDefending) {
+        return (
+          <span
+            className={clsx([
+              "layer",
+              canMoveHere ? "disputedLayer" : "enemyDefenseLayer",
+            ])}
+          />
+        );
+      }
+    }
+  };
+
   return (
     <div
       id={name}
       ref={canMoveHere || pieceCanMoveHere ? setNodeRef : null}
       className={clsx([
         "square",
-        canMoveHere && "canMoveHere",
-        pieceCanMoveHere && "pieceCanMoveHere",
+        canMoveHere && "canMoveHere_disabled",
+        pieceCanMoveHere && "pieceCanMoveHere_disabled",
+        enemyDefending && "enemyDefending",
         isOver && "isOver",
         isActive && "isActive",
       ])}
       tabIndex={0}
       onClick={() => {
         const piece = State.board.flat().find((cell) => cell?.square === name);
-        if (piece) {
-          if (piece.color === State.turn) {
-            Actions.setActivePiece({
-              color: piece.color as PieceColor,
-              piece: piece.type as PieceType,
-              from: name as Sq,
-            });
-          }
+        if (piece && piece.color === State.turn) {
+          Actions.setActivePiece({
+            color: piece.color as PieceColor,
+            piece: piece.type as PieceType,
+            from: name as Sq,
+          });
         } else if (State.activePiece && (pieceCanMoveHere || canMoveHere)) {
           Actions.move({ from: State.activePiece.from, to: name as Sq });
         }
@@ -58,14 +89,12 @@ export const Square = ({
           const piece = State.board
             .flat()
             .find((cell) => cell?.square === name);
-          if (piece) {
-            if (piece.color === State.turn) {
-              Actions.setActivePiece({
-                color: piece.color as PieceColor,
-                piece: piece.type as PieceType,
-                from: name as Sq,
-              });
-            }
+          if (piece && piece.color === State.turn) {
+            Actions.setActivePiece({
+              color: piece.color as PieceColor,
+              piece: piece.type as PieceType,
+              from: name as Sq,
+            });
           } else if (State.activePiece && (pieceCanMoveHere || canMoveHere)) {
             Actions.move({ from: State.activePiece.from, to: name as Sq });
           }
@@ -100,9 +129,7 @@ export const Square = ({
         }
       }}
     >
-      {/* <span className="beingAttacked" />
-      <span className="defending" />
-      <span className="disputed" /> */}
+      {getLayer()}
       <span ref={nameRef} className="squareName">
         {name}
       </span>
