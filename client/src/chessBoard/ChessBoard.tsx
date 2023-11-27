@@ -14,21 +14,28 @@ import {
 import { BasePiece } from "./pieces/BasePiece";
 import { Square } from "./Square";
 import Sidebar from "./Sidebar";
+import Turn from "./parts/turn";
 import { useChessBoardContext, ChessBoardContextProvider } from "./gameContext";
 import { OptionsContextProvider, useOptions } from "./optionsContext";
 import "./chessBoard.scss";
 import io from "socket.io-client";
 import clsx from "clsx";
+import BottomDrawer from "./BottomDrawer";
+import useIsMobile from "./hooks/useIsMobile";
 
-const SERVER_PORT = 3000;
+const SERVER_URL =
+  process.env.NODE_ENV === "development"
+    ? "ws://localhost:1337/chess"
+    : "/chess";
 
-export const socket = io(`ws://localhost:${SERVER_PORT}/chess`, {
+export const socket = io(SERVER_URL, {
   autoConnect: false,
 });
 
 export const ChessBoardInner = () => {
   const { Options } = useOptions();
   const { Actions, State } = useChessBoardContext();
+  const isMobile = useIsMobile();
 
   const displayWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -144,6 +151,7 @@ export const ChessBoardInner = () => {
           <>
             <div className="chessBoardWrapper">
               <>
+                {isMobile ? <Turn /> : null}
                 <div className="outerBoardContainer">
                   <div className="innerBoardContainer">
                     {Options.showAxisLabels ? (
@@ -227,7 +235,7 @@ export const ChessBoardInner = () => {
                 </div>
               </>
             </div>
-            <Sidebar />
+            {isMobile ? <BottomDrawer /> : <Sidebar />}
           </>
         ) : (
           <div className="loadingSpinner">

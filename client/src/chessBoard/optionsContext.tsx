@@ -11,14 +11,14 @@ import {
 
 const initialState = {
   showSquareName: true,
-  showAxisLabels: true,
+  showAxisLabels: false,
   showDefenseLayer: true,
   showEnemyDefenseLayer: true,
   defenseLayerColor: "#000000",
   enemyDefenseLayerColor: "#ffc20a",
   disputedTerritoryLayerColor: "#3e2f5b",
   primaryColor: "#d65757",
-  secondaryColor: "#FFFFFF",
+  secondaryColor: "#EFEFEF",
   accentColor: "#22194D",
 };
 
@@ -38,7 +38,6 @@ const storeOptions = (options: Options) => {
 };
 
 const loadOptions = (): Partial<Options> => {
-  console.log("loading options");
   return JSON.parse(window.localStorage.getItem(key) || "{}");
 };
 

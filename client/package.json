@@ -26,7 +26,7 @@
     "web-vitals": "^2.1.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "cross-env react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -53,6 +53,7 @@
     "@types/react-color": "^3.0.10",
     "@types/react-toggle": "^4.0.5",
     "@types/socket.io-client": "^3.0.0",
+    "cross-env": "^7.0.3",
     "prettier": "^3.1.0"
   }
 }

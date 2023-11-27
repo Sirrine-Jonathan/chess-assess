@@ -11,7 +11,7 @@ import {
   RoutingControllersOptions,
 } from "routing-controllers";
 
-const port = process.env.APP_PORT || 3000;
+const port = process.env.PORT || 3000;
 
 const routingControllerOptions: RoutingControllersOptions = {
   routePrefix: "v1",
@@ -27,6 +27,10 @@ const app = createExpressServer(routingControllerOptions);
 app.use(express.static(path.resolve(__dirname, "../client/build")));
 
 app.get("/", function (req, res) {
+  res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
+});
+
+app.get("/:fen", function (req, res) {
   res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
 });
 

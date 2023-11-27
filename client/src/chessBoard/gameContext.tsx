@@ -170,6 +170,7 @@ export const useChessBoardContext = () => {
       },
       move: (move: { to: Sq; from: Sq }) => {
         socket.emit("move", move);
+        console.log("move happened", move, state.board);
       },
       updateDroppables: ({
         piece,
