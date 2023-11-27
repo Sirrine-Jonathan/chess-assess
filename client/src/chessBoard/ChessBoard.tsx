@@ -20,7 +20,7 @@ import "./chessBoard.scss";
 import io from "socket.io-client";
 import clsx from "clsx";
 
-const SERVER_PORT = process.env.NODE_ENV === "production" ? 3000 : 4000;
+const SERVER_PORT = 3000;
 
 export const socket = io(`ws://localhost:${SERVER_PORT}/chess`, {
   autoConnect: false,
@@ -54,7 +54,6 @@ export const ChessBoardInner = () => {
     }
 
     function onUpdate(update: Update) {
-      console.log("update", update);
       Actions.setBoard(update.board);
       Actions.setTurn(update.turn);
       Actions.setAscii(update.ascii);
@@ -79,7 +78,6 @@ export const ChessBoardInner = () => {
     }
 
     function onShowMoves(showMoves: ShowMoves) {
-      console.log("checkMoves", showMoves);
       Actions.setMoves(showMoves);
     }
 
@@ -101,7 +99,6 @@ export const ChessBoardInner = () => {
       const [color, piece, from] = (event.active.id as string).split("-");
       Actions.setActivePiece({ color, piece, from } as Piece);
       socket.emit("moving", from);
-      console.log("emitting moving", from);
     },
     [Actions]
   );
@@ -111,7 +108,6 @@ export const ChessBoardInner = () => {
       const [color, piece, from] = (event.active.id as string).split("-");
       if (event.over) {
         Actions.move({ from: from as Sq, to: event.over.id as Sq });
-        console.log("emitting move", { from, to: event.over.id });
       }
     },
     [Actions]

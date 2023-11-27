@@ -1,6 +1,13 @@
 import type { ReactNode } from "react";
 import type { Options } from "./chessTypes";
-import { createContext, useState, useMemo, useContext } from "react";
+import {
+  createContext,
+  useState,
+  useMemo,
+  useContext,
+  useRef,
+  useCallback,
+} from "react";
 
 const initialState = {
   showAxisLabels: true,
@@ -22,16 +29,49 @@ const OptionsContext = createContext<{
   setOptions: (options: Options) => null,
 });
 
+const key = "chess_assess_options";
+
+const storeOptions = (options: Options) => {
+  console.log("storing options", options);
+  window.localStorage.setItem(key, JSON.stringify(options));
+};
+
+const loadOptions = (): Partial<Options> => {
+  console.log("loading options");
+  return JSON.parse(window.localStorage.getItem(key) || "{}");
+};
+
 export const OptionsContextProvider = ({
   children,
 }: {
   children: ReactNode;
 }) => {
-  const [options, setOptions] = useState<Options>(initialState);
+  const loadedOptions = loadOptions();
+  const [options, setOptions] = useState<Options>({
+    ...initialState,
+    ...loadedOptions,
+  });
+  const timeoutHandleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const _setOptions = useCallback(
+    (options: Options) => {
+      if (timeoutHandleRef.current) {
+        clearTimeout(timeoutHandleRef.current);
+      }
+      timeoutHandleRef.current = setTimeout(() => {
+        storeOptions(options);
+      }, 5000);
+      setOptions(options);
+    },
+    [setOptions, timeoutHandleRef]
+  );
 
   const contextValue = useMemo(
-    () => ({ options, setOptions }),
-    [options, setOptions]
+    () => ({
+      options,
+      setOptions: _setOptions,
+    }),
+    [options, _setOptions]
   );
 
   return (
