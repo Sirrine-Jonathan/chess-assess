@@ -5,7 +5,7 @@
   "main": "dist/app.js",
   "scripts": {
     "build": "tsc",
-    "start": "cross-env APP_PORT=4000 node dist/server.js",
+    "start": "cross-env APP_PORT=3000 node dist/server.js",
     "dev": "cross-env APP_PORT=4000 nodemon src/server.ts"
   },
   "keywords": [],
