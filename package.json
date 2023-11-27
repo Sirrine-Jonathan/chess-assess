@@ -4,7 +4,8 @@
   "description": "",
   "main": "dist/app.js",
   "scripts": {
-    "build": "tsc",
+    "download": "yarn && cd client && yarn",
+    "build": "tsc && cd client && yarn build",
     "start": "cross-env node dist/server.js",
     "dev": "cross-env nodemon src/server.ts"
   },
