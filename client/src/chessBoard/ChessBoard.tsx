@@ -145,7 +145,11 @@ export const ChessBoardInner = () => {
     >
       <div
         ref={displayWrapperRef}
-        className={clsx(["displayWrapper", !State.isConnected && "loading"])}
+        className={clsx([
+          "displayWrapper",
+          !State.isConnected && "loading",
+          isMobile && "isMobile",
+        ])}
       >
         {State.isConnected ? (
           <>

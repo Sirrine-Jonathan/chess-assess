@@ -515,13 +515,11 @@
   }
 }
 
-@media (max-width: 768px) {
-  .displayWrapper {
-    flex-direction: column;
-    .chessBoardWrapper {
-      .board {
-        gap: 0;
-      }
+.displayWrapper.isMobile {
+  flex-direction: column;
+  .chessBoardWrapper {
+    .board {
+      gap: 0;
     }
   }
 }
