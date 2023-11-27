@@ -187,6 +187,15 @@ const Sidebar = () => {
               />
             </div>
           </div>
+          <div className="controlRow">
+            <div className="toggleRow">
+              <Toggle
+                on={Options.showSquareName}
+                label="Show square names on hover"
+                handleChange={Actions.setShowSquareName}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

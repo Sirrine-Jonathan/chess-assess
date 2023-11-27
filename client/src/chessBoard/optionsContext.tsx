@@ -10,6 +10,7 @@ import {
 } from "react";
 
 const initialState = {
+  showSquareName: true,
   showAxisLabels: true,
   showDefenseLayer: true,
   showEnemyDefenseLayer: true,
@@ -86,6 +87,9 @@ export const useOptions = () => {
 
   const actions = useMemo(
     () => ({
+      setShowSquareName: (showSquareName: boolean) => {
+        setOptions({ ...options, showSquareName });
+      },
       setShowAxisLabels: (showAxisLabels: boolean) =>
         setOptions({ ...options, showAxisLabels }),
       setShowDefenseLayer: (showDefenseLayer: boolean) => {

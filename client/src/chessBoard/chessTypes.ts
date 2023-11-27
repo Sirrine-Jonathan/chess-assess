@@ -26,6 +26,7 @@ export interface BasePieceProps {
 
 export interface PieceProps extends Omit<BasePieceProps, "type"> {}
 export interface Options {
+  showSquareName: boolean;
   showAxisLabels: boolean;
   showDefenseLayer: boolean;
   showEnemyDefenseLayer: boolean;

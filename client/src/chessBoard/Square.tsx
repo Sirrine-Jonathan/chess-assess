@@ -71,6 +71,7 @@ export const Square = ({
         isOver && "isOver",
         isActive && "isActive",
       ])}
+      style={{ ...(pieceCanMoveHere ? { cursor: "pointer" } : {}) }}
       tabIndex={0}
       onClick={() => {
         const piece = State.board.flat().find((cell) => cell?.square === name);
@@ -130,9 +131,11 @@ export const Square = ({
       }}
     >
       {getLayer()}
-      <span ref={nameRef} className="squareName">
-        {name}
-      </span>
+      {Options.showSquareName ? (
+        <span ref={nameRef} className="squareName">
+          {name}
+        </span>
+      ) : null}
       {children}
     </div>
   );

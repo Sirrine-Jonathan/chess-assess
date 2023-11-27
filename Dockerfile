@@ -8,4 +8,4 @@ RUN yarn install --production
 RUN cd ./client && yarn install --production && yarn build && cd ..
 RUN yarn build
 CMD ["node", "./dist/server.js"]
-EXPOSE 4000
+EXPOSE 3000

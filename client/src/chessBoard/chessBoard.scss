@@ -37,7 +37,6 @@
         4px -4px #fff,
         -4px -4px #fff;
       border-radius: 5px;
-      width: 40%;
       aspect-ratio: 1;
 
       .square[id*="8"],
@@ -103,6 +102,8 @@
         box-sizing: border-box;
         justify-content: center;
         align-items: center;
+        width: 4vw;
+        height: 4vw;
 
         .piece {
           display: flex;
@@ -110,6 +111,7 @@
           align-items: center;
           margin: 0 auto;
           z-index: 1;
+          cursor: pointer;
 
           svg {
             pointer-events: none;
@@ -137,7 +139,7 @@
             height: 100%;
             padding: 2px;
             text-align: center;
-            border: 5px solid var(--accent-color);
+            border: 3px solid var(--accent-color);
             box-sizing: border-box;
             z-index: 2;
           }
@@ -178,6 +180,10 @@
       display: flex;
       justify-content: center;
       position: relative;
+    }
+
+    .gridLabel {
+      font-size: clamp(0.5rem, 1.5vw, 1rem);
     }
 
     .rankRuler {

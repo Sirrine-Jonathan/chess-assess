@@ -51,6 +51,15 @@ class ChessSocket implements MySocketInterface {
       }
 
       this.update();
+
+      if (!failed) {
+        const enemyMoves = this.chess.moves({ verbose: true });
+        const move = enemyMoves[Math.floor(Math.random() * enemyMoves.length)];
+        setTimeout(() => {
+          this.chess.move({ from: move.from, to: move.to });
+          this.update();
+        }, 1500);
+      }
     });
     socket.on("disconnect", async () => {
       console.log("Disconnected", socket.id);
@@ -59,13 +68,18 @@ class ChessSocket implements MySocketInterface {
   }
 
   getPlayersMoves(player) {
-    const fen = this.chess.fen();
-    const splitFen = fen.split(" ");
-    splitFen[1] = player;
-    const newFen = splitFen.join(" ");
-    validateFen(newFen);
-    const temp = new Chess(newFen);
-    return temp.moves({ verbose: true });
+    let moves = [];
+    try {
+      const fen = this.chess.fen();
+      const splitFen = fen.split(" ");
+      splitFen[1] = player;
+      const newFen = splitFen.join(" ");
+      const temp = new Chess(newFen);
+      moves = temp.moves({ verbose: true });
+    } catch (err) {
+      console.error(err);
+    }
+    return moves;
   }
 
   update() {
