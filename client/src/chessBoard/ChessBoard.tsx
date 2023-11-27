@@ -105,7 +105,8 @@ export const ChessBoardInner = () => {
 
   const handleDragEnd = useCallback(
     function handleDragEnd(event: DragEndEvent) {
-      const [color, piece, from] = (event.active.id as string).split("-");
+      const parts = (event.active.id as string).split("-");
+      const from = parts[2];
       if (event.over) {
         Actions.move({ from: from as Sq, to: event.over.id as Sq });
       }

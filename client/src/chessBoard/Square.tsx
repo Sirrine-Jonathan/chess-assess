@@ -1,10 +1,9 @@
 import type { PropsWithChildren } from "react";
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import clsx from "clsx";
 import { useChessBoardContext } from "./gameContext";
 import { Sq, type PieceColor, type PieceType } from "./chessTypes";
-import { socket } from "./ChessBoard";
 import { useOptions } from "./optionsContext";
 
 interface SquareProps {
