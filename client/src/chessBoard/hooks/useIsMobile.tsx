@@ -13,7 +13,9 @@ const useIsMobile = () => {
     window.addEventListener("deviceorientation", handleOrientation, true);
   }, []);
 
-  return isMobileWidth || orientation.includes("landscape");
+  console.log("useIsMobile", isMobileWidth, orientation);
+
+  return isMobileWidth;
 };
 
 export default useIsMobile;

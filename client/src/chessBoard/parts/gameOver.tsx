@@ -21,7 +21,9 @@ const GameOver = () => {
           <div className="gameOverTitle">GameOver</div>
           <div className="gameOverReason">{getReason()}</div>
         </div>
-      ) : null}
+      ) : (
+        <div>Game in Progress</div>
+      )}
     </div>
   );
 };

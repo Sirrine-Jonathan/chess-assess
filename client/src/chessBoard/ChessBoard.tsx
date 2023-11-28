@@ -14,7 +14,6 @@ import {
 import { BasePiece } from "./pieces/BasePiece";
 import { Square } from "./Square";
 import Sidebar from "./Sidebar";
-import Turn from "./parts/turn";
 import { useChessBoardContext, ChessBoardContextProvider } from "./gameContext";
 import { OptionsContextProvider, useOptions } from "./optionsContext";
 import "./chessBoard.scss";
@@ -22,6 +21,10 @@ import io from "socket.io-client";
 import clsx from "clsx";
 import BottomDrawer from "./BottomDrawer";
 import useIsMobile from "./hooks/useIsMobile";
+
+import History from "./parts/history";
+import GameOver from "./parts/gameOver";
+import MobileControls from "./parts/mobileControls";
 
 const SERVER_URL =
   process.env.NODE_ENV === "development"
@@ -33,11 +36,12 @@ export const socket = io(SERVER_URL, {
 });
 
 export const ChessBoardInner = () => {
-  const { Options } = useOptions();
+  const { Options, Actions: OptionActions } = useOptions();
   const { Actions, State } = useChessBoardContext();
   const isMobile = useIsMobile();
 
   const displayWrapperRef = useRef<HTMLDivElement>(null);
+  const chessBoardWrapperRef = useRef<HTMLDivElement>(null);
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: { distance: 15 },
@@ -153,9 +157,18 @@ export const ChessBoardInner = () => {
       >
         {State.isConnected ? (
           <>
-            <div className="chessBoardWrapper">
+            <div
+              ref={chessBoardWrapperRef}
+              className="chessBoardWrapper"
+              onClick={(e) => {
+                if (e.target === chessBoardWrapperRef.current) {
+                  console.log("setting active piece null");
+                  Actions.setActivePiece(null);
+                }
+              }}
+            >
               <>
-                {isMobile ? <Turn /> : null}
+                {isMobile ? <MobileControls /> : null}
                 <div className="outerBoardContainer">
                   <div className="innerBoardContainer">
                     {Options.showAxisLabels ? (

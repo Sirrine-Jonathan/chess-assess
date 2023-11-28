@@ -4,7 +4,7 @@ import { useState, useId } from "react";
 import { TwitterPicker } from "react-color";
 import { Switch } from "@headlessui/react";
 
-const Toggle = ({
+export const Toggle = ({
   on,
   label,
   handleChange,
@@ -36,7 +36,7 @@ const Toggle = ({
   </Switch.Group>
 );
 
-const ColorPicker = ({
+export const ColorPicker = ({
   color,
   onChange,
   triangle,
@@ -70,7 +70,14 @@ const ColorPicker = ({
         {label}
       </label>
       {isOpen ? (
-        <div className="twitterPicker">
+        <div
+          className="twitterPicker"
+          style={{
+            ...(triangle === "top-right"
+              ? { right: "-10px" }
+              : { left: "-1px" }),
+          }}
+        >
           <TwitterPicker
             width="125"
             onChangeComplete={({ hex }) => onChange(hex)}

@@ -288,14 +288,33 @@
     }
   }
 
+  .mobileControls {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    padding-bottom: 30px;
+
+    .layerControl {
+      svg.layerIcon {
+      }
+
+      &.layerOn {
+        svg.layerIcon.layerIconDefense {
+          filter: drop-shadow(1px 1px #fff) drop-shadow(-1px 1px #fff)
+            drop-shadow(1px -1px #fff) drop-shadow(-1px -1px #fff);
+        }
+        svg.layerIcon.layerIconEnemyDefense {
+          filter: drop-shadow(1px 1px #fff) drop-shadow(-1px 1px #fff)
+            drop-shadow(1px -1px #fff) drop-shadow(-1px -1px #fff);
+        }
+      }
+    }
+  }
+
   .turnDisplay {
     display: flex;
     justify-content: center;
     align-items: center;
-
-    &.isMobile {
-      padding-bottom: 30px;
-    }
 
     .turnIconBorder {
       width: 27px;
@@ -435,7 +454,6 @@
 
     .twitterPicker {
       position: absolute;
-      right: -10px;
       top: 25px;
       z-index: 2;
     }

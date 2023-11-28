@@ -54,6 +54,7 @@ export interface ChessBoardState {
   isStalemate: boolean;
   isThreefoldRepetition: boolean;
   history: HistoryItem[];
+  playerColor: PieceColor;
 }
 
 export type Board = { square: string; type: string; color: string }[][];

@@ -35,6 +35,7 @@ const initialState = {
   isStalemate: false,
   isThreefoldRepetition: false,
   history: [],
+  playerColor: "w" as PieceColor,
 };
 
 const ChessBoardContext = createContext<{
