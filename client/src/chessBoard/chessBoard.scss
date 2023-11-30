@@ -292,10 +292,16 @@
     display: flex;
     align-items: center;
     justify-content: space-evenly;
-    padding-bottom: 30px;
+
+    & > div {
+      padding-bottom: 7px;
+      margin-bottom: 23px;
+      border-bottom: 3px solid transparent;
+    }
 
     .layerControl {
-      svg.layerIcon {
+      &.isTurn {
+        border-bottom: 3px solid #fff;
       }
 
       &.layerOn {
@@ -536,6 +542,8 @@
 .displayWrapper.isMobile {
   flex-direction: column;
   .chessBoardWrapper {
+    padding: 40px 0;
+
     .board {
       gap: 0;
     }
@@ -546,10 +554,12 @@
   .displayWrapper {
     .chessBoardWrapper {
       .board {
+        width: 100%;
+
         .square {
           border: none;
-          width: 10dvw;
-          height: 10dvw;
+          width: 100%;
+          height: 100%;
         }
       }
     }
