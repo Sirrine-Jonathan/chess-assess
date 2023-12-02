@@ -43,7 +43,13 @@ class ChessSocket implements MySocketInterface {
     socket.on("move", (event) => {
       let failed = false;
       try {
-        this.chess.move(event);
+        const moveResult = this.chess.move(event);
+        if (moveResult.flags.includes("e") || moveResult.flags.includes("c")) {
+          socket.emit("capture", {
+            piece: moveResult.captured,
+            type: moveResult.flags.includes("e") ? "en-passant" : "capture",
+          });
+        }
       } catch (err) {
         console.log("failed move", event);
         console.error(err);
@@ -56,7 +62,14 @@ class ChessSocket implements MySocketInterface {
         const enemyMoves = this.chess.moves({ verbose: true });
         const move = enemyMoves[Math.floor(Math.random() * enemyMoves.length)];
         setTimeout(() => {
-          this.chess.move({ from: move.from, to: move.to });
+          const moveResult = this.chess.move({ from: move.from, to: move.to });
+          if (moveResult.flags.includes("e") || moveResult.flags.includes("c")) {
+            socket.emit("capture", {
+              piece: moveResult.captured,
+              type: moveResult.flags.includes("e") ? "en-passant" : "capture",
+              color: moveResult.color === 'w' ? 'b' : 'w';
+            });
+          }
           this.update();
         }, 1500);
       }

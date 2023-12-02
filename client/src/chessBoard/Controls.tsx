@@ -170,7 +170,7 @@ const Controls = () => {
               triangle="top-right"
             />
           </div>
-          <div className="controlRow">
+          {/* <div className="controlRow">
             <div className="toggleRow">
               <Toggle
                 on={Options.showAxisLabels}
@@ -178,7 +178,7 @@ const Controls = () => {
                 handleChange={Actions.setShowAxisLabels}
               />
             </div>
-          </div>
+          </div> */}
           <div className="controlRow">
             <div className="toggleRow">
               <Toggle

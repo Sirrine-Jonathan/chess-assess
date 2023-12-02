@@ -38,7 +38,8 @@ const storeOptions = (options: Options) => {
 };
 
 const loadOptions = (): Partial<Options> => {
-  return JSON.parse(window.localStorage.getItem(key) || "{}");
+  const options = JSON.parse(window.localStorage.getItem(key) || "{}");
+  return { ...options, showAxisLabels: false };
 };
 
 export const OptionsContextProvider = ({

@@ -26,165 +26,174 @@
     padding: $topSpacing 20px;
     flex: 1;
 
-    .board {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      grid-template-rows: repeat(8, 1fr);
-      // box-shadow:
-      //   4px 4px #fff,
-      //   -4px 4px #fff,
-      //   4px -4px #fff,
-      //   -4px -4px #fff;
-      border-radius: 5px;
-      aspect-ratio: 1;
-      gap: 5px;
-
-      .square[id*="8"],
-      .square[id*="6"],
-      .square[id*="4"],
-      .square[id*="2"] {
-        &:nth-child(odd) {
-          background: var(--primary-color);
-          &.canMoveHere {
-            background: $darkSquaresTeamOption;
-            border: $optionBorderSize solid var(--primary-color);
-          }
-          &.pieceCanMoveHere {
-            background: $darkSquaresPieceOption;
-            border: $optionBorderSize solid var(--primary-color);
-          }
-        }
-        &:nth-child(even) {
-          background: var(--secondary-color);
-          &.canMoveHere {
-            background: $lightSquaresTeamOption;
-            border: $optionBorderSize solid var(--secondary-color);
-          }
-          &.pieceCanMoveHere {
-            background: $lightSquaresPieceOption;
-            border: $optionBorderSize solid var(--secondary-color);
-          }
-        }
-      }
-
-      .square[id*="7"],
-      .square[id*="5"],
-      .square[id*="3"],
-      .square[id*="1"] {
-        &:nth-child(odd) {
-          background: var(--secondary-color);
-          &.canMoveHere {
-            background: $lightSquaresTeamOption;
-            border: $optionBorderSize solid var(--secondary-color);
-          }
-          &.pieceCanMoveHere {
-            background: $lightSquaresPieceOption;
-            border: $optionBorderSize solid var(--secondary-color);
-          }
-        }
-        &:nth-child(even) {
-          background: var(--primary-color);
-          &.canMoveHere {
-            background: $darkSquaresTeamOption;
-            border: $optionBorderSize solid var(--primary-color);
-          }
-          &.pieceCanMoveHere {
-            background: $darkSquaresPieceOption;
-            border: $optionBorderSize solid var(--primary-color);
-          }
-        }
-      }
-
-      .square {
-        position: relative;
-        display: flex;
-        border: 2px solid #fff;
-        box-sizing: border-box;
-        justify-content: center;
-        align-items: center;
-        width: clamp(10px, 8vw, 80px);
-        height: clamp(10px, 8vw, 80px);
-
-        .piece {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          margin: 0 auto;
-          z-index: 1;
-          cursor: pointer;
-
-          svg {
-            pointer-events: none;
-            width: 80%;
-            height: 80%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-            filter: drop-shadow(1px 1px #fff) drop-shadow(-1px 1px #fff)
-              drop-shadow(1px -1px #fff) drop-shadow(-1px -1px #fff);
-          }
-        }
-
-        .squareName {
-          display: none;
-          pointer-events: none;
-        }
-
-        &:hover,
-        &.isActive {
-          .squareName {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: absolute;
-            font-size: clamp(13px, 2vw, 20px);
-            color: #000;
-            background: #ffffffaa;
-            width: 100%;
-            height: 100%;
-            padding: 2px;
-            text-align: center;
-            border: 3px solid var(--accent-color);
-            box-sizing: border-box;
-            z-index: 2;
-          }
-        }
-
-        .layer {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 60%;
-          height: 60%;
-          border-radius: 50%;
-          z-index: 0;
-
-          &.disputedLayer {
-            background-color: var(--disputed-color);
-          }
-
-          &.enemyDefenseLayer {
-            background-color: var(--enemy-defense-color);
-          }
-
-          &.defenseLayer {
-            background-color: var(--defense-color);
-          }
-
-          &.moveLayer {
-            background-color: #000;
-          }
-        }
-      }
-    }
-
-    .innerBoardContainer {
+    .outerBoardContainer {
+      width: min-content;
+      margin: 0 auto;
       display: flex;
-      justify-content: center;
-      position: relative;
+      flex-direction: column;
+
+      .innerBoardContainer {
+        display: flex;
+        justify-content: center;
+        position: relative;
+
+        .board {
+          display: grid;
+          grid-template-columns: repeat(8, 1fr);
+          grid-template-rows: repeat(8, 1fr);
+          // box-shadow:
+          //   4px 4px #fff,
+          //   -4px 4px #fff,
+          //   4px -4px #fff,
+          //   -4px -4px #fff;
+          border-radius: 5px;
+          aspect-ratio: 1;
+          gap: 5px;
+
+          .square[id*="8"],
+          .square[id*="6"],
+          .square[id*="4"],
+          .square[id*="2"] {
+            &:nth-child(odd) {
+              background: var(--primary-color);
+              &.canMoveHere {
+                background: $darkSquaresTeamOption;
+                border: $optionBorderSize solid var(--primary-color);
+              }
+              &.pieceCanMoveHere {
+                background: $darkSquaresPieceOption;
+                border: $optionBorderSize solid var(--primary-color);
+              }
+            }
+            &:nth-child(even) {
+              background: var(--secondary-color);
+              &.canMoveHere {
+                background: $lightSquaresTeamOption;
+                border: $optionBorderSize solid var(--secondary-color);
+              }
+              &.pieceCanMoveHere {
+                background: $lightSquaresPieceOption;
+                border: $optionBorderSize solid var(--secondary-color);
+              }
+            }
+          }
+
+          .square[id*="7"],
+          .square[id*="5"],
+          .square[id*="3"],
+          .square[id*="1"] {
+            &:nth-child(odd) {
+              background: var(--secondary-color);
+              &.canMoveHere {
+                background: $lightSquaresTeamOption;
+                border: $optionBorderSize solid var(--secondary-color);
+              }
+              &.pieceCanMoveHere {
+                background: $lightSquaresPieceOption;
+                border: $optionBorderSize solid var(--secondary-color);
+              }
+            }
+            &:nth-child(even) {
+              background: var(--primary-color);
+              &.canMoveHere {
+                background: $darkSquaresTeamOption;
+                border: $optionBorderSize solid var(--primary-color);
+              }
+              &.pieceCanMoveHere {
+                background: $darkSquaresPieceOption;
+                border: $optionBorderSize solid var(--primary-color);
+              }
+            }
+          }
+
+          .square {
+            position: relative;
+            display: flex;
+            border: 2px solid #fff;
+            box-sizing: border-box;
+            justify-content: center;
+            align-items: center;
+            width: clamp(10px, 8vw, 80px);
+            height: clamp(10px, 8vw, 80px);
+
+            .piece {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              margin: 0 auto;
+              z-index: 1;
+              cursor: pointer;
+
+              svg {
+                pointer-events: none;
+                width: 80%;
+                height: 80%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto;
+                filter: drop-shadow(1px 1px #fff) drop-shadow(-1px 1px #fff)
+                  drop-shadow(1px -1px #fff) drop-shadow(-1px -1px #fff);
+              }
+            }
+
+            .squareName {
+              display: none;
+              pointer-events: none;
+            }
+
+            &:hover,
+            &.isActive {
+              .squareName {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: absolute;
+                font-size: clamp(13px, 2vw, 20px);
+                color: #000;
+                background: #ffffffaa;
+                width: 100%;
+                height: 100%;
+                padding: 2px;
+                text-align: center;
+                border: 3px solid var(--accent-color);
+                box-sizing: border-box;
+                z-index: 2;
+              }
+            }
+
+            .layer {
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              width: 60%;
+              height: 60%;
+              border-radius: 50%;
+              z-index: 0;
+
+              &.disputedLayer {
+                background-color: var(--disputed-color);
+              }
+
+              &.enemyDefenseLayer {
+                background-color: var(--enemy-defense-color);
+              }
+
+              &.defenseLayer {
+                background-color: var(--defense-color);
+              }
+
+              &.moveLayer {
+                background-color: #000;
+              }
+            }
+          }
+      }
+      }
     }
+
+
 
     .gridLabel {
       font-size: clamp(0.5rem, 1.5vw, 1rem);
@@ -541,25 +550,26 @@
 
 .displayWrapper.isMobile {
   flex-direction: column;
+
   .chessBoardWrapper {
     padding: 40px 0;
 
-    .board {
-      gap: 0;
-    }
-  }
-}
+    .outerBoardContainer {
+      width: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
 
-@media (max-width: 780px) {
-  .displayWrapper {
-    .chessBoardWrapper {
-      .board {
-        width: 100%;
-
-        .square {
-          border: none;
+      .innerBoardContainer {
+        .board {
           width: 100%;
-          height: 100%;
+          gap: 0;
+
+          .square {
+            border: none;
+            width: 100%;
+            height: 100%;
+          }
         }
       }
     }

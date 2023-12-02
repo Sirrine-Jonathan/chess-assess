@@ -92,16 +92,20 @@ export const ChessBoardInner = () => {
       Actions.setMoves(showMoves);
     }
 
+    function onCapture({ captured });
+
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("update", onUpdate);
     socket.on("showMoves", onShowMoves);
+    socket.on("capture", onCapture);
 
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
       socket.off("update", onUpdate);
       socket.off("showMoves", onShowMoves);
+      socket.off("capture", onCapture);
     };
   });
 
@@ -170,6 +174,9 @@ export const ChessBoardInner = () => {
               <>
                 {isMobile ? <MobileControls /> : null}
                 <div className="outerBoardContainer">
+                  <div className="enemyCapturedPieces">
+                    Enemy Captured Pieces
+                  </div>
                   <div className="innerBoardContainer">
                     {Options.showAxisLabels ? (
                       <div className="rankRuler">
@@ -249,6 +256,7 @@ export const ChessBoardInner = () => {
                       })}
                     </div>
                   </div>
+                  <div className="capturedPieces">Captured Pieces</div>
                 </div>
               </>
             </div>
