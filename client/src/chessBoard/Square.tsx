@@ -67,6 +67,7 @@ export const Square = ({
         canMoveHere && "canMoveHere_disabled",
         pieceCanMoveHere && "pieceCanMoveHere_disabled",
         enemyDefending && "enemyDefending",
+        canMoveHere && "defending",
         isOver && "isOver",
         isActive && "isActive",
       ])}

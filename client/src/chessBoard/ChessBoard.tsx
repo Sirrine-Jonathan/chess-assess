@@ -1,4 +1,4 @@
-import type { Update, ShowMoves, Piece } from "./chessTypes";
+import type { Update, ShowMoves, ChessPiece, CaptureEvent } from "./chessTypes";
 import { useEffect, useRef } from "react";
 import { PieceColor, PieceType, Sq } from "./chessTypes";
 import { useCallback } from "react";
@@ -20,7 +20,8 @@ import "./chessBoard.scss";
 import io from "socket.io-client";
 import clsx from "clsx";
 import BottomDrawer from "./BottomDrawer";
-import useIsMobile from "./hooks/useIsMobile";
+import useWindowDimensions from "./hooks/useWindowDimensions";
+import Piece from "./pieces/Piece";
 
 import History from "./parts/history";
 import GameOver from "./parts/gameOver";
@@ -36,9 +37,9 @@ export const socket = io(SERVER_URL, {
 });
 
 export const ChessBoardInner = () => {
-  const { Options, Actions: OptionActions } = useOptions();
+  const { Options } = useOptions();
   const { Actions, State } = useChessBoardContext();
-  const isMobile = useIsMobile();
+  const isMobile = useWindowDimensions().width <= 768;
 
   const displayWrapperRef = useRef<HTMLDivElement>(null);
   const chessBoardWrapperRef = useRef<HTMLDivElement>(null);
@@ -92,13 +93,23 @@ export const ChessBoardInner = () => {
       Actions.setMoves(showMoves);
     }
 
-    function onCapture({ captured });
+    function onCapture(event: CaptureEvent) {
+      Actions.setColorCaptured(event);
+    }
+
+    function onFenLoad(details: {
+      blackCaptured: PieceType[];
+      whiteCaptured: PieceType[];
+    }) {
+      Actions.setLoadDetails(details);
+    }
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("update", onUpdate);
     socket.on("showMoves", onShowMoves);
     socket.on("capture", onCapture);
+    socket.on("loadSuccess", onFenLoad);
 
     return () => {
       socket.off("connect", onConnect);
@@ -106,13 +117,14 @@ export const ChessBoardInner = () => {
       socket.off("update", onUpdate);
       socket.off("showMoves", onShowMoves);
       socket.off("capture", onCapture);
+      socket.off("loadSuccess", onFenLoad);
     };
   });
 
   const handleDragStart = useCallback(
     function handleDragStart(event: DragStartEvent) {
       const [color, piece, from] = (event.active.id as string).split("-");
-      Actions.setActivePiece({ color, piece, from } as Piece);
+      Actions.setActivePiece({ color, piece, from } as ChessPiece);
       socket.emit("moving", from);
     },
     [Actions]
@@ -166,7 +178,6 @@ export const ChessBoardInner = () => {
               className="chessBoardWrapper"
               onClick={(e) => {
                 if (e.target === chessBoardWrapperRef.current) {
-                  console.log("setting active piece null");
                   Actions.setActivePiece(null);
                 }
               }}
@@ -174,10 +185,13 @@ export const ChessBoardInner = () => {
               <>
                 {isMobile ? <MobileControls /> : null}
                 <div className="outerBoardContainer">
-                  <div className="enemyCapturedPieces">
-                    Enemy Captured Pieces
+                  <div className="captureArea enemyCapturedPieces">
+                    {State.whiteCaptured.map((piece) => (
+                      <Piece color={"w" as PieceColor} type={piece} />
+                    ))}
                   </div>
                   <div className="innerBoardContainer">
+                    <GameOver />
                     {Options.showAxisLabels ? (
                       <div className="rankRuler">
                         {[8, 7, 6, 5, 4, 3, 2, 1].map((number) => (
@@ -256,7 +270,12 @@ export const ChessBoardInner = () => {
                       })}
                     </div>
                   </div>
-                  <div className="capturedPieces">Captured Pieces</div>
+                  <div className="captureArea capturedPieces">
+                    {State.blackCaptured.map((piece) => (
+                      <Piece color={"b" as PieceColor} type={piece} />
+                    ))}
+                  </div>
+                  <History />
                 </div>
               </>
             </div>

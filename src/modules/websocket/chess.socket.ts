@@ -33,11 +33,34 @@ class ChessSocket implements MySocketInterface {
       if (validateFen(fen)) {
         try {
           this.chess.load(fen);
-          socket.emit("loadSuccess", true);
+          const pieces = "rrnnbbqkpppppppp";
+          const white = pieces.split("");
+          const black = pieces.toUpperCase().split("");
+          fen.split("").forEach((piece) => {
+            if (piece === " ") {
+              return;
+            }
+            const whiteIndex = white.findIndex((p) => p === piece);
+            const blackIndex = black.findIndex((p) => p === piece);
+            if (whiteIndex >= 0) {
+              white.splice(whiteIndex, 1);
+            }
+            if (blackIndex >= 0) {
+              black.splice(blackIndex, 1);
+            }
+          });
+          socket.emit("loadSuccess", {
+            blackCaptured: white,
+            whiteCaptured: black,
+          });
           this.update();
         } catch (err) {}
+      } else {
+        socket.emit("loadSuccess", {
+          blackCaptured: [],
+          whiteCaptured: [],
+        });
       }
-      socket.emit("loadSuccess", loadSuccess);
     });
 
     socket.on("move", (event) => {
@@ -48,6 +71,7 @@ class ChessSocket implements MySocketInterface {
           socket.emit("capture", {
             piece: moveResult.captured,
             type: moveResult.flags.includes("e") ? "en-passant" : "capture",
+            color: moveResult.color === "w" ? "b" : "w",
           });
         }
       } catch (err) {
@@ -61,17 +85,25 @@ class ChessSocket implements MySocketInterface {
       if (!failed) {
         const enemyMoves = this.chess.moves({ verbose: true });
         const move = enemyMoves[Math.floor(Math.random() * enemyMoves.length)];
-        setTimeout(() => {
-          const moveResult = this.chess.move({ from: move.from, to: move.to });
-          if (moveResult.flags.includes("e") || moveResult.flags.includes("c")) {
-            socket.emit("capture", {
-              piece: moveResult.captured,
-              type: moveResult.flags.includes("e") ? "en-passant" : "capture",
-              color: moveResult.color === 'w' ? 'b' : 'w';
+        if (move) {
+          setTimeout(() => {
+            const moveResult = this.chess.move({
+              from: move.from,
+              to: move.to,
             });
-          }
-          this.update();
-        }, 1500);
+            if (
+              moveResult.flags.includes("e") ||
+              moveResult.flags.includes("c")
+            ) {
+              socket.emit("capture", {
+                piece: moveResult.captured,
+                type: moveResult.flags.includes("e") ? "en-passant" : "capture",
+                color: moveResult.color === "w" ? "b" : "w",
+              });
+            }
+            this.update();
+          }, 1500);
+        }
       }
     });
     socket.on("disconnect", async () => {
@@ -89,6 +121,18 @@ class ChessSocket implements MySocketInterface {
       const newFen = splitFen.join(" ");
       const temp = new Chess(newFen);
       moves = temp.moves({ verbose: true });
+      moves = moves.filter((move) => {
+        if (move.piece === "p") {
+          const fromArr = move.from.split("");
+          const toArr = move.to.split("");
+          const fromFile = fromArr[0];
+          const toFile = toArr[0];
+          const fromRank = fromArr[1];
+          const toRank = toArr[1];
+          return fromFile === toFile && Math.abs(toRank - fromRank) <= 1;
+        }
+        return true;
+      });
     } catch (err) {
       console.error(err);
     }

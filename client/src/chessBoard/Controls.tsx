@@ -3,6 +3,7 @@ import clsx from "clsx";
 import { useState, useId } from "react";
 import { TwitterPicker } from "react-color";
 import { Switch } from "@headlessui/react";
+import ResetButton from "./parts/resetButton";
 
 export const Toggle = ({
   on,
@@ -188,6 +189,9 @@ const Controls = () => {
               />
             </div>
           </div>
+        </div>
+        <div className="sidebarSubSection centerRow">
+          <ResetButton />
         </div>
       </div>
     </>

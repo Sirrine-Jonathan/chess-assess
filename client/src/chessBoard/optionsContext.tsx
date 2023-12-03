@@ -33,7 +33,6 @@ const OptionsContext = createContext<{
 const key = "chess_assess_options";
 
 const storeOptions = (options: Options) => {
-  console.log("storing options", options);
   window.localStorage.setItem(key, JSON.stringify(options));
 };
 

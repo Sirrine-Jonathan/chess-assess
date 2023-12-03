@@ -1,0 +1,2 @@
+
+docker run --user ${id -u}:${id -g} --volume ${pwd}:/home/builder/stockfish.js:rw niklasf/emscripten-for-stockfish

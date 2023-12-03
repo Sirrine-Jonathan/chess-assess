@@ -1,11 +1,11 @@
 import { useChessBoardContext } from "../gameContext";
-import useIsMobile from "../hooks/useIsMobile";
 import { KW, KB } from "../pieces/svg";
 import clsx from "clsx";
+import useWindowDimensions from "../hooks/useWindowDimensions";
 
 const Turn = () => {
   const { State } = useChessBoardContext();
-  const isMobile = useIsMobile();
+  const isMobile = useWindowDimensions().width <= 768;
   return (
     <div className={clsx(["turnDisplay", isMobile && "isMobile"])}>
       <div className={clsx(["turnIconBorder", State.turn === "w" && "isTurn"])}>

@@ -12,7 +12,7 @@ export enum PieceColor {
   Black = "b",
 }
 
-export type Piece = {
+export type ChessPiece = {
   color: PieceColor;
   piece: PieceType;
   from: Sq;
@@ -38,8 +38,14 @@ export interface Options {
   accentColor: string;
 }
 
+export type CaptureEvent = {
+  piece: PieceType;
+  type: "en-passant" | "capture";
+  color: PieceColor;
+};
+
 export interface ChessBoardState {
-  activePiece: Piece | null;
+  activePiece: ChessPiece | null;
   isConnected: boolean;
   board: Board;
   moves: Move[];
@@ -55,6 +61,8 @@ export interface ChessBoardState {
   isThreefoldRepetition: boolean;
   history: HistoryItem[];
   playerColor: PieceColor;
+  whiteCaptured: PieceType[];
+  blackCaptured: PieceType[];
 }
 
 export type Board = { square: string; type: string; color: string }[][];

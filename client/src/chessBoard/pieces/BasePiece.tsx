@@ -1,27 +1,8 @@
+import type { BasePieceProps } from "../chessTypes";
+import Piece from "./Piece";
 import { useRef, useEffect, useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
-import { RW, NW, BW, KW, QW, PW, RB, NB, BB, QB, KB, PB } from "./svg";
-import { PieceColor, PieceType, type BasePieceProps } from "../chessTypes";
 import clsx from "clsx";
-
-const colorTypeMap: Record<PieceColor, Record<PieceType, any>> = {
-  [PieceColor.White]: {
-    [PieceType.Rook]: RW,
-    [PieceType.Knight]: NW,
-    [PieceType.Bishop]: BW,
-    [PieceType.King]: KW,
-    [PieceType.Queen]: QW,
-    [PieceType.Pawn]: PW,
-  },
-  [PieceColor.Black]: {
-    [PieceType.Rook]: RB,
-    [PieceType.Knight]: NB,
-    [PieceType.Bishop]: BB,
-    [PieceType.King]: KB,
-    [PieceType.Queen]: QB,
-    [PieceType.Pawn]: PB,
-  },
-};
 
 export const BasePiece = ({ color, type, canMove }: BasePieceProps) => {
   const pieceRef = useRef<HTMLDivElement>(null);
@@ -47,8 +28,6 @@ export const BasePiece = ({ color, type, canMove }: BasePieceProps) => {
       }
     : undefined;
 
-  const Piece = colorTypeMap[color][type];
-
   return (
     <div
       className={clsx(["piece", canMove && "canMove"])}
@@ -59,7 +38,7 @@ export const BasePiece = ({ color, type, canMove }: BasePieceProps) => {
       tabIndex={-1}
     >
       <div ref={pieceRef} id={piece} data-color={color} data-type={type}>
-        <Piece />
+        <Piece color={color} type={type} />
       </div>
     </div>
   );

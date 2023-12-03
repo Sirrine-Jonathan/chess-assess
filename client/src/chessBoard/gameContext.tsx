@@ -6,17 +6,16 @@ import {
   useMemo,
   useEffect,
 } from "react";
-import {
-  PieceColor,
-  PieceType,
-  Sq,
-  type ChessBoardState,
-  type Board,
-  type Piece,
-  type Update,
-  type HistoryItem,
-  type ShowMoves,
+import type {
+  ChessBoardState,
+  Board,
+  ChessPiece,
+  Update,
+  HistoryItem,
+  ShowMoves,
+  CaptureEvent,
 } from "./chessTypes";
+import { PieceColor, PieceType, Sq } from "./chessTypes";
 import { socket } from "./ChessBoard";
 
 const initialState = {
@@ -36,6 +35,8 @@ const initialState = {
   isThreefoldRepetition: false,
   history: [],
   playerColor: "w" as PieceColor,
+  whiteCaptured: [],
+  blackCaptured: [],
 };
 
 const ChessBoardContext = createContext<{
@@ -53,10 +54,12 @@ enum ActionTypeNames {
   SetAscii = "SET_ASCII",
   SetState = "SET_STATE",
   SetHistory = "SET_HISTORY",
+  SetCaptured = "SET_CAPTURED",
+  SetColorCaptured = "SET_COLOR_CAPTURED",
 }
 
 type ActionsPayload = {
-  [ActionTypeNames.SetActivePiece]: Piece | null;
+  [ActionTypeNames.SetActivePiece]: ChessPiece | null;
   [ActionTypeNames.UpdateDroppables]: {
     piece: { type: PieceType; color: PieceColor };
     square: Sq;
@@ -68,6 +71,14 @@ type ActionsPayload = {
   [ActionTypeNames.SetAscii]: string;
   [ActionTypeNames.SetState]: Partial<Update>;
   [ActionTypeNames.SetHistory]: HistoryItem[];
+  [ActionTypeNames.SetCaptured]: {
+    blackCaptured: PieceType[];
+    whiteCaptured: PieceType[];
+  };
+  [ActionTypeNames.SetColorCaptured]: {
+    color: PieceColor;
+    captured: PieceType[];
+  };
 };
 
 type ActionMap<M extends { [index: string]: unknown }> = {
@@ -124,6 +135,20 @@ const reducer = (state: ChessBoardState, action: ActionType) => {
         ...state,
         history: action.payload,
       };
+    case ActionTypeNames.SetCaptured:
+      return {
+        ...state,
+        whiteCaptured: action.payload.whiteCaptured,
+        blackCaptured: action.payload.blackCaptured,
+      };
+    case ActionTypeNames.SetColorCaptured: {
+      return {
+        ...state,
+        ...(action.payload.color === "w"
+          ? { whiteCaptured: action.payload.captured }
+          : { blackCaptured: action.payload.captured }),
+      };
+    }
     default:
       return state;
   }
@@ -158,7 +183,7 @@ export const useChessBoardContext = () => {
 
   const actions = useMemo(() => {
     return {
-      setActivePiece: (piece: Piece | null) => {
+      setActivePiece: (piece: ChessPiece | null) => {
         dispatch({
           type: ActionTypeNames.SetActivePiece,
           payload: piece,
@@ -171,7 +196,6 @@ export const useChessBoardContext = () => {
       },
       move: (move: { to: Sq; from: Sq }) => {
         socket.emit("move", move);
-        console.log("move happened", move, state.board);
       },
       updateDroppables: ({
         piece,
@@ -227,8 +251,30 @@ export const useChessBoardContext = () => {
           payload: history,
         });
       },
+      setColorCaptured: (event: CaptureEvent) => {
+        const { whiteCaptured, blackCaptured } = state;
+        let capturedCopy =
+          event.color === "w" ? [...whiteCaptured] : [...blackCaptured];
+        capturedCopy = [...capturedCopy, event.piece];
+        dispatch({
+          type: ActionTypeNames.SetColorCaptured,
+          payload: {
+            color: event.color,
+            captured: capturedCopy,
+          },
+        });
+      },
+      setLoadDetails: (details: {
+        blackCaptured: PieceType[];
+        whiteCaptured: PieceType[];
+      }) => {
+        dispatch({
+          type: ActionTypeNames.SetCaptured,
+          payload: details,
+        });
+      },
     };
-  }, [dispatch]);
+  }, [state, dispatch]);
 
   return { State: state, Actions: actions };
 };

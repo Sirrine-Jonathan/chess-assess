@@ -1,4 +1,6 @@
 import { useChessBoardContext } from "../gameContext";
+import ResetButton from "./resetButton";
+import clsx from "clsx";
 
 const GameOver = () => {
   const { State } = useChessBoardContext();
@@ -14,16 +16,18 @@ const GameOver = () => {
     }
     return null;
   };
+  if (!State.isGameOver) {
+    return null;
+  }
   return (
-    <div className="stateDisplay">
-      {State.isGameOver ? (
-        <div className="gameOver">
-          <div className="gameOverTitle">GameOver</div>
-          <div className="gameOverReason">{getReason()}</div>
+    <div className={clsx(["stateDisplay"])}>
+      <div className="gameOver">
+        <div className="gameOverTitle">Game Over</div>
+        <div className="gameOverReason">{getReason()}</div>
+        <div className="centerRow">
+          <ResetButton />
         </div>
-      ) : (
-        <div>Game in Progress</div>
-      )}
+      </div>
     </div>
   );
 };
