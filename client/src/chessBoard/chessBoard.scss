@@ -38,15 +38,24 @@
         position: relative;
         margin: 7px 0;
 
+        .stateDisplay {
+          position: absolute;
+          z-index: 3;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background: rgba(255, 255, 255, 0.5);
+          color: #000;
+          font-size: 1.3em;
+          font-weight: 600;
+        }
+
         .board {
           display: grid;
           grid-template-columns: repeat(8, 1fr);
           grid-template-rows: repeat(8, 1fr);
-          // box-shadow:
-          //   4px 4px #fff,
-          //   -4px 4px #fff,
-          //   4px -4px #fff,
-          //   -4px -4px #fff;
           border-radius: 5px;
           aspect-ratio: 1;
           gap: 5px;
@@ -57,25 +66,9 @@
           .square[id*="2"] {
             &:nth-child(odd) {
               background: var(--primary-color);
-              &.canMoveHere {
-                background: $darkSquaresTeamOption;
-                border: $optionBorderSize solid var(--primary-color);
-              }
-              &.pieceCanMoveHere {
-                background: $darkSquaresPieceOption;
-                border: $optionBorderSize solid var(--primary-color);
-              }
             }
             &:nth-child(even) {
               background: var(--secondary-color);
-              &.canMoveHere {
-                background: $lightSquaresTeamOption;
-                border: $optionBorderSize solid var(--secondary-color);
-              }
-              &.pieceCanMoveHere {
-                background: $lightSquaresPieceOption;
-                border: $optionBorderSize solid var(--secondary-color);
-              }
             }
           }
 
@@ -85,25 +78,9 @@
           .square[id*="1"] {
             &:nth-child(odd) {
               background: var(--secondary-color);
-              &.canMoveHere {
-                background: $lightSquaresTeamOption;
-                border: $optionBorderSize solid var(--secondary-color);
-              }
-              &.pieceCanMoveHere {
-                background: $lightSquaresPieceOption;
-                border: $optionBorderSize solid var(--secondary-color);
-              }
             }
             &:nth-child(even) {
               background: var(--primary-color);
-              &.canMoveHere {
-                background: $darkSquaresTeamOption;
-                border: $optionBorderSize solid var(--primary-color);
-              }
-              &.pieceCanMoveHere {
-                background: $darkSquaresPieceOption;
-                border: $optionBorderSize solid var(--primary-color);
-              }
             }
           }
 
@@ -193,6 +170,7 @@
 
               &.moveLayer {
                 background-color: #000;
+                z-index: 1;
               }
             }
           }
@@ -492,6 +470,10 @@
       }
     }
 
+    &.information {
+      padding-bottom: 0;
+    }
+
     &:first-of-type {
       padding-top: 0;
     }
@@ -534,6 +516,68 @@
     }
   }
 
+  .centerRow {
+    display: flex;
+    justify-content: center;
+  }
+
+  .gameOverReason {
+    font-size: 1rem;
+  }
+
+  .gameOverTitle {
+    font-size: 1.5rem;
+  }
+
+  .resetButton {
+    border: none;
+    background: #000;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 3px;
+    font-size: 2rem;
+    margin-top: 25px;
+    cursor: pointer;
+  }
+
+  .sidebar .resetButton {
+    background: #fff;
+    color: #000;
+  }
+
+  .historySection {
+    overflow: auto;
+    max-height: 100px;
+    margin-top: 15px;
+
+    .historyRow {
+      display: flex;
+      justify-content: space-between;
+      width: 33.3%;
+      min-width: 25px;
+    }
+  }
+
+  .sidebar .historySection {
+    max-height: 300px;
+  }
+
+  .sidebarCaptureArea {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    height: 25px;
+
+    .captureArea {
+      svg {
+        width: 1.5dvw;
+        height: 1.5dvw;
+
+        filter: drop-shadow(-0.5px 0.5px #fff) drop-shadow(0.5px -0.5px #fff);
+      }
+    }
+  }
+
   @keyframes loading {
     20% {
       transform: rotate(90deg);
@@ -553,6 +597,11 @@
   }
 }
 
+/*
+===============================
+        Mobile Styling
+===============================
+*/
 .displayWrapper.isMobile {
   flex-direction: column;
 
@@ -575,20 +624,6 @@
       }
 
       .innerBoardContainer {
-        .stateDisplay {
-          position: absolute;
-          z-index: 3;
-          width: 100%;
-          height: 100%;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          background: rgba(255, 255, 255, 0.5);
-          color: #000;
-          font-size: 1.3em;
-          font-weight: 600;
-        }
-
         .board {
           width: 100%;
           gap: 0;
@@ -600,42 +635,6 @@
           }
         }
       }
-    }
-  }
-
-  .centerRow {
-    display: flex;
-    justify-content: center;
-  }
-
-  .gameOverReason {
-    font-size: 1rem;
-  }
-
-  .gameOverTitle {
-    font-size: 1.5rem;
-  }
-
-  .resetButton {
-    border: none;
-    background: #000;
-    color: #fff;
-    padding: 6px 10px;
-    border-radius: 3px;
-    font-size: 2rem;
-    margin-top: 25px;
-  }
-
-  .historySection {
-    overflow: auto;
-    max-height: 100px;
-    margin-top: 15px;
-
-    .historyRow {
-      display: flex;
-      justify-content: space-between;
-      width: 33.3%;
-      min-width: 25px;
     }
   }
 }

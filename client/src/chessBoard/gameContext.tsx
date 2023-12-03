@@ -12,18 +12,21 @@ import type {
   ChessPiece,
   Update,
   HistoryItem,
-  ShowMoves,
+  Position,
+  ShowPosition,
   CaptureEvent,
 } from "./chessTypes";
 import { PieceColor, PieceType, Sq } from "./chessTypes";
 import { socket } from "./ChessBoard";
 
-const initialState = {
+const initialState: ChessBoardState = {
   activePiece: null,
   isConnected: false,
   board: [],
-  moves: [],
-  enemyMoves: [],
+  piecePosition: { moves: [], defending: [] },
+  position: { moves: [], defending: [] },
+  enemyPosition: { moves: [], defending: [] },
+  lockedPieces: {},
   turn: PieceColor.White,
   ascii: "",
   inCheck: false,
@@ -50,6 +53,7 @@ enum ActionTypeNames {
   SetIsConnected = "SET_IS_CONNECTED",
   SetBoard = "SET_BOARD",
   SetMoves = "SET_MOVES",
+  SetPositions = "SET_POSITIONS",
   SetTurn = "SET_TURN",
   SetAscii = "SET_ASCII",
   SetState = "SET_STATE",
@@ -66,7 +70,8 @@ type ActionsPayload = {
   };
   [ActionTypeNames.SetIsConnected]: boolean;
   [ActionTypeNames.SetBoard]: Board;
-  [ActionTypeNames.SetMoves]: ShowMoves;
+  [ActionTypeNames.SetMoves]: Position;
+  [ActionTypeNames.SetPositions]: ShowPosition;
   [ActionTypeNames.SetTurn]: PieceColor;
   [ActionTypeNames.SetAscii]: string;
   [ActionTypeNames.SetState]: Partial<Update>;
@@ -113,7 +118,13 @@ const reducer = (state: ChessBoardState, action: ActionType) => {
     case ActionTypeNames.SetMoves:
       return {
         ...state,
-        ...action.payload,
+        piecePosition: action.payload,
+      };
+    case ActionTypeNames.SetPositions:
+      return {
+        ...state,
+        position: action.payload.position,
+        enemyPosition: action.payload.enemyPosition,
       };
     case ActionTypeNames.SetTurn:
       return {
@@ -195,7 +206,27 @@ export const useChessBoardContext = () => {
         }
       },
       move: (move: { to: Sq; from: Sq }) => {
-        socket.emit("move", move);
+        const finalMove = { ...move } as {
+          to: Sq;
+          from: Sq;
+          promotion: "p" | "n" | "b" | "r" | "q" | "k";
+        };
+
+        const fromPiece = state.board
+          .flat()
+          .find((place) => place && move.from === place.square);
+        if (fromPiece?.type === "p") {
+          console.log("okay", {
+            move,
+            file: move.to.split("")[1],
+          });
+          const file = move.to.split("")[1];
+          if (file === "8" || file === "1") {
+            finalMove.promotion = "q";
+          }
+        }
+
+        socket.emit("move", finalMove);
       },
       updateDroppables: ({
         piece,
@@ -221,10 +252,16 @@ export const useChessBoardContext = () => {
           payload: board,
         });
       },
-      setMoves: (moves: ShowMoves) => {
+      setMoves: (position: Position) => {
         dispatch({
           type: ActionTypeNames.SetMoves,
-          payload: moves,
+          payload: position,
+        });
+      },
+      setPositions: (position: ShowPosition) => {
+        dispatch({
+          type: ActionTypeNames.SetPositions,
+          payload: position,
         });
       },
       setTurn: (turn: PieceColor) => {

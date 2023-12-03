@@ -4,7 +4,6 @@ import { Chess, validateFen } from "chess.js";
 
 class ChessSocket implements MySocketInterface {
   private chess;
-  private game;
   private socket;
 
   handleConnection(socket: Socket) {
@@ -16,15 +15,13 @@ class ChessSocket implements MySocketInterface {
     this.update();
 
     socket.on("moving", (square) => {
-      socket.emit("showMoves", {
-        moves: this.chess.moves({ square, verbose: true }),
-      });
+      socket.emit("showMoves", this.getPiecePosition(square));
     });
 
-    socket.on("moves", () => {
-      socket.emit("showMoves", {
-        moves: this.getPlayersMoves("w"),
-        enemyMoves: this.getPlayersMoves("b"),
+    socket.on("move", () => {
+      socket.emit("showPosition", {
+        position: this.getPlayerPosition("w"),
+        enemyPosition: this.getPlayerPosition("b"),
       });
     });
 
@@ -112,8 +109,28 @@ class ChessSocket implements MySocketInterface {
     });
   }
 
-  getPlayersMoves(player) {
+  filterDefenseMove(move) {
+    if (move.piece === "p") {
+      const fromArr = move.from.split("");
+      const toArr = move.to.split("");
+      const fromFile = fromArr[0];
+      const toFile = toArr[0];
+      const fromRank = fromArr[1];
+      const toRank = toArr[1];
+      return fromFile === toFile && Math.abs(toRank - fromRank) <= 1;
+    }
+    return true;
+  }
+
+  getPiecePosition(square) {
+    const moves = this.chess.moves({ square, verbose: true });
+    const defending = moves.filter(this.filterDefenseMove);
+    return { moves, defending };
+  }
+
+  getPlayerPosition(player: "b" | "w") {
     let moves = [];
+    let defending = [];
     try {
       const fen = this.chess.fen();
       const splitFen = fen.split(" ");
@@ -121,28 +138,18 @@ class ChessSocket implements MySocketInterface {
       const newFen = splitFen.join(" ");
       const temp = new Chess(newFen);
       moves = temp.moves({ verbose: true });
-      moves = moves.filter((move) => {
-        if (move.piece === "p") {
-          const fromArr = move.from.split("");
-          const toArr = move.to.split("");
-          const fromFile = fromArr[0];
-          const toFile = toArr[0];
-          const fromRank = fromArr[1];
-          const toRank = toArr[1];
-          return fromFile === toFile && Math.abs(toRank - fromRank) <= 1;
-        }
-        return true;
-      });
+      defending = moves.filter(this.filterDefenseMove);
     } catch (err) {
       console.error(err);
     }
-    return moves;
+    return { moves, defending };
   }
 
   update() {
     this.socket.emit("update", {
       board: this.chess.board(),
-      moves: this.getPlayersMoves("w"),
+      position: this.getPlayerPosition("w"),
+      enemyPosition: this.getPlayerPosition("b"),
       ascii: this.chess.ascii(),
       turn: this.chess.turn(),
       history: this.chess.history({ verbose: true }),

@@ -184,7 +184,7 @@ const Controls = () => {
             <div className="toggleRow">
               <Toggle
                 on={Options.showSquareName}
-                label="Show square names on hover"
+                label="Show square names"
                 handleChange={Actions.setShowSquareName}
               />
             </div>

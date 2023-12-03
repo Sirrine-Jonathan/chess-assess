@@ -44,12 +44,16 @@ export type CaptureEvent = {
   color: PieceColor;
 };
 
+export type LockedPieces = { [squareName: string]: Position };
+
 export interface ChessBoardState {
   activePiece: ChessPiece | null;
   isConnected: boolean;
   board: Board;
-  moves: Move[];
-  enemyMoves: Move[];
+  piecePosition: Position;
+  position: Position;
+  enemyPosition: Position;
+  lockedPieces: LockedPieces;
   turn: PieceColor;
   ascii: string;
   inCheck: boolean;
@@ -96,8 +100,9 @@ export type Update = {
   ascii: string;
   board: Board;
   turn: PieceColor;
-  moves: Move[];
-  enemyMoves: Move[];
+  position: Position;
+  enemyPosition: Position;
+  lockedPieces: LockedPieces;
   inCheck: boolean;
   isCheckmate: boolean;
   isDraw: boolean;
@@ -109,9 +114,15 @@ export type Update = {
   history: HistoryItem[];
 };
 
+export type Position = { moves: Move[]; defending: Move[] } | never;
+
+export type ShowPosition = {
+  position: Position;
+  enemyPosition: Position;
+};
+
 export type ShowMoves = {
   moves: Move[];
-  enemyMoves?: Move[];
 };
 
 export enum Sq {

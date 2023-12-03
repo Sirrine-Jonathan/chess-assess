@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from "react";
+import type { PropsWithChildren, ReactNode } from "react";
 import { useRef } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import clsx from "clsx";
@@ -8,15 +8,15 @@ import { useOptions } from "./optionsContext";
 
 interface SquareProps {
   name: string;
-  canMoveHere: boolean;
-  pieceCanMoveHere: boolean;
+  playerDefending: boolean;
+  possibleMove: boolean;
   enemyDefending: boolean;
 }
 
 export const Square = ({
   name,
-  canMoveHere,
-  pieceCanMoveHere,
+  playerDefending,
+  possibleMove,
   enemyDefending,
   children,
 }: PropsWithChildren<SquareProps>) => {
@@ -31,47 +31,55 @@ export const Square = ({
   const isActive =
     pieceOnThisSquare && pieceOnThisSquare?.square === State.activePiece?.from;
 
-  const getLayer = () => {
-    if (pieceCanMoveHere) {
-      return <span className="layer moveLayer" />;
-    } else {
-      if (Options.showDefenseLayer && canMoveHere) {
-        return (
-          <span
-            className={clsx([
-              "layer",
-              enemyDefending ? "disputedLayer" : "defenseLayer",
-            ])}
-          />
-        );
-      }
-      if (Options.showEnemyDefenseLayer && enemyDefending) {
-        return (
-          <span
-            className={clsx([
-              "layer",
-              canMoveHere ? "disputedLayer" : "enemyDefenseLayer",
-            ])}
-          />
-        );
-      }
+  const getLayers = () => {
+    const layers: ReactNode[] = [];
+    if (name === "e2") {
+      console.log(`getLayers ${name}`, {
+        possibleMove,
+        playerDefending,
+        enemyDefending,
+      });
     }
+    if (possibleMove) {
+      layers.push(<span className="layer moveLayer" />);
+    }
+    if (Options.showDefenseLayer && playerDefending) {
+      layers.push(
+        <span
+          className={clsx([
+            "layer",
+            enemyDefending ? "disputedLayer" : "defenseLayer",
+          ])}
+        />
+      );
+    }
+    if (Options.showEnemyDefenseLayer && enemyDefending) {
+      layers.push(
+        <span
+          className={clsx([
+            "layer",
+            playerDefending ? "disputedLayer" : "enemyDefenseLayer",
+          ])}
+        />
+      );
+    }
+    return layers;
   };
 
   return (
     <div
       id={name}
-      ref={canMoveHere || pieceCanMoveHere ? setNodeRef : null}
+      ref={playerDefending || possibleMove ? setNodeRef : null}
       className={clsx([
         "square",
-        canMoveHere && "canMoveHere_disabled",
-        pieceCanMoveHere && "pieceCanMoveHere_disabled",
+        playerDefending && "playerDefending_disabled",
+        possibleMove && "possibleMove_disabled",
         enemyDefending && "enemyDefending",
-        canMoveHere && "defending",
+        playerDefending && "defending",
         isOver && "isOver",
         isActive && "isActive",
       ])}
-      style={{ ...(pieceCanMoveHere ? { cursor: "pointer" } : {}) }}
+      style={{ ...(possibleMove ? { cursor: "pointer" } : {}) }}
       tabIndex={0}
       onClick={() => {
         const piece = State.board.flat().find((cell) => cell?.square === name);
@@ -81,7 +89,7 @@ export const Square = ({
             piece: piece.type as PieceType,
             from: name as Sq,
           });
-        } else if (State.activePiece && (pieceCanMoveHere || canMoveHere)) {
+        } else if (State.activePiece && (possibleMove || playerDefending)) {
           Actions.move({ from: State.activePiece.from, to: name as Sq });
         }
       }}
@@ -96,7 +104,7 @@ export const Square = ({
               piece: piece.type as PieceType,
               from: name as Sq,
             });
-          } else if (State.activePiece && (pieceCanMoveHere || canMoveHere)) {
+          } else if (State.activePiece && (possibleMove || playerDefending)) {
             Actions.move({ from: State.activePiece.from, to: name as Sq });
           }
         } else {
@@ -130,7 +138,7 @@ export const Square = ({
         }
       }}
     >
-      {getLayer()}
+      {getLayers()}
       {Options.showSquareName ? (
         <span ref={nameRef} className="squareName">
           {name}

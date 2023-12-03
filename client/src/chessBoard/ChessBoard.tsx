@@ -1,4 +1,10 @@
-import type { Update, ShowMoves, ChessPiece, CaptureEvent } from "./chessTypes";
+import type {
+  ShowPosition,
+  Position,
+  ChessPiece,
+  CaptureEvent,
+  Update,
+} from "./chessTypes";
 import { useEffect, useRef } from "react";
 import { PieceColor, PieceType, Sq } from "./chessTypes";
 import { useCallback } from "react";
@@ -66,12 +72,17 @@ export const ChessBoardInner = () => {
     }
 
     function onUpdate(update: Update) {
+      console.log("update", update);
       Actions.setBoard(update.board);
       Actions.setTurn(update.turn);
       Actions.setAscii(update.ascii);
-      Actions.setMoves({ moves: update.moves, enemyMoves: update.enemyMoves });
+      Actions.setPositions({
+        position: update.position,
+        enemyPosition: update.enemyPosition,
+      });
       Actions.setActivePiece(null);
       Actions.setState({
+        turn: update.turn,
         inCheck: update.inCheck,
         isCheckmate: update.isCheckmate,
         isDraw: update.isDraw,
@@ -89,8 +100,13 @@ export const ChessBoardInner = () => {
       );
     }
 
-    function onShowMoves(showMoves: ShowMoves) {
-      Actions.setMoves(showMoves);
+    function onShowPosition(showPosition: ShowPosition) {
+      Actions.setPositions(showPosition);
+    }
+
+    function onShowMoves(position: Position) {
+      console.log("onShowMoves", position);
+      Actions.setMoves(position);
     }
 
     function onCapture(event: CaptureEvent) {
@@ -107,17 +123,19 @@ export const ChessBoardInner = () => {
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("update", onUpdate);
-    socket.on("showMoves", onShowMoves);
+    socket.on("showPosition", onShowPosition);
     socket.on("capture", onCapture);
     socket.on("loadSuccess", onFenLoad);
+    socket.on("showMoves", onShowMoves);
 
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
       socket.off("update", onUpdate);
-      socket.off("showMoves", onShowMoves);
+      socket.off("showPosition", onShowPosition);
       socket.off("capture", onCapture);
       socket.off("loadSuccess", onFenLoad);
+      socket.off("showMoves", onShowMoves);
     };
   });
 
@@ -185,11 +203,13 @@ export const ChessBoardInner = () => {
               <>
                 {isMobile ? <MobileControls /> : null}
                 <div className="outerBoardContainer">
-                  <div className="captureArea enemyCapturedPieces">
-                    {State.whiteCaptured.map((piece) => (
-                      <Piece color={"w" as PieceColor} type={piece} />
-                    ))}
-                  </div>
+                  {isMobile ? (
+                    <div className="captureArea enemyCapturedPieces">
+                      {State.whiteCaptured.map((piece) => (
+                        <Piece color={"w" as PieceColor} type={piece} />
+                      ))}
+                    </div>
+                  ) : null}
                   <div className="innerBoardContainer">
                     <GameOver />
                     {Options.showAxisLabels ? (
@@ -226,43 +246,53 @@ export const ChessBoardInner = () => {
 
                         const name = `${rank}${file}`;
 
+                        if (name === "e2") {
+                          console.log("piecePosition", {
+                            active: State.activePiece,
+                            position: State.piecePosition,
+                            moves: State.piecePosition.moves,
+                            defending: State.piecePosition.defending,
+                          });
+                        }
+
+                        const canMove = !!State.piecePosition.moves?.find(
+                          (move) => {
+                            return name === move.from;
+                          }
+                        );
+                        const enemyDefending = !State.activePiece
+                          ? !!State.enemyPosition.defending?.find(
+                              (move) => name === move.to
+                            )
+                          : false;
+                        const playerDefending =
+                          !!State.position.defending?.find(
+                            (move) => name === move.to
+                          );
+                        const possibleMove = State.activePiece
+                          ? !!State.piecePosition.moves?.find(
+                              (move) => name === move.to
+                            )
+                          : false;
+                        if (name === "e3") {
+                          console.log("canMove e3 final", {
+                            playerPosition: State.position,
+                            enemyPosition: State.enemyPosition,
+                          });
+                        }
                         return (
                           <Square
                             key={name}
                             name={name}
-                            enemyDefending={
-                              !State.activePiece
-                                ? !!State.enemyMoves?.find(
-                                    (move) => name === move.to
-                                  )
-                                : false
-                            }
-                            canMoveHere={
-                              !State.activePiece
-                                ? !!State.moves?.find(
-                                    (move) => name === move.to
-                                  )
-                                : false
-                            }
-                            pieceCanMoveHere={
-                              State.activePiece
-                                ? !!State.moves?.find(
-                                    (move) => name === move.to
-                                  )
-                                : false
-                            }
+                            enemyDefending={enemyDefending}
+                            playerDefending={playerDefending}
+                            possibleMove={possibleMove}
                           >
                             {piece ? (
                               <BasePiece
                                 type={piece.type as PieceType}
                                 color={piece.color as PieceColor}
-                                canMove={
-                                  !!State.moves?.find(
-                                    (move) =>
-                                      move.piece === piece.type &&
-                                      move.color === piece.color
-                                  )
-                                }
+                                canMove={canMove}
                               />
                             ) : null}
                           </Square>
@@ -270,12 +300,14 @@ export const ChessBoardInner = () => {
                       })}
                     </div>
                   </div>
-                  <div className="captureArea capturedPieces">
-                    {State.blackCaptured.map((piece) => (
-                      <Piece color={"b" as PieceColor} type={piece} />
-                    ))}
-                  </div>
-                  <History />
+                  {isMobile ? (
+                    <div className="captureArea capturedPieces">
+                      {State.blackCaptured.map((piece) => (
+                        <Piece color={"b" as PieceColor} type={piece} />
+                      ))}
+                    </div>
+                  ) : null}
+                  {isMobile ? <History /> : null}
                 </div>
               </>
             </div>

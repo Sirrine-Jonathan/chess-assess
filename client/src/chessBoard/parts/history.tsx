@@ -2,7 +2,6 @@ import { useChessBoardContext } from "../gameContext";
 
 const History = () => {
   const { State } = useChessBoardContext();
-  console.log("History", State.history);
   return (
     <div className="historySection">
       {State.history.map((move, index) => {
