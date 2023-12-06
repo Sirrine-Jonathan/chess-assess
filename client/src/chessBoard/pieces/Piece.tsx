@@ -22,7 +22,7 @@ const colorTypeMap: Record<PieceColor, Record<PieceType, any>> = {
 
 const Piece = ({ color, type }: { color: PieceColor; type: PieceType }) => {
   const TypedPiece = colorTypeMap[color][type];
-  return <TypedPiece />;
+  return TypedPiece ? <TypedPiece /> : null;
 };
 
 export default Piece;
