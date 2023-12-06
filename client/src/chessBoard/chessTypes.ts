@@ -94,6 +94,7 @@ export type HistoryItem = {
   san: string;
   lan: string;
   flags: string;
+  fen: string;
 };
 
 export type Update = {
