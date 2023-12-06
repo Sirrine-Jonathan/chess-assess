@@ -230,7 +230,7 @@ export const ChessBoardInner = () => {
                     ) : null}
                     <div
                       key={State.ascii}
-                      className="board"
+                      className={clsx(["board", State.isGameOver && "blur"])}
                       onKeyDown={(e) => {
                         if (e.code === "Escape") {
                           Actions.setActivePiece(null);

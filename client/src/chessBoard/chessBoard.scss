@@ -633,6 +633,11 @@
             width: 100%;
             height: 100%;
           }
+
+          &.blur {
+            transition: filter 5s;
+            filter: blur(5px);
+          }
         }
       }
     }
