@@ -1,4 +1,4 @@
-import type { Square, Color, PieceSymbol } from "chess-layers.js";
+import type { Square, Color, PieceSymbol } from "chess.js";
 
 declare global {
   type ChessPiece = {

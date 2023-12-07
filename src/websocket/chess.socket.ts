@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import SocketInterface from "./socketInterface";
-import { Chess, validateFen } from "chess-layers.js";
+import { Chess, validateFen } from "chess.js";
 import Bot from "../libs/bot";
 
 class ChessSocket implements SocketInterface {
