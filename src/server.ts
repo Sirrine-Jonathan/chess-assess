@@ -3,8 +3,8 @@ import "reflect-metadata";
 import express from "express";
 import path from "path";
 import { createServer } from "http";
-import Websocket from "./modules/websocket/websocket";
-import ChessSocket from "./modules/websocket/chess.socket";
+import Websocket from "./websocket/websocket";
+import ChessSocket from "./websocket/chess.socket";
 
 import {
   createExpressServer,

@@ -5,18 +5,20 @@ import clsx from "clsx";
 const GameOver = () => {
   const { State } = useChessBoardContext();
   const getReason = () => {
-    if (State.isGameOver) {
-      if (State.isCheckmate) {
-        return `Checkmate. ${State.turn === "w" ? "Black" : "White"} wins!`;
-      } else if (State.isDraw) {
+    if (State.game.isGameOver) {
+      if (State.game.isCheckmate) {
+        return `Checkmate. ${
+          State.game.turn === "w" ? "Black" : "White"
+        } wins!`;
+      } else if (State.game.isDraw) {
         return "Draw";
-      } else if (State.isStalemate) {
+      } else if (State.game.isStalemate) {
         return "Stalemate";
       }
     }
     return null;
   };
-  if (!State.isGameOver) {
+  if (!State.game.isGameOver) {
     return null;
   }
   return (

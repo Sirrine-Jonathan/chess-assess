@@ -4,26 +4,42 @@ const History = () => {
   const { State } = useChessBoardContext();
   return (
     <div className="historySection">
-      {State.history.map((move, index) => {
+      {State.game.history.map((move, index) => {
         const ind = index + 1;
-        const firstHref =
-          window.location.origin +
-          "/" +
-          encodeURIComponent(State.history[index].fen);
-        const secondHref =
-          window.location.origin +
-          "/" +
-          encodeURIComponent(State.history[index + 1].fen);
-        return ind % 2 !== 0 && ind < State.history.length ? (
+        if (ind % 2 === 0 && ind < State.game.history.length) {
+          return null;
+        }
+        const whiteMove = State?.game.history?.[index];
+        const blackMove = State?.game.history?.[index + 1];
+
+        if (!whiteMove || !blackMove) {
+          return null;
+        }
+
+        const { lan: wLan } = whiteMove;
+        const { lan: bLan } = blackMove;
+
+        if (!wLan || !bLan) {
+          throw new Error("Server did not return all needed parts in history");
+        }
+
+        // const blackMoveHref = wFen
+        //   ? window.location.origin + "/" + encodeURIComponent(wFen)
+        //   : null;
+        // const whiteMoveHref = bFen
+        //   ? window.location.origin + "/" + encodeURIComponent(bFen)
+        //   : null;
+
+        return (
           <div className="historyRow">
             <div>
-              <a href={firstHref}>{State.history[index].lan}</a>
+              <span>{wLan}</span>
             </div>
             <div>
-              <a href={secondHref}>{State.history[index + 1].lan}</a>
+              <span>{bLan}</span>
             </div>
           </div>
-        ) : null;
+        );
       })}
     </div>
   );

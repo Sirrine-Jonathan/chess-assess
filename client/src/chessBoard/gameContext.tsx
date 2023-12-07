@@ -1,4 +1,6 @@
 import type { Dispatch, ReactNode } from "react";
+import type { Square, Color, PieceSymbol } from "chess-layers.js";
+import { DEFAULT_POSITION } from "chess-layers.js";
 import {
   createContext,
   useContext,
@@ -6,40 +8,34 @@ import {
   useMemo,
   useEffect,
 } from "react";
-import type {
-  ChessBoardState,
-  Board,
-  ChessPiece,
-  Update,
-  HistoryItem,
-  Position,
-  ShowPosition,
-  CaptureEvent,
-} from "./chessTypes";
-import { PieceColor, PieceType, Sq } from "./chessTypes";
+
 import { socket } from "./ChessBoard";
 
 const initialState: ChessBoardState = {
   activePiece: null,
+  activeMoves: [],
+  lastMove: null,
   isConnected: false,
-  board: [],
-  piecePosition: { moves: [], defending: [] },
-  position: { moves: [], defending: [] },
-  enemyPosition: { moves: [], defending: [] },
   lockedPieces: {},
-  turn: PieceColor.White,
-  ascii: "",
-  inCheck: false,
-  isCheckmate: false,
-  isDraw: false,
-  isInsufficientMaterial: false,
-  isGameOver: false,
-  isStalemate: false,
-  isThreefoldRepetition: false,
-  history: [],
-  playerColor: "w" as PieceColor,
+  playerColor: "w",
   whiteCaptured: [],
   blackCaptured: [],
+  game: {
+    ascii: "",
+    board: [],
+    conflict: {},
+    moves: [],
+    turn: "w",
+    inCheck: false,
+    isCheckmate: false,
+    isDraw: false,
+    isInsufficientMaterial: false,
+    isGameOver: false,
+    isStalemate: false,
+    isThreefoldRepetition: false,
+    fen: DEFAULT_POSITION,
+    history: [],
+  },
 };
 
 const ChessBoardContext = createContext<{
@@ -49,41 +45,28 @@ const ChessBoardContext = createContext<{
 
 enum ActionTypeNames {
   SetActivePiece = "SET_ACTIVE_PIECE",
-  UpdateDroppables = "UPDATE_DROPPABLES",
   SetIsConnected = "SET_IS_CONNECTED",
-  SetBoard = "SET_BOARD",
-  SetMoves = "SET_MOVES",
-  SetPositions = "SET_POSITIONS",
-  SetTurn = "SET_TURN",
-  SetAscii = "SET_ASCII",
-  SetState = "SET_STATE",
-  SetHistory = "SET_HISTORY",
+  PerformUpdate = "PERFORM_UPDATE",
   SetCaptured = "SET_CAPTURED",
   SetColorCaptured = "SET_COLOR_CAPTURED",
+  SetActiveMoves = "SET_ACTIVE_MOVES",
+  SetLastMove = "SET_LAST_MOVE",
 }
 
 type ActionsPayload = {
   [ActionTypeNames.SetActivePiece]: ChessPiece | null;
-  [ActionTypeNames.UpdateDroppables]: {
-    piece: { type: PieceType; color: PieceColor };
-    square: Sq;
-  };
   [ActionTypeNames.SetIsConnected]: boolean;
-  [ActionTypeNames.SetBoard]: Board;
-  [ActionTypeNames.SetMoves]: Position;
-  [ActionTypeNames.SetPositions]: ShowPosition;
-  [ActionTypeNames.SetTurn]: PieceColor;
-  [ActionTypeNames.SetAscii]: string;
-  [ActionTypeNames.SetState]: Partial<Update>;
-  [ActionTypeNames.SetHistory]: HistoryItem[];
+  [ActionTypeNames.PerformUpdate]: GameUpdate;
   [ActionTypeNames.SetCaptured]: {
-    blackCaptured: PieceType[];
-    whiteCaptured: PieceType[];
+    blackCaptured: PieceSymbol[];
+    whiteCaptured: PieceSymbol[];
   };
   [ActionTypeNames.SetColorCaptured]: {
-    color: PieceColor;
-    captured: PieceType[];
+    color: Color;
+    captured: PieceSymbol[];
   };
+  [ActionTypeNames.SetActiveMoves]: Move[];
+  [ActionTypeNames.SetLastMove]: Move;
 };
 
 type ActionMap<M extends { [index: string]: unknown }> = {
@@ -101,50 +84,15 @@ const reducer = (state: ChessBoardState, action: ActionType) => {
         ...state,
         activePiece: action.payload,
       };
-    case ActionTypeNames.UpdateDroppables:
-      return {
-        ...state,
-      };
     case ActionTypeNames.SetIsConnected:
       return {
         ...state,
         isConnected: action.payload,
       };
-    case ActionTypeNames.SetBoard:
+    case ActionTypeNames.PerformUpdate:
       return {
         ...state,
-        board: action.payload,
-      };
-    case ActionTypeNames.SetMoves:
-      return {
-        ...state,
-        piecePosition: action.payload,
-      };
-    case ActionTypeNames.SetPositions:
-      return {
-        ...state,
-        position: action.payload.position,
-        enemyPosition: action.payload.enemyPosition,
-      };
-    case ActionTypeNames.SetTurn:
-      return {
-        ...state,
-        turn: action.payload,
-      };
-    case ActionTypeNames.SetAscii:
-      return {
-        ...state,
-        ascii: action.payload,
-      };
-    case ActionTypeNames.SetState:
-      return {
-        ...state,
-        ...action.payload,
-      };
-    case ActionTypeNames.SetHistory:
-      return {
-        ...state,
-        history: action.payload,
+        game: action.payload,
       };
     case ActionTypeNames.SetCaptured:
       return {
@@ -160,6 +108,16 @@ const reducer = (state: ChessBoardState, action: ActionType) => {
           : { blackCaptured: action.payload.captured }),
       };
     }
+    case ActionTypeNames.SetActiveMoves:
+      return {
+        ...state,
+        activeMoves: action.payload,
+      };
+    case ActionTypeNames.SetLastMove:
+      return {
+        ...state,
+        lastMove: action.payload,
+      };
     default:
       return state;
   }
@@ -201,18 +159,16 @@ export const useChessBoardContext = () => {
         });
         if (piece) {
           socket.emit("moving", piece.from);
-        } else {
-          socket.emit("moves");
         }
       },
-      move: (move: { to: Sq; from: Sq }) => {
+      move: (move: { to: Square; from: Square }) => {
         const finalMove = { ...move } as {
-          to: Sq;
-          from: Sq;
+          to: Square;
+          from: Square;
           promotion: "p" | "n" | "b" | "r" | "q" | "k";
         };
 
-        const fromPiece = state.board
+        const fromPiece = state.game.board
           .flat()
           .find((place) => place && move.from === place.square);
         if (fromPiece?.type === "p") {
@@ -228,64 +184,17 @@ export const useChessBoardContext = () => {
 
         socket.emit("move", finalMove);
       },
-      updateDroppables: ({
-        piece,
-        square,
-      }: {
-        piece: { type: PieceType; color: PieceColor };
-        square: Sq;
-      }) => {
-        dispatch({
-          type: ActionTypeNames.UpdateDroppables,
-          payload: { piece, square },
-        });
-      },
+      // Responses to server socket emit
       setIsConnected: (isConnected: boolean) => {
         dispatch({
           type: ActionTypeNames.SetIsConnected,
           payload: isConnected,
         });
       },
-      setBoard: (board: Board) => {
+      performUpdate: (update: GameUpdate) => {
         dispatch({
-          type: ActionTypeNames.SetBoard,
-          payload: board,
-        });
-      },
-      setMoves: (position: Position) => {
-        dispatch({
-          type: ActionTypeNames.SetMoves,
-          payload: position,
-        });
-      },
-      setPositions: (position: ShowPosition) => {
-        dispatch({
-          type: ActionTypeNames.SetPositions,
-          payload: position,
-        });
-      },
-      setTurn: (turn: PieceColor) => {
-        dispatch({
-          type: ActionTypeNames.SetTurn,
-          payload: turn,
-        });
-      },
-      setAscii: (ascii: string) => {
-        dispatch({
-          type: ActionTypeNames.SetAscii,
-          payload: ascii,
-        });
-      },
-      setState: (state: Partial<Update>) => {
-        dispatch({
-          type: ActionTypeNames.SetState,
-          payload: state,
-        });
-      },
-      setHistory: (history: HistoryItem[]) => {
-        dispatch({
-          type: ActionTypeNames.SetHistory,
-          payload: history,
+          type: ActionTypeNames.PerformUpdate,
+          payload: update,
         });
       },
       setColorCaptured: (event: CaptureEvent) => {
@@ -302,12 +211,24 @@ export const useChessBoardContext = () => {
         });
       },
       setLoadDetails: (details: {
-        blackCaptured: PieceType[];
-        whiteCaptured: PieceType[];
+        blackCaptured: PieceSymbol[];
+        whiteCaptured: PieceSymbol[];
       }) => {
         dispatch({
           type: ActionTypeNames.SetCaptured,
           payload: details,
+        });
+      },
+      setActiveMoves: (moves: Move[]) => {
+        dispatch({
+          type: ActionTypeNames.SetActiveMoves,
+          payload: moves,
+        });
+      },
+      setLastMove: (move: Move) => {
+        dispatch({
+          type: ActionTypeNames.SetLastMove,
+          payload: move,
         });
       },
     };

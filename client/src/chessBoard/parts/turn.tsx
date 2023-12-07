@@ -8,10 +8,20 @@ const Turn = () => {
   const isMobile = useWindowDimensions().width <= 768;
   return (
     <div className={clsx(["turnDisplay", isMobile && "isMobile"])}>
-      <div className={clsx(["turnIconBorder", State.turn === "w" && "isTurn"])}>
+      <div
+        className={clsx([
+          "turnIconBorder",
+          State.game.turn === "w" && "isTurn",
+        ])}
+      >
         <KW className={clsx(["turnIcon turnIconWhite"])} />
       </div>
-      <div className={clsx(["turnIconBorder", State.turn === "b" && "isTurn"])}>
+      <div
+        className={clsx([
+          "turnIconBorder",
+          State.game.turn === "b" && "isTurn",
+        ])}
+      >
         <KB className={clsx(["turnIcon turnIconBlack"])} />
       </div>
     </div>

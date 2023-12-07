@@ -1,4 +1,4 @@
-import type { PieceColor } from "./chessTypes";
+import type { Color } from "chess-layers.js";
 import Controls from "./Controls";
 import Turn from "./parts/turn";
 import History from "./parts/history";
@@ -13,13 +13,36 @@ const Sidebar = () => {
         <Turn />
         <div className="sidebarSubSection sidebarCaptureArea">
           <div className="captureArea capturedPieces">
-            {State.blackCaptured.map((piece) => (
-              <Piece color={"b" as PieceColor} type={piece} />
+            {State.blackCaptured.map((piece, index) => (
+              <span
+                className="capturedPiece blackCapturedPiece"
+                style={{
+                  maxWidth: `${
+                    100 /
+                    (State.blackCaptured.length + State.whiteCaptured.length)
+                  }%`,
+                  ...(index + 1 === State.blackCaptured.length
+                    ? { marginRight: "auto" }
+                    : {}),
+                }}
+              >
+                <Piece color={"b" as Color} type={piece} />
+              </span>
             ))}
-          </div>
-          <div className="captureArea enemyCapturedPieces">
-            {State.whiteCaptured.map((piece) => (
-              <Piece color={"w" as PieceColor} type={piece} />
+
+            {State.whiteCaptured.map((piece, index) => (
+              <div
+                className="capturedPiece whiteCapturedPiece"
+                style={{
+                  maxWidth: `${
+                    100 /
+                    (State.blackCaptured.length + State.whiteCaptured.length)
+                  }%`,
+                  ...(index === 0 ? { marginLeft: "auto" } : {}),
+                }}
+              >
+                <Piece color={"w" as Color} type={piece} />
+              </div>
             ))}
           </div>
         </div>

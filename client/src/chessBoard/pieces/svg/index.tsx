@@ -10,5 +10,6 @@ import { ReactComponent as QB } from "./qb.svg";
 import { ReactComponent as QW } from "./qw.svg";
 import { ReactComponent as RB } from "./rb.svg";
 import { ReactComponent as RW } from "./rw.svg";
+import { ReactComponent as Sweat } from "./sweat.svg";
 
-export { BB, BW, KB, KW, NB, NW, PB, PW, QB, QW, RB, RW };
+export { BB, BW, KB, KW, NB, NW, PB, PW, QB, QW, RB, RW, Sweat };
