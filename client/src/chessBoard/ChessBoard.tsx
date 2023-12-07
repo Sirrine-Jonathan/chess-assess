@@ -1,12 +1,5 @@
-import type {
-  ShowPosition,
-  Position,
-  ChessPiece,
-  CaptureEvent,
-  Update,
-} from "./chessTypes";
+import type { Square, Color, PieceSymbol } from "chess-layers.js";
 import { useEffect, useRef } from "react";
-import { PieceColor, PieceType, Sq } from "./chessTypes";
 import { useCallback } from "react";
 import {
   DndContext,
@@ -18,7 +11,7 @@ import {
   TouchSensor,
 } from "@dnd-kit/core";
 import { BasePiece } from "./pieces/BasePiece";
-import { Square } from "./Square";
+import { ChessSquare } from "./Square";
 import Sidebar from "./Sidebar";
 import { useChessBoardContext, ChessBoardContextProvider } from "./gameContext";
 import { OptionsContextProvider, useOptions } from "./optionsContext";
@@ -71,27 +64,9 @@ export const ChessBoardInner = () => {
       Actions.setIsConnected(false);
     }
 
-    function onUpdate(update: Update) {
+    function onUpdate(update: GameUpdate) {
       console.log("update", update);
-      Actions.setBoard(update.board);
-      Actions.setTurn(update.turn);
-      Actions.setAscii(update.ascii);
-      Actions.setPositions({
-        position: update.position,
-        enemyPosition: update.enemyPosition,
-      });
-      Actions.setActivePiece(null);
-      Actions.setState({
-        turn: update.turn,
-        inCheck: update.inCheck,
-        isCheckmate: update.isCheckmate,
-        isDraw: update.isDraw,
-        isInsufficientMaterial: update.isInsufficientMaterial,
-        isGameOver: update.isGameOver,
-        isStalemate: update.isStalemate,
-        isThreefoldRepetition: update.isThreefoldRepetition,
-      });
-      Actions.setHistory(update.history);
+      Actions.performUpdate(update);
 
       window.history.replaceState(
         null,
@@ -100,42 +75,43 @@ export const ChessBoardInner = () => {
       );
     }
 
-    function onShowPosition(showPosition: ShowPosition) {
-      Actions.setPositions(showPosition);
-    }
-
-    function onShowMoves(position: Position) {
-      console.log("onShowMoves", position);
-      Actions.setMoves(position);
-    }
-
     function onCapture(event: CaptureEvent) {
       Actions.setColorCaptured(event);
     }
 
-    function onFenLoad(details: {
-      blackCaptured: PieceType[];
-      whiteCaptured: PieceType[];
+    function onLoadSuccess(details: {
+      blackCaptured: PieceSymbol[];
+      whiteCaptured: PieceSymbol[];
     }) {
       Actions.setLoadDetails(details);
+    }
+
+    function onShowActiveMoves(moves: Move[]) {
+      Actions.setActiveMoves(moves);
+    }
+
+    function onMoveEnded(move: Move) {
+      Actions.setActivePiece(null);
+      Actions.setActiveMoves([]);
+      Actions.setLastMove(move);
     }
 
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("update", onUpdate);
-    socket.on("showPosition", onShowPosition);
     socket.on("capture", onCapture);
-    socket.on("loadSuccess", onFenLoad);
-    socket.on("showMoves", onShowMoves);
+    socket.on("loadSuccess", onLoadSuccess);
+    socket.on("showActiveMoves", onShowActiveMoves);
+    socket.on("moveEnded", onMoveEnded);
 
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
       socket.off("update", onUpdate);
-      socket.off("showPosition", onShowPosition);
       socket.off("capture", onCapture);
-      socket.off("loadSuccess", onFenLoad);
-      socket.off("showMoves", onShowMoves);
+      socket.off("loadSuccess", onLoadSuccess);
+      socket.off("showActiveMoves", onShowActiveMoves);
+      socket.off("moveEnded", onMoveEnded);
     };
   });
 
@@ -153,7 +129,7 @@ export const ChessBoardInner = () => {
       const parts = (event.active.id as string).split("-");
       const from = parts[2];
       if (event.over) {
-        Actions.move({ from: from as Sq, to: event.over.id as Sq });
+        Actions.move({ from: from as Square, to: event.over.id as Square });
       }
     },
     [Actions]
@@ -197,6 +173,7 @@ export const ChessBoardInner = () => {
               onClick={(e) => {
                 if (e.target === chessBoardWrapperRef.current) {
                   Actions.setActivePiece(null);
+                  Actions.setActiveMoves([]);
                 }
               }}
             >
@@ -206,7 +183,7 @@ export const ChessBoardInner = () => {
                   {isMobile ? (
                     <div className="captureArea enemyCapturedPieces">
                       {State.whiteCaptured.map((piece) => (
-                        <Piece color={"w" as PieceColor} type={piece} />
+                        <Piece color={"w" as Color} type={piece} />
                       ))}
                     </div>
                   ) : null}
@@ -229,15 +206,19 @@ export const ChessBoardInner = () => {
                       </div>
                     ) : null}
                     <div
-                      key={State.ascii}
-                      className={clsx(["board", State.isGameOver && "blur"])}
+                      key={State.game.ascii}
+                      className={clsx([
+                        "board",
+                        State.game.isGameOver && "blur",
+                      ])}
                       onKeyDown={(e) => {
                         if (e.code === "Escape") {
                           Actions.setActivePiece(null);
+                          Actions.setActiveMoves([]);
                         }
                       }}
                     >
-                      {State.board.flat().map((piece, index) => {
+                      {State.game.board.flat().map((piece, index) => {
                         const rank = ["a", "b", "c", "d", "e", "f", "g", "h"][
                           index % 8
                         ];
@@ -246,56 +227,55 @@ export const ChessBoardInner = () => {
 
                         const name = `${rank}${file}`;
 
-                        if (name === "e2") {
-                          console.log("piecePosition", {
-                            active: State.activePiece,
-                            position: State.piecePosition,
-                            moves: State.piecePosition.moves,
-                            defending: State.piecePosition.defending,
-                          });
-                        }
-
-                        const canMove = !!State.piecePosition.moves?.find(
+                        const pieceCanMove = !!State.game.moves?.find(
                           (move) => {
                             return name === move.from;
                           }
                         );
-                        const enemyDefending = !State.activePiece
-                          ? !!State.enemyPosition.defending?.find(
-                              (move) => name === move.to
-                            )
-                          : false;
-                        const playerDefending =
-                          !!State.position.defending?.find(
-                            (move) => name === move.to
-                          );
-                        const possibleMove = State.activePiece
-                          ? !!State.piecePosition.moves?.find(
-                              (move) => name === move.to
-                            )
-                          : false;
+
+                        const partOfLastMove =
+                          State.lastMove !== null &&
+                          (name === State.lastMove.to ||
+                            name === State.lastMove.from);
+                        // const enemyDefending = !State.activePiece
+                        //   ? !!State.enemyPosition.defending?.find(
+                        //       (move) => name === move.to
+                        //     )
+                        //   : false;
+                        // const playerDefending =
+                        //   !!State.position.defending?.find(
+                        //     (move) => name === move.to
+                        //   );
+
                         if (name === "e3") {
-                          console.log("canMove e3 final", {
-                            playerPosition: State.position,
-                            enemyPosition: State.enemyPosition,
+                          console.log("name", {
+                            activePiece: State.activePiece,
+                            activeMoves: State.activeMoves,
                           });
                         }
+                        const possibleDestination = State.activePiece
+                          ? !!State.activeMoves?.find(
+                              (move) => name === move.to
+                            )
+                          : false;
+
                         return (
-                          <Square
+                          <ChessSquare
                             key={name}
                             name={name}
-                            enemyDefending={enemyDefending}
-                            playerDefending={playerDefending}
-                            possibleMove={possibleMove}
+                            enemyDefending={false}
+                            playerDefending={false}
+                            partOfLastMove={partOfLastMove}
+                            possibleDestination={possibleDestination}
                           >
                             {piece ? (
                               <BasePiece
-                                type={piece.type as PieceType}
-                                color={piece.color as PieceColor}
-                                canMove={canMove}
+                                type={piece.type as PieceSymbol}
+                                color={piece.color as Color}
+                                pieceCanMove={pieceCanMove}
                               />
                             ) : null}
-                          </Square>
+                          </ChessSquare>
                         );
                       })}
                     </div>
@@ -303,7 +283,7 @@ export const ChessBoardInner = () => {
                   {isMobile ? (
                     <div className="captureArea capturedPieces">
                       {State.blackCaptured.map((piece) => (
-                        <Piece color={"b" as PieceColor} type={piece} />
+                        <Piece color={"b" as Color} type={piece} />
                       ))}
                     </div>
                   ) : null}

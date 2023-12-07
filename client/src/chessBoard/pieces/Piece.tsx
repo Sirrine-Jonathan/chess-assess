@@ -1,26 +1,26 @@
-import { PieceColor, PieceType } from "../chessTypes";
+import type { Color, PieceSymbol } from "chess-layers.js";
 import { RW, NW, BW, KW, QW, PW, RB, NB, BB, QB, KB, PB } from "./svg";
 
-const colorTypeMap: Record<PieceColor, Record<PieceType, any>> = {
-  [PieceColor.White]: {
-    [PieceType.Rook]: RW,
-    [PieceType.Knight]: NW,
-    [PieceType.Bishop]: BW,
-    [PieceType.King]: KW,
-    [PieceType.Queen]: QW,
-    [PieceType.Pawn]: PW,
+const colorTypeMap: Record<Color, Record<PieceSymbol, any>> = {
+  w: {
+    r: RW,
+    n: NW,
+    b: BW,
+    k: KW,
+    q: QW,
+    p: PW,
   },
-  [PieceColor.Black]: {
-    [PieceType.Rook]: RB,
-    [PieceType.Knight]: NB,
-    [PieceType.Bishop]: BB,
-    [PieceType.King]: KB,
-    [PieceType.Queen]: QB,
-    [PieceType.Pawn]: PB,
+  b: {
+    r: RB,
+    n: NB,
+    b: BB,
+    k: KB,
+    q: QB,
+    p: PB,
   },
 };
 
-const Piece = ({ color, type }: { color: PieceColor; type: PieceType }) => {
+const Piece = ({ color, type }: { color: Color; type: PieceSymbol }) => {
   const TypedPiece = colorTypeMap[color][type];
   return TypedPiece ? <TypedPiece /> : null;
 };

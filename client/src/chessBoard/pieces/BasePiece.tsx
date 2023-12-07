@@ -1,10 +1,9 @@
-import type { BasePieceProps } from "../chessTypes";
 import Piece from "./Piece";
 import { useRef, useEffect, useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import clsx from "clsx";
 
-export const BasePiece = ({ color, type, canMove }: BasePieceProps) => {
+export const BasePiece = ({ color, type, pieceCanMove }: BasePieceProps) => {
   const pieceRef = useRef<HTMLDivElement>(null);
   const [square, setSquare] = useState<string | null>(null);
 
@@ -30,11 +29,11 @@ export const BasePiece = ({ color, type, canMove }: BasePieceProps) => {
 
   return (
     <div
-      className={clsx(["piece", canMove && "canMove"])}
-      ref={canMove ? setNodeRef : null}
+      className={clsx(["piece", pieceCanMove && "pieceCanMove"])}
+      ref={pieceCanMove ? setNodeRef : null}
       style={style}
-      {...(canMove ? listeners : {})}
-      {...(canMove ? attributes : {})}
+      {...(pieceCanMove ? listeners : {})}
+      {...(pieceCanMove ? attributes : {})}
       tabIndex={-1}
     >
       <div ref={pieceRef} id={piece} data-color={color} data-type={type}>

@@ -19,7 +19,7 @@ const MobileControls = () => {
       <div
         className={clsx([
           "layerControl",
-          State.turn === "w" && "isTurn",
+          State.game.turn === "w" && "isTurn",
           State.playerColor === "w" && Options.showDefenseLayer && "layerOn",
           State.playerColor !== "w" &&
             Options.showEnemyDefenseLayer &&
@@ -41,7 +41,7 @@ const MobileControls = () => {
       <div
         className={clsx([
           "layerControl",
-          State.turn === "b" && "isTurn",
+          State.game.turn === "b" && "isTurn",
           State.playerColor === "b" && Options.showDefenseLayer && "layerOn",
           State.playerColor !== "b" &&
             Options.showEnemyDefenseLayer &&

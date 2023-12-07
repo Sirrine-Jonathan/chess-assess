@@ -1,23 +1,25 @@
 import type { PropsWithChildren, ReactNode } from "react";
+import type { Square, Color, PieceSymbol } from "chess-layers.js";
 import { useRef } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import clsx from "clsx";
 import { useChessBoardContext } from "./gameContext";
-import { Sq, type PieceColor, type PieceType } from "./chessTypes";
 import { useOptions } from "./optionsContext";
 
 interface SquareProps {
   name: string;
   playerDefending: boolean;
-  possibleMove: boolean;
+  possibleDestination: boolean;
   enemyDefending: boolean;
+  partOfLastMove: boolean;
 }
 
-export const Square = ({
+export const ChessSquare = ({
   name,
   playerDefending,
-  possibleMove,
+  possibleDestination,
   enemyDefending,
+  partOfLastMove,
   children,
 }: PropsWithChildren<SquareProps>) => {
   const nameRef = useRef<HTMLSpanElement>(null);
@@ -25,7 +27,7 @@ export const Square = ({
   const { Options } = useOptions();
   const { isOver, setNodeRef } = useDroppable({ id: name });
 
-  const pieceOnThisSquare = State.board
+  const pieceOnThisSquare = State.game.board
     .flat()
     .find((cell) => cell?.square === name);
   const isActive =
@@ -35,12 +37,12 @@ export const Square = ({
     const layers: ReactNode[] = [];
     if (name === "e2") {
       console.log(`getLayers ${name}`, {
-        possibleMove,
+        possibleDestination,
         playerDefending,
         enemyDefending,
       });
     }
-    if (possibleMove) {
+    if (possibleDestination) {
       layers.push(<span className="layer moveLayer" />);
     }
     if (Options.showDefenseLayer && playerDefending) {
@@ -69,43 +71,52 @@ export const Square = ({
   return (
     <div
       id={name}
-      ref={playerDefending || possibleMove ? setNodeRef : null}
+      ref={possibleDestination ? setNodeRef : null}
       className={clsx([
         "square",
         playerDefending && "playerDefending_disabled",
-        possibleMove && "possibleMove_disabled",
+        possibleDestination && "possibleDestination_disabled",
         enemyDefending && "enemyDefending",
         playerDefending && "defending",
+        partOfLastMove && "partOfLastMove",
         isOver && "isOver",
         isActive && "isActive",
       ])}
-      style={{ ...(possibleMove ? { cursor: "pointer" } : {}) }}
+      style={{ ...(possibleDestination ? { cursor: "pointer" } : {}) }}
       tabIndex={0}
       onClick={() => {
-        const piece = State.board.flat().find((cell) => cell?.square === name);
-        if (piece && piece.color === State.turn) {
+        const piece = State.game.board
+          .flat()
+          .find((cell) => cell?.square === name);
+        if (piece && piece.color === State.game.turn) {
           Actions.setActivePiece({
-            color: piece.color as PieceColor,
-            piece: piece.type as PieceType,
-            from: name as Sq,
+            color: piece.color as Color,
+            piece: piece.type as PieceSymbol,
+            from: name as Square,
           });
-        } else if (State.activePiece && (possibleMove || playerDefending)) {
-          Actions.move({ from: State.activePiece.from, to: name as Sq });
+        } else if (
+          State.activePiece &&
+          (possibleDestination || playerDefending)
+        ) {
+          Actions.move({ from: State.activePiece.from, to: name as Square });
         }
       }}
       onKeyDown={(e) => {
         if (e.code === "Space") {
-          const piece = State.board
+          const piece = State.game.board
             .flat()
             .find((cell) => cell?.square === name);
-          if (piece && piece.color === State.turn) {
+          if (piece && piece.color === State.game.turn) {
             Actions.setActivePiece({
-              color: piece.color as PieceColor,
-              piece: piece.type as PieceType,
-              from: name as Sq,
+              color: piece.color as Color,
+              piece: piece.type as PieceSymbol,
+              from: name as Square,
             });
-          } else if (State.activePiece && (possibleMove || playerDefending)) {
-            Actions.move({ from: State.activePiece.from, to: name as Sq });
+          } else if (
+            State.activePiece &&
+            (possibleDestination || playerDefending)
+          ) {
+            Actions.move({ from: State.activePiece.from, to: name as Square });
           }
         } else {
           const parent = nameRef.current?.closest(".board");
