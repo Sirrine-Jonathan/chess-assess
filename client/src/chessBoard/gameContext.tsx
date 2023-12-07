@@ -1,6 +1,6 @@
 import type { Dispatch, ReactNode } from "react";
-import type { Square, Color, PieceSymbol } from "chess-layers.js";
-import { DEFAULT_POSITION } from "chess-layers.js";
+import type { Square, Color, PieceSymbol } from "chess.js";
+import { DEFAULT_POSITION } from "chess.js";
 import {
   createContext,
   useContext,

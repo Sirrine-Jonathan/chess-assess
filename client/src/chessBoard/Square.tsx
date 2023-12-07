@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactNode } from "react";
-import type { Square, Color, PieceSymbol } from "chess-layers.js";
+import type { Square, Color, PieceSymbol } from "chess.js";
 import { useRef } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import clsx from "clsx";

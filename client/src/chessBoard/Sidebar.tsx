@@ -1,4 +1,4 @@
-import type { Color } from "chess-layers.js";
+import type { Color } from "chess.js";
 import Controls from "./Controls";
 import Turn from "./parts/turn";
 import History from "./parts/history";
