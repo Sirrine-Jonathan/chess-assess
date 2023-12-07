@@ -65,7 +65,6 @@ export const ChessBoardInner = () => {
     }
 
     function onUpdate(update: GameUpdate) {
-      console.log("update", update);
       Actions.performUpdate(update);
 
       window.history.replaceState(
@@ -237,22 +236,7 @@ export const ChessBoardInner = () => {
                           State.lastMove !== null &&
                           (name === State.lastMove.to ||
                             name === State.lastMove.from);
-                        // const enemyDefending = !State.activePiece
-                        //   ? !!State.enemyPosition.defending?.find(
-                        //       (move) => name === move.to
-                        //     )
-                        //   : false;
-                        // const playerDefending =
-                        //   !!State.position.defending?.find(
-                        //     (move) => name === move.to
-                        //   );
 
-                        if (name === "e3") {
-                          console.log("name", {
-                            activePiece: State.activePiece,
-                            activeMoves: State.activeMoves,
-                          });
-                        }
                         const possibleDestination = State.activePiece
                           ? !!State.activeMoves?.find(
                               (move) => name === move.to
@@ -263,8 +247,15 @@ export const ChessBoardInner = () => {
                           <ChessSquare
                             key={name}
                             name={name}
-                            enemyDefending={false}
-                            playerDefending={false}
+                            enemyDefending={State.game.conflict[name].black}
+                            playerDefending={State.game.conflict[name].white}
+                            isAttacked={
+                              piece &&
+                              ((State.game.conflict[name].white &&
+                                piece.color !== "w") ||
+                                (State.game.conflict[name].black &&
+                                  piece.color !== "b"))
+                            }
                             partOfLastMove={partOfLastMove}
                             possibleDestination={possibleDestination}
                           >

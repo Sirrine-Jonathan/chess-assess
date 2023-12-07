@@ -23,6 +23,7 @@ const initialState: ChessBoardState = {
   game: {
     ascii: "",
     board: [],
+    conflict: {},
     moves: [],
     turn: "w",
     inCheck: false,
@@ -44,7 +45,6 @@ const ChessBoardContext = createContext<{
 
 enum ActionTypeNames {
   SetActivePiece = "SET_ACTIVE_PIECE",
-  UpdateDroppables = "UPDATE_DROPPABLES",
   SetIsConnected = "SET_IS_CONNECTED",
   PerformUpdate = "PERFORM_UPDATE",
   SetCaptured = "SET_CAPTURED",
@@ -55,10 +55,6 @@ enum ActionTypeNames {
 
 type ActionsPayload = {
   [ActionTypeNames.SetActivePiece]: ChessPiece | null;
-  [ActionTypeNames.UpdateDroppables]: {
-    piece: { type: PieceSymbol; color: Color };
-    square: Square;
-  };
   [ActionTypeNames.SetIsConnected]: boolean;
   [ActionTypeNames.PerformUpdate]: GameUpdate;
   [ActionTypeNames.SetCaptured]: {
@@ -87,11 +83,6 @@ const reducer = (state: ChessBoardState, action: ActionType) => {
       return {
         ...state,
         activePiece: action.payload,
-      };
-    // TODO: get rid of this?
-    case ActionTypeNames.UpdateDroppables:
-      return {
-        ...state,
       };
     case ActionTypeNames.SetIsConnected:
       return {
@@ -193,19 +184,6 @@ export const useChessBoardContext = () => {
 
         socket.emit("move", finalMove);
       },
-      updateDroppables: ({
-        piece,
-        square,
-      }: {
-        piece: { type: PieceSymbol; color: Color };
-        square: Square;
-      }) => {
-        dispatch({
-          type: ActionTypeNames.UpdateDroppables,
-          payload: { piece, square },
-        });
-      },
-
       // Responses to server socket emit
       setIsConnected: (isConnected: boolean) => {
         dispatch({

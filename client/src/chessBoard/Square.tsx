@@ -5,6 +5,7 @@ import { useDroppable } from "@dnd-kit/core";
 import clsx from "clsx";
 import { useChessBoardContext } from "./gameContext";
 import { useOptions } from "./optionsContext";
+import { Sweat } from "./pieces/svg";
 
 interface SquareProps {
   name: string;
@@ -12,6 +13,7 @@ interface SquareProps {
   possibleDestination: boolean;
   enemyDefending: boolean;
   partOfLastMove: boolean;
+  isAttacked: boolean;
 }
 
 export const ChessSquare = ({
@@ -20,6 +22,7 @@ export const ChessSquare = ({
   possibleDestination,
   enemyDefending,
   partOfLastMove,
+  isAttacked,
   children,
 }: PropsWithChildren<SquareProps>) => {
   const nameRef = useRef<HTMLSpanElement>(null);
@@ -35,34 +38,42 @@ export const ChessSquare = ({
 
   const getLayers = () => {
     const layers: ReactNode[] = [];
-    if (name === "e2") {
-      console.log(`getLayers ${name}`, {
-        possibleDestination,
-        playerDefending,
-        enemyDefending,
-      });
-    }
+
     if (possibleDestination) {
       layers.push(<span className="layer moveLayer" />);
     }
+
     if (Options.showDefenseLayer && playerDefending) {
       layers.push(
         <span
           className={clsx([
             "layer",
-            enemyDefending ? "disputedLayer" : "defenseLayer",
+            Options.showEnemyDefenseLayer && enemyDefending
+              ? "disputedLayer"
+              : "defenseLayer",
           ])}
         />
       );
     }
+
     if (Options.showEnemyDefenseLayer && enemyDefending) {
       layers.push(
         <span
           className={clsx([
             "layer",
-            playerDefending ? "disputedLayer" : "enemyDefenseLayer",
+            Options.showDefenseLayer && playerDefending
+              ? "disputedLayer"
+              : "enemyDefenseLayer",
           ])}
         />
+      );
+    }
+
+    if (isAttacked) {
+      layers.push(
+        <span className="layer isAttacked">
+          <Sweat />
+        </span>
       );
     }
     return layers;
@@ -74,11 +85,11 @@ export const ChessSquare = ({
       ref={possibleDestination ? setNodeRef : null}
       className={clsx([
         "square",
-        playerDefending && "playerDefending_disabled",
-        possibleDestination && "possibleDestination_disabled",
+        playerDefending && "playerDefendingd",
+        possibleDestination && "possibleDestination",
         enemyDefending && "enemyDefending",
-        playerDefending && "defending",
         partOfLastMove && "partOfLastMove",
+        isAttacked && "isAttacked",
         isOver && "isOver",
         isActive && "isActive",
       ])}

@@ -35,6 +35,8 @@ declare global {
 
   type LockedPieces = { [squareName: string]: Position };
 
+  type Conflict = Record<Square, { white: boolean; black: boolean }> | {};
+
   interface ChessBoardState {
     activePiece: ChessPiece | null;
     activeMoves: Move[];
@@ -47,6 +49,7 @@ declare global {
     game: {
       ascii: string;
       board: Board;
+      conflict: Conflict;
       moves: Moves;
       turn: Color;
       inCheck: boolean;
@@ -82,6 +85,7 @@ declare global {
   type GameUpdate = {
     ascii: string;
     board: Board;
+    conflict: Conflict;
     moves: Moves;
     turn: Color;
     inCheck: boolean;
