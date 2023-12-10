@@ -1,5 +1,5 @@
 import { useChessBoardContext } from "../gameContext";
-import ResetButton from "./resetButton";
+import CheckButton from "./checkButton";
 import clsx from "clsx";
 
 const GameOver = () => {
@@ -18,16 +18,24 @@ const GameOver = () => {
     }
     return null;
   };
-  if (!State.game.isGameOver) {
-    return null;
-  }
   return (
-    <div className={clsx(["stateDisplay"])}>
+    <div
+      className={clsx([
+        "stateDisplay",
+        State.game.isGameOver ? "obscure" : "hide",
+      ])}
+    >
       <div className="gameOver">
         <div className="gameOverTitle">Game Over</div>
         <div className="gameOverReason">{getReason()}</div>
         <div className="centerRow">
-          <ResetButton />
+          <CheckButton
+            label="New Game"
+            onClick={() => {
+              window.location.href = window.origin;
+            }}
+            classes="gameOverResetButton dark"
+          />
         </div>
       </div>
     </div>

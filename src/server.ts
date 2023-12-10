@@ -4,7 +4,9 @@ import express from "express";
 import path from "path";
 import { createServer } from "http";
 import Websocket from "./websocket/websocket";
-import ChessSocket from "./websocket/chess.socket";
+import ComputerSocket from "./websocket/computer.socket";
+import RoomSocket from "./websocket/room.socket";
+import { DEFAULT_POSITION } from "chess.js";
 
 import {
   createExpressServer,
@@ -26,18 +28,13 @@ const app = createExpressServer(routingControllerOptions);
 
 app.use(express.static(path.resolve(__dirname, "../client/build")));
 
-app.get("/", function (req, res) {
-  res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
-});
-
-app.get("/:fen", function (req, res) {
-  res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
-});
-
 const httpServer = createServer(app);
 const io = Websocket.getInstance(httpServer);
 
-io.initializeHandlers([{ path: "/chess", handler: new ChessSocket() }]);
+io.initializeHandlers([
+  { path: "/computer", handler: new ComputerSocket() },
+  { path: "/room", handler: new RoomSocket(io) },
+]);
 
 httpServer.listen(port, () => {
   console.log(`This is working in port ${port}`);

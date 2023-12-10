@@ -1,9 +1,8 @@
-import { useOptions } from "./optionsContext";
+import { useOptions, restoreOptions } from "./optionsContext";
 import clsx from "clsx";
-import { useState, useId } from "react";
-import { TwitterPicker } from "react-color";
 import { Switch } from "@headlessui/react";
-import ResetButton from "./parts/resetButton";
+import CheckButton from "./parts/checkButton";
+import { ColorPicker } from "./parts/colorPicker";
 
 export const Toggle = ({
   on,
@@ -37,72 +36,6 @@ export const Toggle = ({
   </Switch.Group>
 );
 
-export const ColorPicker = ({
-  color,
-  onChange,
-  triangle,
-  label,
-  showLabel = false,
-}: {
-  color: string;
-  onChange: (color: string) => void;
-  triangle?: "top-right" | "hide" | "top-left";
-  label: string;
-  showLabel?: boolean;
-}) => {
-  const id = useId();
-
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="colorPicker">
-      <button
-        id={id}
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className={clsx(["colorPickerPreview", showLabel && "showLabel"])}
-        style={{ background: color }}
-        title={label}
-      />
-      <label
-        htmlFor={id}
-        className={clsx(["colorPickerLabel", !showLabel && "hiddenColorLabel"])}
-      >
-        {label}
-      </label>
-      {isOpen ? (
-        <div
-          className="twitterPicker"
-          style={{
-            ...(triangle === "top-right"
-              ? { right: "-10px" }
-              : { left: "-1px" }),
-          }}
-        >
-          <TwitterPicker
-            width="125"
-            onChangeComplete={({ hex }) => onChange(hex)}
-            triangle={triangle}
-            colors={[
-              "#FF6900",
-              "#FCB900",
-              "#7BDCB5",
-              "#00D084",
-              "#8ED1FC",
-              "#0693E3",
-              "#ABB8C3",
-              "#EB144C",
-              "#F78DA7",
-              "#9900EF",
-              "#EFEFEF",
-            ]}
-          />
-        </div>
-      ) : null}
-    </div>
-  );
-};
-
 const Controls = () => {
   const { Options, Actions } = useOptions();
 
@@ -115,8 +48,8 @@ const Controls = () => {
               color={Options.primaryColor}
               onChange={Actions.setPrimaryColor}
               label="Edit primary color"
-              triangle="top-left"
-              showLabel={true}
+              showLabel
+              direction="right"
             />
           </div>
           <div className="controlRow">
@@ -124,17 +57,17 @@ const Controls = () => {
               color={Options.secondaryColor}
               onChange={Actions.setSecondaryColor}
               label="Edit secondary color"
-              triangle="top-left"
-              showLabel={true}
+              showLabel
+              direction="right"
             />
           </div>
           <div className="controlRow">
             <ColorPicker
-              color={Options.accentColor}
+              color={Options.disputedLayerColor}
               onChange={Actions.setAccentColor}
-              label="Edit accent color"
-              triangle="top-left"
-              showLabel={true}
+              label="Edit disputed territory color"
+              showLabel
+              direction="right"
             />
           </div>
         </div>
@@ -152,7 +85,7 @@ const Controls = () => {
               color={Options.defenseLayerColor}
               onChange={Actions.setDefenseLayerColor}
               label="Edit defense layer color"
-              triangle="top-right"
+              direction="left"
             />
           </div>
           <div className="controlRow">
@@ -168,30 +101,33 @@ const Controls = () => {
               color={Options.enemyDefenseLayerColor}
               onChange={Actions.setEnemyDefenseLayerColor}
               label="Edit enemy defense layer color"
-              triangle="top-right"
+              direction="left"
             />
           </div>
-          {/* <div className="controlRow">
-            <div className="toggleRow">
-              <Toggle
-                on={Options.showAxisLabels}
-                label="Show axis labels"
-                handleChange={Actions.setShowAxisLabels}
-              />
-            </div>
-          </div> */}
-          <div className="controlRow">
-            <div className="toggleRow">
-              <Toggle
-                on={Options.showSquareName}
-                label="Show square names"
-                handleChange={Actions.setShowSquareName}
-              />
-            </div>
+          <div className="toggleRow">
+            <Toggle
+              on={Options.flipBoard}
+              label="Flip board"
+              handleChange={Actions.flipBoard}
+              switchClass="flipBoard"
+            />
           </div>
         </div>
+        <div className="sidebarSubSection">
+          <CheckButton
+            label="Reset Options"
+            onClick={restoreOptions}
+            classes="restoreButton small"
+          />
+        </div>
         <div className="sidebarSubSection centerRow">
-          <ResetButton />
+          <CheckButton
+            label="New Game"
+            onClick={() => {
+              window.location.href = window.origin;
+            }}
+            classes="resetButton"
+          />
         </div>
       </div>
     </>

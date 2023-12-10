@@ -31,7 +31,7 @@ const History = () => {
         //   : null;
 
         return (
-          <div className="historyRow">
+          <div key={`${wLan}:${bLan}`} className="historyRow">
             <div>
               <span>{wLan}</span>
             </div>

@@ -9,16 +9,17 @@ import {
 } from "react";
 
 const initialState = {
+  flipBoard: false,
   showSquareName: true,
   showAxisLabels: false,
   showDefenseLayer: true,
   showEnemyDefenseLayer: true,
-  defenseLayerColor: "#000000",
-  enemyDefenseLayerColor: "#ffc20a",
-  disputedTerritoryLayerColor: "#3e2f5b",
-  primaryColor: "#d65757",
-  secondaryColor: "#EFEFEF",
-  accentColor: "#22194D",
+  defenseLayerColor: "#0000FF",
+  enemyDefenseLayerColor: "#FF0000",
+  disputedLayerColor: "#4B006E",
+  primaryColor: "#707070",
+  secondaryColor: "#FFFFFF",
+  accentColor: "orange",
 };
 
 const OptionsContext = createContext<{
@@ -40,6 +41,10 @@ const loadOptions = (): Partial<Options> => {
   return { ...options, showAxisLabels: false };
 };
 
+export const restoreOptions = () => {
+  window.localStorage.clear();
+};
+
 export const OptionsContextProvider = ({
   children,
 }: {
@@ -59,7 +64,7 @@ export const OptionsContextProvider = ({
       }
       timeoutHandleRef.current = setTimeout(() => {
         storeOptions(options);
-      }, 5000);
+      }, 1000);
       setOptions(options);
     },
     [setOptions, timeoutHandleRef]
@@ -102,9 +107,6 @@ export const useOptions = () => {
       setEnemyDefenseLayerColor: (enemyDefenseLayerColor: string) => {
         setOptions({ ...options, enemyDefenseLayerColor });
       },
-      setDisputedTerritoryLayerColor: (disputedTerritoryLayerColor: string) => {
-        setOptions({ ...options, disputedTerritoryLayerColor });
-      },
       setPrimaryColor: (primaryColor: string) => {
         setOptions({ ...options, primaryColor });
       },
@@ -113,6 +115,9 @@ export const useOptions = () => {
       },
       setAccentColor: (accentColor: string) => {
         setOptions({ ...options, accentColor });
+      },
+      flipBoard: (flipBoard: boolean) => {
+        setOptions({ ...options, flipBoard });
       },
     }),
     [options, setOptions]

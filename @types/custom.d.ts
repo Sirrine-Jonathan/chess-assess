@@ -15,13 +15,14 @@ declare global {
 
   interface PieceProps extends Omit<BasePieceProps, "type"> {}
   interface Options {
+    flipBoard: boolean;
     showSquareName: boolean;
     showAxisLabels: boolean;
     showDefenseLayer: boolean;
     showEnemyDefenseLayer: boolean;
     defenseLayerColor: string;
     enemyDefenseLayerColor: string;
-    disputedTerritoryLayerColor: string;
+    disputedLayerColor: string;
     primaryColor: string;
     secondaryColor: string;
     accentColor: string;

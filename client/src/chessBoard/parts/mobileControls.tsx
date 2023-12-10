@@ -1,8 +1,8 @@
 import { useOptions } from "../optionsContext";
-import { ColorPicker } from "../Controls";
 import { KW, KB } from "../pieces/svg";
 import clsx from "clsx";
 import { useChessBoardContext } from "../gameContext";
+import { ColorPicker } from "../parts/colorPicker";
 
 const MobileControls = () => {
   const { Options, Actions: OptionActions } = useOptions();
@@ -11,10 +11,17 @@ const MobileControls = () => {
   return (
     <div className="mobileControls">
       <ColorPicker
+        color={Options.secondaryColor}
+        onChange={OptionActions.setSecondaryColor}
+        label="Edit secondary color"
+        direction="right"
+      />
+
+      <ColorPicker
         color={Options.defenseLayerColor}
         onChange={OptionActions.setDefenseLayerColor}
         label="Edit defense layer color"
-        triangle="top-left"
+        direction="right"
       />
       <div
         className={clsx([
@@ -38,6 +45,12 @@ const MobileControls = () => {
           ])}
         />
       </div>
+      <ColorPicker
+        color={Options.accentColor}
+        onChange={OptionActions.setAccentColor}
+        label="Edit enemy layer color"
+        direction="center"
+      />
       <div
         className={clsx([
           "layerControl",
@@ -66,7 +79,13 @@ const MobileControls = () => {
         color={Options.enemyDefenseLayerColor}
         onChange={OptionActions.setEnemyDefenseLayerColor}
         label="Edit enemy layer color"
-        triangle="top-right"
+        direction="left"
+      />
+      <ColorPicker
+        color={Options.primaryColor}
+        onChange={OptionActions.setPrimaryColor}
+        label="Edit primary color"
+        direction="left"
       />
     </div>
   );

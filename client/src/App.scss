@@ -4,4 +4,59 @@
   & > div {
     height: 100%;
   }
+
+  .welcome {
+    margin: 0 auto;
+    text-align: center;
+    background: #fff;
+    color: black;
+    width: max-content;
+    height: max-content;
+    padding: 25px 50px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+
+
+    .welcomeInputs {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+
+      .roomInputsOuter {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        
+        .roomInputs {
+          display: flex;
+          align-items: stretch;
+          flex: 1;
+        }
+      }
+
+      .computerInputs {
+        flex: 1;
+      }
+    }
+
+    input {
+      border: 3px solid blue;
+    }
+
+    a {
+      display: block;
+      text-decoration: none;
+      background: blue;
+      border:none;
+      padding: 6px 10px;
+      color: #fff !important;
+      border: 3px solid blue;
+      transition: all 0.3s;
+
+      &:hover {
+        border-color: #000;
+      }
+    }
+  }
 }

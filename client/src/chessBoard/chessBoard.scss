@@ -38,6 +38,10 @@
         position: relative;
         margin: 7px 0;
 
+        .flip {
+          transform: rotate(180deg);
+        }
+
         .stateDisplay {
           position: absolute;
           z-index: 3;
@@ -46,11 +50,34 @@
           display: flex;
           justify-content: center;
           align-items: center;
-          background: rgba(255, 255, 255, 0.5);
+          background-color: rgba(255, 255, 255, 0.2);
           color: #000;
           font-size: 1.3em;
           font-weight: 600;
           border-radius: 5px;
+          transition: background-color 10s, font-size 5s;
+
+          &.obscure {
+            background-color: rgba(255, 255, 255, 1);
+            font-size: 2em;
+            
+          }
+
+          &.hide {
+            visibility: hidden;
+          }
+
+          .gameOver {
+            padding: 15px;
+            
+            .gameOverReason {
+              font-size: 2rem;
+            }
+      
+            .gameOverTitle {
+              font-size: 2.5rem;
+            }
+          }
         }
 
         .board {
@@ -131,11 +158,11 @@
             }
 
             &.partOfLastMove {
-              background: var(--accent-color) !important;
+              background: #000 !important;
             }
 
             &.isOver {
-              border: 2px solid var(--accent-color);
+              border: 2px solid #333;
             }
 
             .squareName {
@@ -169,9 +196,8 @@
               top: 50%;
               left: 50%;
               transform: translate(-50%, -50%);
-              width: 80%;
-              height: 80%;
-              border-radius: 15%;
+              width: 100%;
+              height: 100%;
               z-index: 0;
 
               &.disputedLayer {
@@ -186,12 +212,13 @@
                 background-color: var(--defense-color);
               }
 
-              &.moveLayer {
+              &.moveLayer, &.partOfLastMove {
                 background-color: #000;
                 z-index: 1;
               }
 
               &.isAttacked {
+                display: none;
                 z-index: 2;
                 top: 50%;
                 left: 50%;
@@ -444,18 +471,6 @@
         }
       }
 
-      &.disputedLayerSwitch {
-        .optionsToggleThumb {
-          background-color: var(--disputed-color);
-        }
-        &[data-headlessui-state~="checked"] {
-          background: var(--disputed-color);
-          .optionsToggleThumb {
-            background-color: #fff;
-          }
-        }
-      }
-
       &:focus {
         outline: none;
       }
@@ -484,11 +499,30 @@
       }
     }
 
-    .twitterPicker {
+    .colorFullWrapper {
       position: absolute;
-      top: 25px;
-      z-index: 2;
+      top: 100%;
+      z-index: 3;
+      visibility: hidden;
+
+      &.visible {
+        visibility: visible;
+      }
+
+      &.left {
+        right: 0;
+      }
+
+      &.center {
+        left: 50%;
+        transform: translate(-50%, 0);
+      }
+
+      &.right {
+        left: 0;
+      }
     }
+
   }
 
   .sidebarSection {
@@ -555,28 +589,68 @@
     justify-content: center;
   }
 
-  .gameOverReason {
-    font-size: 1rem;
+  .checkButton {
+    align-items: center;
+    background-color: #FFFFFF;
+    border: 2px solid #333;
+    border-radius: .50rem;
+    box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
+    box-sizing: border-box;
+    color: rgba(0, 0, 0, 0.85);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 2rem;
+    font-weight: 600;
+    justify-content: center;
+    line-height: 1.25;
+    margin: 0;
+    position: relative;
+    text-decoration: none;
+    transition: all 250ms;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: baseline;
+    width: auto;
+    padding: 9px 15px;
+
+    &.dark {
+      background-color: #000000;
+      border: 2px solid #EFEFEF;
+      color: #FFFFFF;
+    }
+
+    &.small {
+      font-size: 1.2em;
+      padding: 6px 10px;
+    }
   }
 
-  .gameOverTitle {
-    font-size: 1.5rem;
+  .checkButton:hover,
+  .checkButton:focus {
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+    color: rgba(0, 0, 0, 0.65);
+  }
+
+  .checkButton:hover {
+    transform: translateY(-1px);
+  }
+
+  .checkButton:active {
+    background-color: #F0F0F1;
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: rgba(0, 0, 0, 0.06) 0 2px 4px;
+    color: rgba(0, 0, 0, 0.65);
+    transform: translateY(0);
   }
 
   .resetButton {
-    border: none;
-    background: #000;
-    color: #fff;
-    padding: 6px 10px;
-    border-radius: 3px;
-    font-size: 2rem;
     margin-top: 25px;
-    cursor: pointer;
   }
 
-  .sidebar .resetButton {
-    background: #fff;
-    color: #000;
+  .gameOverResetButton {
+    margin-top: 25px;
   }
 
   .historySection {
@@ -667,7 +741,8 @@
       .innerBoardContainer {
         .board {
           width: 100%;
-          gap: 0;
+          gap: 3px;
+          background: #fff;
 
           .square {
             border: none;

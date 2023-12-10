@@ -9,6 +9,7 @@ import { Sweat } from "./pieces/svg";
 
 interface SquareProps {
   name: string;
+  flip: boolean;
   playerDefending: boolean;
   possibleDestination: boolean;
   enemyDefending: boolean;
@@ -18,6 +19,7 @@ interface SquareProps {
 
 export const ChessSquare = ({
   name,
+  flip,
   playerDefending,
   possibleDestination,
   enemyDefending,
@@ -36,16 +38,27 @@ export const ChessSquare = ({
   const isActive =
     pieceOnThisSquare && pieceOnThisSquare?.square === State.activePiece?.from;
 
-  const getLayers = () => {
+  const getLayer = () => {
     const layers: ReactNode[] = [];
+
+    if (isAttacked) {
+      layers.push(
+        <span key="isAttacked" className="layer isAttacked">
+          <Sweat />
+        </span>
+      );
+    }
 
     if (possibleDestination) {
       layers.push(<span className="layer moveLayer" />);
-    }
-
-    if (Options.showDefenseLayer && playerDefending) {
+      return layers;
+    } else if (partOfLastMove) {
+      layers.push(<span className="layer partOfLastMove" />);
+      return layers;
+    } else if (Options.showDefenseLayer && playerDefending) {
       layers.push(
         <span
+          key="defense"
           className={clsx([
             "layer",
             Options.showEnemyDefenseLayer && enemyDefending
@@ -54,11 +67,10 @@ export const ChessSquare = ({
           ])}
         />
       );
-    }
-
-    if (Options.showEnemyDefenseLayer && enemyDefending) {
+    } else if (Options.showEnemyDefenseLayer && enemyDefending) {
       layers.push(
         <span
+          key="disputed"
           className={clsx([
             "layer",
             Options.showDefenseLayer && playerDefending
@@ -69,22 +81,17 @@ export const ChessSquare = ({
       );
     }
 
-    if (isAttacked) {
-      layers.push(
-        <span className="layer isAttacked">
-          <Sweat />
-        </span>
-      );
-    }
     return layers;
   };
 
   return (
     <div
+      key={name}
       id={name}
       ref={possibleDestination ? setNodeRef : null}
       className={clsx([
         "square",
+        flip && "flip",
         playerDefending && "playerDefendingd",
         possibleDestination && "possibleDestination",
         enemyDefending && "enemyDefending",
@@ -140,7 +147,7 @@ export const ChessSquare = ({
             const adjacentUp = children?.[index - 8];
             const adjacentDown = children?.[index + 8];
 
-            let id;
+            let id = "";
             if (e.code === "ArrowRight") {
               id = adjacentRight?.id;
             } else if (e.code === "ArrowLeft") {
@@ -160,7 +167,7 @@ export const ChessSquare = ({
         }
       }}
     >
-      {getLayers()}
+      {getLayer()}
       {Options.showSquareName ? (
         <span ref={nameRef} className="squareName">
           {name}

@@ -26,10 +26,24 @@ import History from "./parts/history";
 import GameOver from "./parts/gameOver";
 import MobileControls from "./parts/mobileControls";
 
-const SERVER_URL =
+const url = new URL(window.location.href);
+const hasRoom = url.pathname.includes("room");
+let room = "";
+url.pathname.split("/").forEach((part, index, array) => {
+  if (part === "room") {
+    room = array[index + 1];
+  }
+});
+
+const COMPUTER_URL =
   process.env.NODE_ENV === "development"
-    ? "ws://localhost:1337/chess"
-    : "/chess";
+    ? "ws://localhost:1337/computer"
+    : "/computer";
+
+const ROOM_URL =
+  process.env.NODE_ENV === "development" ? `ws://localhost:1337/room` : `/room`;
+
+const SERVER_URL = hasRoom && room ? ROOM_URL : COMPUTER_URL;
 
 export const socket = io(SERVER_URL, {
   autoConnect: false,
@@ -58,6 +72,10 @@ export const ChessBoardInner = () => {
 
     function onConnect() {
       Actions.setIsConnected(true);
+      const url = new URL(window.location.href);
+      if (room) {
+        socket.emit("joinroom", "sirrine");
+      }
     }
 
     function onDisconnect() {
@@ -66,12 +84,14 @@ export const ChessBoardInner = () => {
 
     function onUpdate(update: GameUpdate) {
       Actions.performUpdate(update);
-
-      window.history.replaceState(
-        null,
-        "",
-        window.location.origin + "/" + encodeURIComponent(update.fen)
+      const isComputerGame = window.location.pathname.includes("computer");
+      const isIsRoomGame = window.location.pathname.includes("room");
+      const fenPart = encodeURIComponent(update.fen);
+      const computerUrl = [window.location.origin, "computer", fenPart].join(
+        "/"
       );
+
+      window.history.replaceState(null, "", computerUrl);
     }
 
     function onCapture(event: CaptureEvent) {
@@ -95,6 +115,14 @@ export const ChessBoardInner = () => {
       Actions.setLastMove(move);
     }
 
+    function onPing(id) {
+      console.log("connected as", id);
+    }
+
+    function onJoinedRoom() {
+      console.log("joined room");
+    }
+
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("update", onUpdate);
@@ -102,6 +130,8 @@ export const ChessBoardInner = () => {
     socket.on("loadSuccess", onLoadSuccess);
     socket.on("showActiveMoves", onShowActiveMoves);
     socket.on("moveEnded", onMoveEnded);
+    socket.on("ping", onPing);
+    socket.on("joined room", onJoinedRoom);
 
     return () => {
       socket.off("connect", onConnect);
@@ -111,6 +141,8 @@ export const ChessBoardInner = () => {
       socket.off("loadSuccess", onLoadSuccess);
       socket.off("showActiveMoves", onShowActiveMoves);
       socket.off("moveEnded", onMoveEnded);
+      socket.off("ping", onPing);
+      socket.off("joined room", onJoinedRoom);
     };
   });
 
@@ -142,7 +174,7 @@ export const ChessBoardInner = () => {
         "--accent-color": Options.accentColor,
         "--defense-color": Options.defenseLayerColor,
         "--enemy-defense-color": Options.enemyDefenseLayerColor,
-        "--disputed-color": Options.disputedTerritoryLayerColor,
+        "--disputed-color": Options.disputedLayerColor,
       }).reduce((acc: string, [key, val]: string[]) => {
         return acc + `${key}: ${val};`;
       }, "");
@@ -209,6 +241,9 @@ export const ChessBoardInner = () => {
                       className={clsx([
                         "board",
                         State.game.isGameOver && "blur",
+                        (State.playerColor === "w"
+                          ? Options.flipBoard
+                          : !Options.flipBoard) && "flip",
                       ])}
                       onKeyDown={(e) => {
                         if (e.code === "Escape") {
@@ -247,6 +282,11 @@ export const ChessBoardInner = () => {
                           <ChessSquare
                             key={name}
                             name={name}
+                            flip={
+                              State.playerColor === "w"
+                                ? Options.flipBoard
+                                : !Options.flipBoard
+                            }
                             enemyDefending={State.game.conflict[name].black}
                             playerDefending={State.game.conflict[name].white}
                             isAttacked={
