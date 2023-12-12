@@ -484,6 +484,50 @@
   resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.0.0.tgz#365f1bf936aeaddd0856fc41aa1d6f82d88ee5b3"
   integrity sha512-WAy5txG7aFX8Vw3sloEKp5p/t/Xt8jD3GRD9DacnFv6Vo8ubudAsRTXgxpQwU0mpzY/H8U4db3roDuCMjShBmw==
 
+"@uiw/color-convert@2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@uiw/color-convert/-/color-convert-2.0.3.tgz#85cc010b3350aa3b7223bc6637bcbdbdca8a53b8"
+  integrity sha512-lP/dnZzaiUDMrn3F+WYAG/TLhIanoy5A0HAPEO6Z/s3Jv5AI0nOM2bVOm0HI+vNiHZkVTkE1oGP0k+endEA+9A==
+
+"@uiw/react-color-alpha@2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@uiw/react-color-alpha/-/react-color-alpha-2.0.3.tgz#7f9dc53764e69eebb067bfff4ab543272c9c36ea"
+  integrity sha512-bTO0jMTT2fFZr8lGpDrOCbMSbidkgYMuCmyc6A8p6WfyCznKZvKG5WG9KukDOB2ReJUZKIaiR20CgUa6opS3Hw==
+  dependencies:
+    "@uiw/color-convert" "2.0.3"
+    "@uiw/react-drag-event-interactive" "2.0.3"
+
+"@uiw/react-color-colorful@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@uiw/react-color-colorful/-/react-color-colorful-2.0.3.tgz#cf7d04e28086019bcd4e8a1d479ad641e8f3b200"
+  integrity sha512-IjnvYyroW/Kmz1ICSwQ6HUpl7cs6Rkh2mVuFGvYd8FOxBjbQuAI/pfVi8I54rgkesn8uRVYlbvl4ROfAl3RrHw==
+  dependencies:
+    "@uiw/color-convert" "2.0.3"
+    "@uiw/react-color-alpha" "2.0.3"
+    "@uiw/react-color-hue" "2.0.3"
+    "@uiw/react-color-saturation" "2.0.3"
+
+"@uiw/react-color-hue@2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@uiw/react-color-hue/-/react-color-hue-2.0.3.tgz#d3b1f5c6b216ae14c593e261af762e27627da48b"
+  integrity sha512-Bi9/JkLH6FSxULC52y7kjLlunkRbL6TRuAzm5+BBs/4tSf+VL8Xp5Dr2gCPJG1vuA4ohDx9vl3P5QO4Rk9h8wQ==
+  dependencies:
+    "@uiw/color-convert" "2.0.3"
+    "@uiw/react-color-alpha" "2.0.3"
+
+"@uiw/react-color-saturation@2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@uiw/react-color-saturation/-/react-color-saturation-2.0.3.tgz#91efd2941f238e6ec51b5983f05108d7a606945b"
+  integrity sha512-+AZM3WemWv7w/uRGmSY5lXWdSJoKKysKMW+C7/qkWNQmN/WjG6YmC4ZtcEqPr7BbWFXSS2DJTn15fNBvxCFKDg==
+  dependencies:
+    "@uiw/color-convert" "2.0.3"
+    "@uiw/react-drag-event-interactive" "2.0.3"
+
+"@uiw/react-drag-event-interactive@2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@uiw/react-drag-event-interactive/-/react-drag-event-interactive-2.0.3.tgz#cfe614cbbc4e73d58236a0a1f83c5904355a0cbc"
+  integrity sha512-r9VQbvpk2z0ux3GenmT5K4BVQqT91eBSDQjYuR43Ya0kJaD2yJPuPe8JqvKTFR3/C9kldolJoWbxl0mbuu1X0w==
+
 abbrev@1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
@@ -770,8 +814,10 @@ chalk@^4.1.2:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
-"chess-layers.js@file:../chess-layers.js/dist":
-  version "0.0.0"
+chess.js@^1.0.0-beta.6:
+  version "1.0.0-beta.6"
+  resolved "https://registry.yarnpkg.com/chess.js/-/chess.js-1.0.0-beta.6.tgz#c8bd5d26890421472fba2bbb0819820accd084a9"
+  integrity sha512-sqBfX1VL3csSyqVM5ogbKA+aRlZyWDh276ruWXphwI0lDUMs7iYjZs29BOi49f7mXeunJE7cdfnIZhihsyLnsA==
 
 chokidar@^3.5.2:
   version "3.5.3"

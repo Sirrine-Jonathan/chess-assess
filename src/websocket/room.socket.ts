@@ -1,73 +1,51 @@
 import { Socket } from "socket.io";
 import SocketInterface from "./socketInterface";
-import Websocket from "./websocket";
-import { Chess, validateFen } from "chess.js";
 
 class RoomSocket implements SocketInterface {
-  private chess;
-  private socket;
-  private io: Websocket;
   private rooms = {};
 
-  constructor(io: Websocket) {
-    this.io = io;
-  }
+  addPersonToRoom = (room, id) => {
+    if (!this.rooms[room]) {
+      this.rooms[room] = { white: null, black: null, spectators: [] };
+    }
+    console.log(`${id} joining ${room}`, this.rooms[room]);
+    if (this.rooms[room].white && this.rooms[room].black) {
+      this.rooms[room].spectators.push(id);
+      return "spectator";
+    } else if (this.rooms[room].white && !this.rooms[room].black) {
+      this.rooms[room].black = id;
+      return "black";
+    } else if (!this.rooms[room].white && this.rooms[room].black) {
+      this.rooms[room].white = id;
+      return "white";
+    } else {
+      if (Math.random() < 0.5) {
+        this.rooms[room].white = id;
+        return "white";
+      } else {
+        this.rooms[room].black = id;
+        return "black";
+      }
+    }
+  };
 
   handleConnection(socket: Socket) {
-    socket.emit("ping", true);
-    console.log("connected: ", socket.id, "to room");
+    socket.emit("ping", socket.id);
 
-    this.chess = new Chess();
-    this.socket = socket;
+    const room = socket.handshake.query.room;
+    console.log("connected:", socket.id);
 
-    socket.on("joinroom", function (room) {
-      console.log(`${socket.id} joining`, room);
-      // only allow certain characters in room names
-      // to prevent messing with socket.io internal rooms
-      if (!/[^\w.]/.test(room)) {
-        this.join(room);
-      }
-      if (typeof this.rooms[room] === "undefined") this.rooms[room] = {};
-      this.rooms[room].count = this.rooms[room].total
-        ? this.rooms[room].total + 1
-        : 1;
-      socket.to(room).emit("joined room", this.rooms[room].count);
-      socket.to(room).emit("update", this.update());
+    if (!Array.isArray(room) && !/[^\w.]/.test(room)) {
+      socket.join(room);
+      const joinedAs = this.addPersonToRoom(room, socket.id);
+      console.log("room", this.rooms[room]);
+      socket.emit("joined", joinedAs);
+      socket.to(room).emit("player_joined", joinedAs);
+    }
+
+    socket.on("move", (move) => {
+      socket.to(room).emit("opponent_moved", move);
     });
-  }
-
-  update() {
-    const board = this.chess.board();
-    const conflict = {};
-    board.flat().forEach((piece, index) => {
-      const rank = ["a", "b", "c", "d", "e", "f", "g", "h"][index % 8];
-      const fileNum = ((index - (index % 8)) % 9) - 1;
-      const file = fileNum < 0 ? 8 : fileNum;
-
-      const name = `${rank}${file}`;
-
-      conflict[name] = {
-        white: this.chess.isAttacked(name, "w"),
-        black: this.chess.isAttacked(name, "b"),
-      };
-    });
-    const update = {
-      ascii: this.chess.ascii(),
-      board,
-      conflict,
-      moves: this.chess.moves({ verbose: true }),
-      turn: this.chess.turn(),
-      inCheck: this.chess.inCheck(),
-      isDraw: this.chess.isDraw(),
-      isCheckmate: this.chess.isCheckmate(),
-      isInsufficientMaterial: this.chess.isInsufficientMaterial(),
-      isGameOver: this.chess.isGameOver(),
-      isStalemate: this.chess.isStalemate(),
-      isThreefoldRepetition: this.chess.isThreefoldRepetition(),
-      fen: this.chess.fen(),
-      history: this.chess.history({ verbose: true }),
-    };
-    return update;
   }
 
   middlewareImplementation(socket: Socket, next) {

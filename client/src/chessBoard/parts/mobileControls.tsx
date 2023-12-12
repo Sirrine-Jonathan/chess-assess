@@ -1,12 +1,12 @@
-import { useOptions } from "../optionsContext";
 import { KW, KB } from "../pieces/svg";
 import clsx from "clsx";
-import { useChessBoardContext } from "../gameContext";
-import { ColorPicker } from "../parts/colorPicker";
+import { ColorPicker } from "./colorPicker";
+import { useGame } from "../state/game/useGame";
+import { useOptions } from "../state/options/useOptions";
 
 const MobileControls = () => {
   const { Options, Actions: OptionActions } = useOptions();
-  const { State } = useChessBoardContext();
+  const { gameState } = useGame();
 
   return (
     <div className="mobileControls">
@@ -26,9 +26,11 @@ const MobileControls = () => {
       <div
         className={clsx([
           "layerControl",
-          State.game.turn === "w" && "isTurn",
-          State.playerColor === "w" && Options.showDefenseLayer && "layerOn",
-          State.playerColor !== "w" &&
+          gameState.turn === "w" && "isTurn",
+          gameState.playerColor === "w" &&
+            Options.showDefenseLayer &&
+            "layerOn",
+          gameState.playerColor !== "w" &&
             Options.showEnemyDefenseLayer &&
             "layerOn",
         ])}
@@ -39,24 +41,26 @@ const MobileControls = () => {
         <KW
           className={clsx([
             "layerIcon layerIconWhite",
-            State.playerColor === "w"
+            gameState.playerColor === "w"
               ? "layerIconDefense"
               : "layerIconEnemyDefense",
           ])}
         />
       </div>
       <ColorPicker
-        color={Options.accentColor}
-        onChange={OptionActions.setAccentColor}
-        label="Edit enemy layer color"
+        color={Options.disputedLayerColor}
+        onChange={OptionActions.setDisputedLayerColor}
+        label="Edit disputed layer color"
         direction="center"
       />
       <div
         className={clsx([
           "layerControl",
-          State.game.turn === "b" && "isTurn",
-          State.playerColor === "b" && Options.showDefenseLayer && "layerOn",
-          State.playerColor !== "b" &&
+          gameState.turn === "b" && "isTurn",
+          gameState.playerColor === "b" &&
+            Options.showDefenseLayer &&
+            "layerOn",
+          gameState.playerColor !== "b" &&
             Options.showEnemyDefenseLayer &&
             "layerOn",
         ])}
@@ -69,7 +73,7 @@ const MobileControls = () => {
         <KB
           className={clsx([
             "layerIcon layerIconBlack",
-            State.playerColor === "b"
+            gameState.playerColor === "b"
               ? "layerIconDefense"
               : "layerIconEnemyDefense",
           ])}

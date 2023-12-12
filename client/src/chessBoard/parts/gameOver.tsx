@@ -1,18 +1,16 @@
-import { useChessBoardContext } from "../gameContext";
+import { useGame } from "../state/game/useGame";
 import CheckButton from "./checkButton";
 import clsx from "clsx";
 
 const GameOver = () => {
-  const { State } = useChessBoardContext();
+  const { gameState } = useGame();
   const getReason = () => {
-    if (State.game.isGameOver) {
-      if (State.game.isCheckmate) {
-        return `Checkmate. ${
-          State.game.turn === "w" ? "Black" : "White"
-        } wins!`;
-      } else if (State.game.isDraw) {
+    if (gameState.isGameOver) {
+      if (gameState.isCheckmate) {
+        return `Checkmate. ${gameState.turn === "w" ? "Black" : "White"} wins!`;
+      } else if (gameState.isDraw) {
         return "Draw";
-      } else if (State.game.isStalemate) {
+      } else if (gameState.isStalemate) {
         return "Stalemate";
       }
     }
@@ -22,7 +20,7 @@ const GameOver = () => {
     <div
       className={clsx([
         "stateDisplay",
-        State.game.isGameOver ? "obscure" : "hide",
+        gameState.isGameOver ? "obscure" : "hide",
       ])}
     >
       <div className="gameOver">

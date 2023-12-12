@@ -4,9 +4,7 @@ import express from "express";
 import path from "path";
 import { createServer } from "http";
 import Websocket from "./websocket/websocket";
-import ComputerSocket from "./websocket/computer.socket";
 import RoomSocket from "./websocket/room.socket";
-import { DEFAULT_POSITION } from "chess.js";
 
 import {
   createExpressServer,
@@ -31,10 +29,7 @@ app.use(express.static(path.resolve(__dirname, "../client/build")));
 const httpServer = createServer(app);
 const io = Websocket.getInstance(httpServer);
 
-io.initializeHandlers([
-  { path: "/computer", handler: new ComputerSocket() },
-  { path: "/room", handler: new RoomSocket(io) },
-]);
+io.initializeHandlers([{ path: "/room", handler: new RoomSocket() }]);
 
 httpServer.listen(port, () => {
   console.log(`This is working in port ${port}`);

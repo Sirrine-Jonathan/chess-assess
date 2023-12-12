@@ -6,10 +6,16 @@
       "src": "rookIcon.svg",
       "type": "image/svg+xml",
       "sizes": "any"
+    },
+    {
+      "src": "maskable_icon_x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#d65757",
+  "theme_color": "#D65757",
   "background_color": "#000000"
 }

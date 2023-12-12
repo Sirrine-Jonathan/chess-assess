@@ -1,5 +1,5 @@
 Arguments: 
-  /Users/jsirrine/.nvm/versions/node/v21.2.0/bin/node /Users/jsirrine/.cache/node/corepack/yarn/1.22.19/bin/yarn.js add chess-layers.js
+  /Users/jsirrine/.nvm/versions/node/v21.2.0/bin/node /Users/jsirrine/.cache/node/corepack/yarn/1.22.19/bin/yarn.js add chess.js
 
 PATH: 
   /Users/jsirrine/dev/emsdk/emsdk_env.sh:/Applications/CMake.app/Contents/bin:/Users/jsirrine/.nvm/versions/node/v21.2.0/bin:/Users/jsirrine/bin:/Users/jsirrine/dev/emsdk:/Users/jsirrine/dev/emsdk/upstream/emscripten:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin
@@ -14,7 +14,7 @@ Platform:
   darwin x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/chess-layers.js: Not found
+  Error: https://registry.yarnpkg.com/chess.js: Not found
       at params.callback [as _callback] (/Users/jsirrine/.cache/node/corepack/yarn/1.22.19/lib/cli.js:66145:18)
       at self.callback (/Users/jsirrine/.cache/node/corepack/yarn/1.22.19/lib/cli.js:140890:22)
       at Request.emit (node:events:519:28)
@@ -42,7 +42,7 @@ npm manifest:
     "author": "",
     "license": "ISC",
     "dependencies": {
-      "chess-layers.js": "/Users/jsirrine/dev/chess-layers.js/dist",
+      "chess.js": "/Users/jsirrine/dev/chess.js/dist",
       "class-transformer": "^0.3.1",
       "class-validator": "^0.12.2",
       "dotenv": "^10.0.0",
@@ -843,7 +843,7 @@ Lockfile:
       ansi-styles "^4.1.0"
       supports-color "^7.1.0"
   
-  "chess-layers.js@file:../chess-layers.js/dist":
+  "chess.js@file:../chess.js/dist":
     version "0.0.0"
   
   chokidar@^3.5.2:

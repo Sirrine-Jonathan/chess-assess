@@ -1,4 +1,4 @@
-import type { Square, Color, PieceSymbol } from "chess-layers.js";
+import type { Square, Color, PieceSymbol } from "chess.js";
 
 declare global {
   type ChessPiece = {
@@ -7,6 +7,7 @@ declare global {
     from: Square;
   };
 
+  type GameRole = "white" | "black" | "spectator";
   interface BasePieceProps {
     type: PieceSymbol;
     color: Color;
@@ -28,6 +29,11 @@ declare global {
     accentColor: string;
   }
 
+  interface SocketState {
+    isConnected: boolean;
+    role: GameRole;
+  }
+
   type CaptureEvent = {
     piece: PieceSymbol;
     type: "en-passant" | "capture";
@@ -38,38 +44,42 @@ declare global {
 
   type Conflict = Record<Square, { white: boolean; black: boolean }> | {};
 
-  interface ChessBoardState {
-    activePiece: ChessPiece | null;
-    activeMoves: Move[];
-    lastMove: Move | null;
-    isConnected: boolean;
-    lockedPieces: LockedPieces;
-    playerColor: Color;
+  interface GameState {
+    playerColor: Color | null;
+    ascii: string;
+    board: Board;
+    conflict: Conflict;
+    moves: Moves;
+    turn: Color;
+    inCheck: boolean;
+    isCheckmate: boolean;
+    isDraw: boolean;
+    isInsufficientMaterial: boolean;
+    isGameOver: boolean;
+    isStalemate: boolean;
+    isThreefoldRepetition: boolean;
+    fen: string;
+    history: Move[];
     whiteCaptured: PieceSymbol[];
     blackCaptured: PieceSymbol[];
-    game: {
-      ascii: string;
-      board: Board;
-      conflict: Conflict;
-      moves: Moves;
-      turn: Color;
-      inCheck: boolean;
-      isCheckmate: boolean;
-      isDraw: boolean;
-      isInsufficientMaterial: boolean;
-      isGameOver: boolean;
-      isStalemate: boolean;
-      isThreefoldRepetition: boolean;
-      fen: string;
-      history: Move[];
-    };
+    lastMove: BaseMove | null;
+    activeMoves: Move[];
+    isComputerGame: boolean;
+    botDelay: number;
+  }
+  interface SelectionState {
+    activePiece: ChessPiece | null;
+    lockedPieces: LockedPieces;
   }
 
   type Board = { square: string; type: string; color: string }[][];
 
+  type BaseMove = {
+    to: Square;
+    from: Square;
+  };
+
   type Move = {
-    to: string;
-    from: string;
     color: string;
     piece: string;
     san: string;
@@ -79,7 +89,7 @@ declare global {
     flags: string;
     captured?: string;
     promotion?: string;
-  };
+  } & BaseMove;
 
   type Moves = Move[];
 

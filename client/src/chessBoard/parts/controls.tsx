@@ -1,8 +1,8 @@
-import { useOptions, restoreOptions } from "./optionsContext";
+import { useOptions } from "../state/options/useOptions";
 import clsx from "clsx";
 import { Switch } from "@headlessui/react";
-import CheckButton from "./parts/checkButton";
-import { ColorPicker } from "./parts/colorPicker";
+import CheckButton from "./checkButton";
+import { ColorPicker } from "./colorPicker";
 
 export const Toggle = ({
   on,
@@ -36,7 +36,7 @@ export const Toggle = ({
   </Switch.Group>
 );
 
-const Controls = () => {
+export const Controls = () => {
   const { Options, Actions } = useOptions();
 
   return (
@@ -64,7 +64,7 @@ const Controls = () => {
           <div className="controlRow">
             <ColorPicker
               color={Options.disputedLayerColor}
-              onChange={Actions.setAccentColor}
+              onChange={Actions.setDisputedLayerColor}
               label="Edit disputed territory color"
               showLabel
               direction="right"
@@ -113,25 +113,21 @@ const Controls = () => {
             />
           </div>
         </div>
-        <div className="sidebarSubSection">
+        <div className="sidebarSubSection controlsCheckButtons">
           <CheckButton
             label="Reset Options"
-            onClick={restoreOptions}
+            onClick={Actions.resetOptions}
             classes="restoreButton small"
           />
-        </div>
-        <div className="sidebarSubSection centerRow">
           <CheckButton
             label="New Game"
             onClick={() => {
               window.location.href = window.origin;
             }}
-            classes="resetButton"
+            classes="resetButton small"
           />
         </div>
       </div>
     </>
   );
 };
-
-export default Controls;

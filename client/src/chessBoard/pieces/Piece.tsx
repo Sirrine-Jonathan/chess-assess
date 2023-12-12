@@ -1,4 +1,4 @@
-import type { Color, PieceSymbol } from "chess-layers.js";
+import type { Color, PieceSymbol } from "chess.js";
 import { RW, NW, BW, KW, QW, PW, RB, NB, BB, QB, KB, PB } from "./svg";
 
 const colorTypeMap: Record<Color, Record<PieceSymbol, any>> = {

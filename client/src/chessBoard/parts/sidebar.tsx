@@ -1,27 +1,28 @@
-import type { Color } from "chess-layers.js";
-import Controls from "./Controls";
-import Turn from "./parts/turn";
-import History from "./parts/history";
-import Piece from "./pieces/Piece";
-import { useChessBoardContext } from "./gameContext";
+import type { Color } from "chess.js";
+import { Controls } from "./controls";
+import Turn from "./turn";
+import History from "./history";
+import Piece from "../pieces/Piece";
+import { useGame } from "../state/game/useGame";
 
 const Sidebar = () => {
-  const { State } = useChessBoardContext();
+  const { gameState } = useGame();
   return (
     <div className="sidebar">
       <div className="information sidebarSection ">
         <Turn />
         <div className="sidebarSubSection sidebarCaptureArea">
           <div className="captureArea capturedPieces">
-            {State.blackCaptured.map((piece, index) => (
+            {gameState.blackCaptured.map((piece, index) => (
               <span
                 className="capturedPiece blackCapturedPiece"
                 style={{
                   maxWidth: `${
                     100 /
-                    (State.blackCaptured.length + State.whiteCaptured.length)
+                    (gameState.blackCaptured.length +
+                      gameState.whiteCaptured.length)
                   }%`,
-                  ...(index + 1 === State.blackCaptured.length
+                  ...(index + 1 === gameState.blackCaptured.length
                     ? { marginRight: "auto" }
                     : {}),
                 }}
@@ -30,13 +31,14 @@ const Sidebar = () => {
               </span>
             ))}
 
-            {State.whiteCaptured.map((piece, index) => (
+            {gameState.whiteCaptured.map((piece, index) => (
               <div
                 className="capturedPiece whiteCapturedPiece"
                 style={{
                   maxWidth: `${
                     100 /
-                    (State.blackCaptured.length + State.whiteCaptured.length)
+                    (gameState.blackCaptured.length +
+                      gameState.whiteCaptured.length)
                   }%`,
                   ...(index === 0 ? { marginLeft: "auto" } : {}),
                 }}
