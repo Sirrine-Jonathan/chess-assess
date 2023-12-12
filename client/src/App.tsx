@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./App.scss";
-import { ChessBoard } from "./chessBoard/chessBoard";
+import { ChessBoard } from "./chessBoard/ChessBoard";
 import { useIsMobile } from "./hooks/useIsMobile";
 import clsx from "clsx";
 
