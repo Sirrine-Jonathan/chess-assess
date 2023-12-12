@@ -1,5 +1,5 @@
 import type { Square, Color, PieceSymbol } from "chess.js";
-import { useRef, useEffect, type ReactNode } from "react";
+import { useRef, useEffect } from "react";
 import { useCallback } from "react";
 import {
   DndContext,
