@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import Drawer from "react-bottom-drawer";
-import Content from "./Controls";
+import { Controls } from "./controls";
 
 const BottomDrawer = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -21,7 +21,7 @@ const BottomDrawer = () => {
         <div className="handle" />
       </button>
       <Drawer isVisible={isVisible} onClose={onClose} className="bottomDrawer">
-        <Content />
+        <Controls />
       </Drawer>
     </>
   );

@@ -1,5 +1,5 @@
 import type { Square, Color, PieceSymbol } from "chess.js";
-import { useEffect, useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useCallback } from "react";
 import {
   DndContext,
@@ -11,36 +11,33 @@ import {
   TouchSensor,
 } from "@dnd-kit/core";
 import { BasePiece } from "./pieces/BasePiece";
-import { ChessSquare } from "./Square";
-import Sidebar from "./Sidebar";
-import { useChessBoardContext, ChessBoardContextProvider } from "./gameContext";
-import { OptionsContextProvider, useOptions } from "./optionsContext";
-import "./chessBoard.scss";
-import io from "socket.io-client";
+import { ChessSquare } from "./parts/square";
+import Sidebar from "./parts/sidebar";
+import { useGame } from "./state/game/useGame";
+import { GameProvider } from "./state/game/provider";
+import { OptionsProvider } from "./state/options/provider";
+import { useOptions } from "./state/options/useOptions";
 import clsx from "clsx";
-import BottomDrawer from "./BottomDrawer";
-import useWindowDimensions from "./hooks/useWindowDimensions";
-import Piece from "./pieces/Piece";
-
+import BottomDrawer from "./parts/bottomDrawer";
 import History from "./parts/history";
 import GameOver from "./parts/gameOver";
 import MobileControls from "./parts/mobileControls";
+import { DisplayWrapper } from "./parts/displayWrapper";
+import { useIsMobile } from "../hooks/useIsMobile";
+import "./chessBoard.scss";
+import { SocketProvider } from "./state/socket/provider";
+import { useSocket } from "./state/socket/useSocket";
+import { getRoom } from "./state/socket/connect";
+import { SelectionProvider } from "./state/selection/provider";
+import { WhiteCaptured, BlackCaptured } from "./parts/captured";
+import { useSelection } from "./state/selection/useSelection";
 
-const SERVER_URL =
-  process.env.NODE_ENV === "development"
-    ? "ws://localhost:1337/chess"
-    : "/chess";
-
-export const socket = io(SERVER_URL, {
-  autoConnect: false,
-});
-
-export const ChessBoardInner = () => {
+export const ChessBoardInner = ({ loading }) => {
   const { Options } = useOptions();
-  const { Actions, State } = useChessBoardContext();
-  const isMobile = useWindowDimensions().width <= 768;
+  const { Actions, gameState } = useGame();
+  const { selectionState, selectionActions } = useSelection();
+  const isMobile = useIsMobile();
 
-  const displayWrapperRef = useRef<HTMLDivElement>(null);
   const chessBoardWrapperRef = useRef<HTMLDivElement>(null);
 
   const mouseSensor = useSensor(MouseSensor, {
@@ -51,74 +48,10 @@ export const ChessBoardInner = () => {
   });
   const sensors = useSensors(mouseSensor, touchSensor);
 
-  useEffect(() => {
-    if (!State.isConnected) {
-      socket.connect();
-    }
-
-    function onConnect() {
-      Actions.setIsConnected(true);
-    }
-
-    function onDisconnect() {
-      Actions.setIsConnected(false);
-    }
-
-    function onUpdate(update: GameUpdate) {
-      Actions.performUpdate(update);
-
-      window.history.replaceState(
-        null,
-        "",
-        window.location.origin + "/" + encodeURIComponent(update.fen)
-      );
-    }
-
-    function onCapture(event: CaptureEvent) {
-      Actions.setColorCaptured(event);
-    }
-
-    function onLoadSuccess(details: {
-      blackCaptured: PieceSymbol[];
-      whiteCaptured: PieceSymbol[];
-    }) {
-      Actions.setLoadDetails(details);
-    }
-
-    function onShowActiveMoves(moves: Move[]) {
-      Actions.setActiveMoves(moves);
-    }
-
-    function onMoveEnded(move: Move) {
-      Actions.setActivePiece(null);
-      Actions.setActiveMoves([]);
-      Actions.setLastMove(move);
-    }
-
-    socket.on("connect", onConnect);
-    socket.on("disconnect", onDisconnect);
-    socket.on("update", onUpdate);
-    socket.on("capture", onCapture);
-    socket.on("loadSuccess", onLoadSuccess);
-    socket.on("showActiveMoves", onShowActiveMoves);
-    socket.on("moveEnded", onMoveEnded);
-
-    return () => {
-      socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
-      socket.off("update", onUpdate);
-      socket.off("capture", onCapture);
-      socket.off("loadSuccess", onLoadSuccess);
-      socket.off("showActiveMoves", onShowActiveMoves);
-      socket.off("moveEnded", onMoveEnded);
-    };
-  });
-
   const handleDragStart = useCallback(
     function handleDragStart(event: DragStartEvent) {
       const [color, piece, from] = (event.active.id as string).split("-");
-      Actions.setActivePiece({ color, piece, from } as ChessPiece);
-      socket.emit("moving", from);
+      selectionActions.setActivePiece({ color, piece, from } as ChessPiece);
     },
     [Actions]
   );
@@ -128,27 +61,47 @@ export const ChessBoardInner = () => {
       const parts = (event.active.id as string).split("-");
       const from = parts[2];
       if (event.over) {
-        Actions.move({ from: from as Square, to: event.over.id as Square });
+        const move = {
+          from: from as Square,
+          to: event.over.id as Square,
+        };
+        const captured = Actions.move(move);
+        if (captured) {
+          Actions.setColorCaptured({
+            color: captured.color as Color,
+            piece: captured.piece,
+            type: captured.type as CaptureEvent["type"],
+          });
+        }
+        Actions.performUpdate();
+        Actions.setLastMove(move);
+        selectionActions.setActivePiece(null);
+        setTimeout(() => {
+          if (gameState.isComputerGame) {
+            const result = Actions.computerMove();
+            if (result) {
+              const { captured, move } = result;
+              if (captured) {
+                Actions.setColorCaptured({
+                  color: captured.color as Color,
+                  piece: captured.piece,
+                  type: captured.type as CaptureEvent["type"],
+                });
+              }
+              Actions.setLastMove(move);
+              selectionActions.setActivePiece(null);
+            }
+            Actions.performUpdate();
+          }
+        }, gameState.botDelay);
       }
     },
     [Actions]
   );
 
   useEffect(() => {
-    if (displayWrapperRef.current) {
-      const styleString = Object.entries({
-        "--primary-color": Options.primaryColor,
-        "--secondary-color": Options.secondaryColor,
-        "--accent-color": Options.accentColor,
-        "--defense-color": Options.defenseLayerColor,
-        "--enemy-defense-color": Options.enemyDefenseLayerColor,
-        "--disputed-color": Options.disputedTerritoryLayerColor,
-      }).reduce((acc: string, [key, val]: string[]) => {
-        return acc + `${key}: ${val};`;
-      }, "");
-      displayWrapperRef.current.setAttribute("style", styleString);
-    }
-  }, [displayWrapperRef, Options]);
+    Actions.performUpdate();
+  }, []);
 
   return (
     <DndContext
@@ -156,154 +109,152 @@ export const ChessBoardInner = () => {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div
-        ref={displayWrapperRef}
-        className={clsx([
-          "displayWrapper",
-          !State.isConnected && "loading",
-          isMobile && "isMobile",
-        ])}
-      >
-        {State.isConnected ? (
-          <>
-            <div
-              ref={chessBoardWrapperRef}
-              className="chessBoardWrapper"
-              onClick={(e) => {
-                if (e.target === chessBoardWrapperRef.current) {
-                  Actions.setActivePiece(null);
-                  Actions.setActiveMoves([]);
-                }
-              }}
-            >
-              <>
-                {isMobile ? <MobileControls /> : null}
-                <div className="outerBoardContainer">
-                  {isMobile ? (
-                    <div className="captureArea enemyCapturedPieces">
-                      {State.whiteCaptured.map((piece) => (
-                        <Piece color={"w" as Color} type={piece} />
-                      ))}
-                    </div>
-                  ) : null}
-                  <div className="innerBoardContainer">
-                    <GameOver />
-                    {Options.showAxisLabels ? (
-                      <div className="rankRuler">
-                        {[8, 7, 6, 5, 4, 3, 2, 1].map((number) => (
-                          <div className="gridLabel rankLabel">{number}</div>
-                        ))}
-                      </div>
-                    ) : null}
-                    {Options.showAxisLabels ? (
-                      <div className="fileRuler">
-                        {["a", "b", "c", "d", "e", "f", "g", "h"].map(
-                          (letter) => (
-                            <div className="gridLabel fileLabel">{letter}</div>
+      <DisplayWrapper loading={loading}>
+        <>
+          <div
+            ref={chessBoardWrapperRef}
+            className="chessBoardWrapper"
+            onClick={(e) => {
+              if (e.target === chessBoardWrapperRef.current) {
+                selectionActions.setActivePiece(null);
+                Actions.setActiveMoves([]);
+              }
+            }}
+          >
+            <>
+              {isMobile ? <MobileControls /> : null}
+              {/*<pre>{gameState.ascii}</pre>*/}
+              <div className="outerBoardContainer">
+                {isMobile ? <WhiteCaptured /> : null}
+                <div className="innerBoardContainer">
+                  <GameOver />
+                  <div
+                    key={gameState.ascii}
+                    className={clsx([
+                      "board",
+                      gameState.isGameOver && "blur",
+                      (gameState.playerColor === "w"
+                        ? Options.flipBoard
+                        : !Options.flipBoard) && "flip",
+                    ])}
+                    onKeyDown={(e) => {
+                      if (e.code === "Escape") {
+                        selectionActions.setActivePiece(null);
+                        Actions.setActiveMoves([]);
+                      }
+                    }}
+                  >
+                    {gameState.board.flat().map((piece, index) => {
+                      const rank = ["a", "b", "c", "d", "e", "f", "g", "h"][
+                        index % 8
+                      ];
+                      const fileNum = ((index - (index % 8)) % 9) - 1;
+                      const file = fileNum < 0 ? 8 : fileNum;
+
+                      const name = `${rank}${file}`;
+
+                      const pieceCanMove = !!gameState.moves?.find((move) => {
+                        return name === move.from;
+                      });
+
+                      const partOfLastMove =
+                        gameState.lastMove !== null &&
+                        (name === gameState.lastMove.to ||
+                          name === gameState.lastMove.from);
+
+                      const possibleDestination = selectionState.activePiece
+                        ? !!gameState.activeMoves?.find(
+                            (move) => name === move.to
                           )
-                        )}
-                      </div>
-                    ) : null}
-                    <div
-                      key={State.game.ascii}
-                      className={clsx([
-                        "board",
-                        State.game.isGameOver && "blur",
-                      ])}
-                      onKeyDown={(e) => {
-                        if (e.code === "Escape") {
-                          Actions.setActivePiece(null);
-                          Actions.setActiveMoves([]);
-                        }
-                      }}
-                    >
-                      {State.game.board.flat().map((piece, index) => {
-                        const rank = ["a", "b", "c", "d", "e", "f", "g", "h"][
-                          index % 8
-                        ];
-                        const fileNum = ((index - (index % 8)) % 9) - 1;
-                        const file = fileNum < 0 ? 8 : fileNum;
+                        : false;
 
-                        const name = `${rank}${file}`;
-
-                        const pieceCanMove = !!State.game.moves?.find(
-                          (move) => {
-                            return name === move.from;
+                      return (
+                        <ChessSquare
+                          key={name}
+                          name={name}
+                          flip={
+                            gameState.playerColor === "w"
+                              ? Options.flipBoard
+                              : !Options.flipBoard
                           }
-                        );
-
-                        const partOfLastMove =
-                          State.lastMove !== null &&
-                          (name === State.lastMove.to ||
-                            name === State.lastMove.from);
-
-                        const possibleDestination = State.activePiece
-                          ? !!State.activeMoves?.find(
-                              (move) => name === move.to
-                            )
-                          : false;
-
-                        return (
-                          <ChessSquare
-                            key={name}
-                            name={name}
-                            enemyDefending={State.game.conflict[name].black}
-                            playerDefending={State.game.conflict[name].white}
-                            isAttacked={
-                              piece &&
-                              ((State.game.conflict[name].white &&
-                                piece.color !== "w") ||
-                                (State.game.conflict[name].black &&
-                                  piece.color !== "b"))
-                            }
-                            partOfLastMove={partOfLastMove}
-                            possibleDestination={possibleDestination}
-                          >
-                            {piece ? (
-                              <BasePiece
-                                type={piece.type as PieceSymbol}
-                                color={piece.color as Color}
-                                pieceCanMove={pieceCanMove}
-                              />
-                            ) : null}
-                          </ChessSquare>
-                        );
-                      })}
-                    </div>
+                          enemyDefending={gameState.conflict[name].black}
+                          playerDefending={gameState.conflict[name].white}
+                          isAttacked={
+                            piece &&
+                            ((gameState.conflict[name].white &&
+                              piece.color !== "w") ||
+                              (gameState.conflict[name].black &&
+                                piece.color !== "b"))
+                          }
+                          partOfLastMove={partOfLastMove}
+                          possibleDestination={possibleDestination}
+                        >
+                          {piece ? (
+                            <BasePiece
+                              type={piece.type as PieceSymbol}
+                              color={piece.color as Color}
+                              pieceCanMove={pieceCanMove}
+                            />
+                          ) : null}
+                        </ChessSquare>
+                      );
+                    })}
                   </div>
-                  {isMobile ? (
-                    <div className="captureArea capturedPieces">
-                      {State.blackCaptured.map((piece) => (
-                        <Piece color={"b" as Color} type={piece} />
-                      ))}
-                    </div>
-                  ) : null}
-                  {isMobile ? <History /> : null}
                 </div>
-              </>
-            </div>
-            {isMobile ? <BottomDrawer /> : <Sidebar />}
-          </>
-        ) : (
-          <div className="loadingSpinner">
-            <div />
+                {isMobile ? <BlackCaptured /> : null}
+                {isMobile ? <History /> : null}
+              </div>
+            </>
           </div>
-        )}
-      </div>
+          {isMobile ? <BottomDrawer /> : <Sidebar />}
+        </>
+      </DisplayWrapper>
     </DndContext>
   );
 };
 
-export const ChessBoard = () => {
+const ChessBoardComputer = () => {
   const url = new URL(window.location.href);
   const fen = decodeURIComponent(url.pathname.split("/")[1]);
+
   return (
-    <div>
-      <OptionsContextProvider>
-        <ChessBoardContextProvider fen={fen}>
-          <ChessBoardInner />
-        </ChessBoardContextProvider>
-      </OptionsContextProvider>
-    </div>
+    <GameProvider fen={fen} role={"white"} isComputerGame={true}>
+      <ChessBoardInner loading={false} />
+    </GameProvider>
+  );
+};
+
+const ChessBoardRoom = () => {
+  const url = new URL(window.location.href);
+  const fen = decodeURIComponent(url.pathname.split("/")[1]);
+
+  const { isConnected, role } = useSocket();
+
+  return (
+    <GameProvider fen={fen} role={role} isComputerGame={false}>
+      <ChessBoardInner loading={isConnected} />
+    </GameProvider>
+  );
+};
+
+export const ChessBoard = () => {
+  const room = getRoom();
+
+  if (room) {
+    <SocketProvider>
+      <OptionsProvider>
+        <SelectionProvider>
+          <ChessBoardRoom />
+        </SelectionProvider>
+      </OptionsProvider>
+    </SocketProvider>;
+  }
+
+  return (
+    <OptionsProvider>
+      <SelectionProvider>
+        <ChessBoardComputer />
+      </SelectionProvider>
+    </OptionsProvider>
   );
 };

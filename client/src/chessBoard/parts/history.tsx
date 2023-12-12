@@ -1,16 +1,16 @@
-import { useChessBoardContext } from "../gameContext";
+import { useGame } from "../state/game/useGame";
 
 const History = () => {
-  const { State } = useChessBoardContext();
+  const { gameState } = useGame();
   return (
     <div className="historySection">
-      {State.game.history.map((move, index) => {
+      {gameState.history.map((move, index) => {
         const ind = index + 1;
-        if (ind % 2 === 0 && ind < State.game.history.length) {
+        if (ind % 2 === 0 && ind < gameState.history.length) {
           return null;
         }
-        const whiteMove = State?.game.history?.[index];
-        const blackMove = State?.game.history?.[index + 1];
+        const whiteMove = gameState.history?.[index];
+        const blackMove = gameState.history?.[index + 1];
 
         if (!whiteMove || !blackMove) {
           return null;
@@ -31,7 +31,7 @@ const History = () => {
         //   : null;
 
         return (
-          <div className="historyRow">
+          <div key={`${wLan}:${bLan}`} className="historyRow">
             <div>
               <span>{wLan}</span>
             </div>

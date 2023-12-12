@@ -1,33 +1,39 @@
-import { useChessBoardContext } from "../gameContext";
-import ResetButton from "./resetButton";
+import { useGame } from "../state/game/useGame";
+import CheckButton from "./checkButton";
 import clsx from "clsx";
 
 const GameOver = () => {
-  const { State } = useChessBoardContext();
+  const { gameState } = useGame();
   const getReason = () => {
-    if (State.game.isGameOver) {
-      if (State.game.isCheckmate) {
-        return `Checkmate. ${
-          State.game.turn === "w" ? "Black" : "White"
-        } wins!`;
-      } else if (State.game.isDraw) {
+    if (gameState.isGameOver) {
+      if (gameState.isCheckmate) {
+        return `Checkmate. ${gameState.turn === "w" ? "Black" : "White"} wins!`;
+      } else if (gameState.isDraw) {
         return "Draw";
-      } else if (State.game.isStalemate) {
+      } else if (gameState.isStalemate) {
         return "Stalemate";
       }
     }
     return null;
   };
-  if (!State.game.isGameOver) {
-    return null;
-  }
   return (
-    <div className={clsx(["stateDisplay"])}>
+    <div
+      className={clsx([
+        "stateDisplay",
+        gameState.isGameOver ? "obscure" : "hide",
+      ])}
+    >
       <div className="gameOver">
         <div className="gameOverTitle">Game Over</div>
         <div className="gameOverReason">{getReason()}</div>
         <div className="centerRow">
-          <ResetButton />
+          <CheckButton
+            label="New Game"
+            onClick={() => {
+              window.location.href = window.origin;
+            }}
+            classes="gameOverResetButton dark"
+          />
         </div>
       </div>
     </div>

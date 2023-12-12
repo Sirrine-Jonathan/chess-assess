@@ -1,7 +1,109 @@
+@import "./variables.scss";
+
 .App {
+
+
   height: 100%;
 
   & > div {
     height: 100%;
+  }
+
+  .welcome {
+    margin: 0 auto;
+    text-align: center;
+    background: #333;
+    color: #fff;
+    width: max-content;
+    height: max-content;
+    padding: 25px 50px;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border: 3px solid #fff;
+    border-top: none;
+
+
+    .welcomeInputs {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+
+      .roomInputsOuter {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        
+        .roomInputs {
+          display: flex;
+          align-items: stretch;
+          flex: 1;
+        }
+      }
+
+      .computerInputs {
+        flex: 1;
+      }
+    }
+
+    input {
+      border: 3px solid #D65757;
+    }
+
+    a {
+      display: block;
+      text-decoration: none;
+      background: #D65757;
+      border:none;
+      padding: 6px 10px;
+      color: #fff !important;
+      border: 3px solid #D65757;
+      transition: all 0.3s;
+
+      &:hover {
+        border-color: #000;
+      }
+    }
+  }
+
+  .loadingSpinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: $topSpacing;
+
+    & > div {
+      height: 125px;
+      width: 125px;
+      border: 8px solid #fff;
+      border-radius: 20px;
+      background-image: conic-gradient(
+        $darkSquares 0,
+        $darkSquares 90deg,
+        $lightSquares 90deg,
+        $lightSquares 180deg,
+        $darkSquares 180deg,
+        $darkSquares 270deg,
+        $lightSquares 270deg,
+        $lightSquares 360deg
+      );
+
+    }
+
+    &.animate {
+      animation-name: loading;
+      animation-duration: 5s;
+      animation-iteration-count: infinite;
+    }
+  }
+
+  &.isMobile {
+    .welcome {
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      border-radius: 0;
+      width: auto;
+    }
   }
 }

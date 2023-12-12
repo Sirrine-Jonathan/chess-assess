@@ -1,20 +1,86 @@
 @use "sass:color";
 
 @import "../toggle.scss";
+@import "../variables.scss";
+
+@mixin triangles($color, $offset: 0) {
+  & > .topLayer {
+    clip-path: polygon(0 0, 100% 0, 50% 50%, 0 0);
+    background-color: $color;
+    filter: brightness(1 - $offset);
+  }
+
+  & > .rightLayer {
+    clip-path: polygon(100% 0, 50% 50%, 100% 100%, 100% 0);
+    background-color: $color;
+    filter: brightness(0.95 - $offset);
+  }
+
+  & > .bottomLayer {
+    clip-path: polygon(50% 50%, 100% 100%, 0 100%, 50% 50%);
+    background-color: $color;
+    filter: brightness(0.90 - $offset);
+  }
+
+  & > .leftLayer {
+    clip-path: polygon(0 0, 50% 50%, 0 100%, 0 0);
+    background-color: $color;
+    filter: brightness(0.92 - $offset);
+  }
+}
+
+@mixin layers($darken: 0) {
+  .layer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+
+    
+
+    &.disputedLayer {
+      $color: var(--disputed-color);
+      background-color: $color;
+
+      @include triangles($color, $darken);
+    }
+
+    &.enemyDefenseLayer {
+      $color: var(--enemy-defense-color);
+      background-color: $color;
+
+      @include triangles($color, $darken);
+    }
+
+    &.defenseLayer {
+      $color: var(--defense-color);
+      background-color: $color;
+
+      @include triangles($color, $darken);
+    }
+
+    &.moveLayer {
+      $color: #111;
+      background-color: $color;
+
+      @include triangles($color, $darken);
+    }
+    
+    &.partOfLastMove {
+      $color: #2b2b2b;
+      background-color: $color;
+      z-index: 1;
+    }
+  }
+}
 
 .displayWrapper {
-  $squareSize: 70px;
-  $darkSquares: #d65757;
-  $darkSquaresTeamOption: #333; // darken($darkSquares, 50%);
-  $darkSquaresPieceOption: #333;
-  $lightSquares: #fff;
-  $lightSquaresTeamOption: #333; // dark($lightSquares, 50%);
-  $lightSquaresPieceOption: #333;
-  $optionBorderSize: 8px;
-  $topSpacing: 40px;
-
   display: flex;
   height: 100%;
+  background: URL('/public/bg.png');
 
   &.loading {
     justify-content: center;
@@ -38,6 +104,10 @@
         position: relative;
         margin: 7px 0;
 
+        .flip {
+          transform: rotate(180deg);
+        }
+
         .stateDisplay {
           position: absolute;
           z-index: 3;
@@ -46,11 +116,34 @@
           display: flex;
           justify-content: center;
           align-items: center;
-          background: rgba(255, 255, 255, 0.5);
+          background-color: rgba(255, 255, 255, 0.2);
           color: #000;
           font-size: 1.3em;
           font-weight: 600;
           border-radius: 5px;
+          transition: background-color 10s, font-size 5s;
+
+          &.obscure {
+            background-color: rgba(255, 255, 255, 1);
+            font-size: 2em;
+            
+          }
+
+          &.hide {
+            visibility: hidden;
+          }
+
+          .gameOver {
+            padding: 15px;
+            
+            .gameOverReason {
+              font-size: 2rem;
+            }
+      
+            .gameOverTitle {
+              font-size: 2.5rem;
+            }
+          }
         }
 
         .board {
@@ -67,15 +160,25 @@
             filter: blur(2.5px);
           }
 
+          
+          $darkSquareOffset: 0.3;
           .square[id*="8"],
           .square[id*="6"],
           .square[id*="4"],
           .square[id*="2"] {
             &:nth-child(odd) {
-              background: var(--primary-color);
+              $color: #{var(--primary-color)};
+              background: $color;
+
+              @include triangles($color);
+              @include layers($darkSquareOffset);
             }
             &:nth-child(even) {
-              background: var(--secondary-color);
+              $color: #{var(--secondary-color)};
+              background: $color;
+
+              @include triangles($color);
+              @include layers(0);
             }
           }
 
@@ -84,10 +187,18 @@
           .square[id*="3"],
           .square[id*="1"] {
             &:nth-child(odd) {
-              background: var(--secondary-color);
+              $color: #{var(--secondary-color)};
+              background: $color;
+
+              @include triangles($color);
+              @include layers(0);
             }
             &:nth-child(even) {
-              background: var(--primary-color);
+              $color: #{var(--primary-color)};
+              background: $color;
+
+              @include triangles($color);
+              @include layers($darkSquareOffset);
             }
           }
 
@@ -102,8 +213,6 @@
             height: clamp(10px, 8vw, 80px);
             cursor: pointer;
 
-            
-
             .piece {
               display: flex;
               justify-content: center;
@@ -114,8 +223,8 @@
 
               svg {
                 pointer-events: none;
-                width: 80%;
-                height: 80%;
+                width: 83%;
+                height: 83%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -130,12 +239,8 @@
                 drop-shadow(1px -1px red) drop-shadow(-1px -1px red);
             }
 
-            &.partOfLastMove {
-              background: var(--accent-color) !important;
-            }
-
             &.isOver {
-              border: 2px solid var(--accent-color);
+              border: 2px solid #333;
             }
 
             .squareName {
@@ -165,33 +270,8 @@
             }
 
             .layer {
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%);
-              width: 80%;
-              height: 80%;
-              border-radius: 15%;
-              z-index: 0;
-
-              &.disputedLayer {
-                background-color: var(--disputed-color);
-              }
-
-              &.enemyDefenseLayer {
-                background-color: var(--enemy-defense-color);
-              }
-
-              &.defenseLayer {
-                background-color: var(--defense-color);
-              }
-
-              &.moveLayer {
-                background-color: #000;
-                z-index: 1;
-              }
-
               &.isAttacked {
+                display: none;
                 z-index: 2;
                 top: 50%;
                 left: 50%;
@@ -281,10 +361,10 @@
   .sidebar,
   .bottomDrawer {
     color: #fff;
-    background: #333;
   }
 
   .sidebar {
+    background: rgba(0,0,0,0.7);
     padding: $topSpacing 20px;
     font-size: clamp(12px, 1vw, 14px);
     flex: 1;
@@ -295,13 +375,14 @@
   .bottomDrawer {
     font-size: clamp(12px, 1vw, 14px);
     padding-bottom: 40px;
+    background: #111;
   }
 
   .bottomDrawerButton {
     display: flex;
     justify-content: center;
     padding: 10px 0;
-    background: #333;
+    background: #111;
     border-top-right-radius: 15px;
     border-top-left-radius: 15px;
     border: none;
@@ -382,6 +463,14 @@
     }
   }
 
+  .controlsCheckButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 10px 0;
+    align-items: flex-start;
+  }
+
   .toggleRow {
     display: flex;
     align-items: center;
@@ -444,18 +533,6 @@
         }
       }
 
-      &.disputedLayerSwitch {
-        .optionsToggleThumb {
-          background-color: var(--disputed-color);
-        }
-        &[data-headlessui-state~="checked"] {
-          background: var(--disputed-color);
-          .optionsToggleThumb {
-            background-color: #fff;
-          }
-        }
-      }
-
       &:focus {
         outline: none;
       }
@@ -484,17 +561,36 @@
       }
     }
 
-    .twitterPicker {
+    .colorFullWrapper {
       position: absolute;
-      top: 25px;
-      z-index: 2;
+      top: 100%;
+      z-index: 3;
+      visibility: hidden;
+
+      &.visible {
+        visibility: visible;
+      }
+
+      &.left {
+        right: 0;
+      }
+
+      &.center {
+        left: 50%;
+        transform: translate(-50%, 0);
+      }
+
+      &.right {
+        left: 0;
+      }
     }
+
   }
 
   .sidebarSection {
-    padding-bottom: 20px;
-    padding-top: 20px;
-    border-bottom: 1px solid #000;
+    padding-bottom: 40px;
+    padding-top: 25px;
+    border-bottom: 1px solid #fff;
 
     .sidebarSubSection {
       padding-bottom: 20px;
@@ -522,61 +618,71 @@
     margin: 5px 0;
   }
 
-  .loadingSpinner {
-    display: flex;
-    justify-content: center;
-    height: calc(($squareSize * 8) + 8px);
-    align-items: center;
-    margin-top: $topSpacing;
-
-    & > div {
-      height: 125px;
-      width: 125px;
-      border: 8px solid #fff;
-      border-radius: 20px;
-      background-image: conic-gradient(
-        $darkSquares 0,
-        $darkSquares 90deg,
-        $lightSquares 90deg,
-        $lightSquares 180deg,
-        $darkSquares 180deg,
-        $darkSquares 270deg,
-        $lightSquares 270deg,
-        $lightSquares 360deg
-      );
-      animation-name: loading;
-      animation-duration: 5s;
-      animation-iteration-count: infinite;
-    }
-  }
+  
 
   .centerRow {
     display: flex;
     justify-content: center;
   }
 
-  .gameOverReason {
-    font-size: 1rem;
-  }
-
-  .gameOverTitle {
-    font-size: 1.5rem;
-  }
-
-  .resetButton {
-    border: none;
-    background: #000;
-    color: #fff;
-    padding: 6px 10px;
-    border-radius: 3px;
-    font-size: 2rem;
-    margin-top: 25px;
+  .checkButton {
+    align-items: center;
+    background-color: #FFFFFF;
+    border: 2px solid #333;
+    border-radius: .50rem;
+    box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
+    box-sizing: border-box;
+    color: rgba(0, 0, 0, 0.85);
     cursor: pointer;
+    display: flex;
+    font-size: 2rem;
+    font-weight: 600;
+    justify-content: center;
+    line-height: 1.25;
+    margin: 0;
+    position: relative;
+    text-decoration: none;
+    transition: all 250ms;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: baseline;
+    width: auto;
+    padding: 9px 15px;
+
+    &.dark {
+      background-color: #000000;
+      border: 2px solid #EFEFEF;
+      color: #FFFFFF;
+    }
+
+    &.small {
+      font-size: 1.2em;
+      padding: 6px 10px;
+    }
   }
 
-  .sidebar .resetButton {
-    background: #fff;
-    color: #000;
+  .checkButton:hover,
+  .checkButton:focus {
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+  }
+
+  .checkButton:hover {
+    transform: translateY(-1px);
+  }
+
+  .checkButton:active {
+    background-color: #F0F0F1;
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: rgba(0, 0, 0, 0.06) 0 2px 4px;
+    color: rgba(0, 0, 0, 0.65);
+    transform: translateY(0);
+  }
+
+
+  .gameOverResetButton {
+    margin-top: 25px;
   }
 
   .historySection {
@@ -617,6 +723,10 @@
         filter: drop-shadow(-0.5px 0.5px #fff) drop-shadow(0.5px -0.5px #fff);
       }
     }
+  }
+
+  .loadingSpinner {
+    height: calc(($squareSize * 8) + 8px);
   }
 
   @keyframes loading {
@@ -667,7 +777,8 @@
       .innerBoardContainer {
         .board {
           width: 100%;
-          gap: 0;
+          gap: 3px;
+          background: #fff;
 
           .square {
             border: none;
