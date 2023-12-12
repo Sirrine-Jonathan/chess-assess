@@ -1,4 +1,9 @@
-import type { Square, Color, PieceSymbol } from "chess.js";
+import {
+  type Square,
+  type Color,
+  type PieceSymbol,
+  DEFAULT_POSITION,
+} from "chess.js";
 import { useRef, useEffect } from "react";
 import { useCallback } from "react";
 import {
@@ -14,7 +19,7 @@ import { BasePiece } from "./pieces/BasePiece";
 import { ChessSquare } from "./parts/square";
 import Sidebar from "./parts/sidebar";
 import { useGame } from "./state/game/useGame";
-import { GameProvider } from "./state/game/provider";
+import { GameProvider } from "./state/game/useGame";
 import { OptionsProvider } from "./state/options/provider";
 import { useOptions } from "./state/options/useOptions";
 import clsx from "clsx";
@@ -215,10 +220,18 @@ export const ChessBoardInner = ({ loading }) => {
 
 const ChessBoardComputer = () => {
   const url = new URL(window.location.href);
-  const fen = decodeURIComponent(url.pathname.split("/")[1]);
+  const fen = decodeURIComponent(
+    url.pathname.split("/")?.[2] || DEFAULT_POSITION
+  );
+
+  console.log("load", { fen, url, split: url.pathname.split("/") });
 
   return (
-    <GameProvider fen={fen} role={"white"} isComputerGame={true}>
+    <GameProvider
+      fen={fen || DEFAULT_POSITION}
+      role={"white"}
+      isComputerGame={true}
+    >
       <ChessBoardInner loading={false} />
     </GameProvider>
   );
@@ -226,7 +239,11 @@ const ChessBoardComputer = () => {
 
 const ChessBoardRoom = () => {
   const url = new URL(window.location.href);
-  const fen = decodeURIComponent(url.pathname.split("/")[1]);
+  const fen = decodeURIComponent(
+    url.pathname.split("/")?.[2] || DEFAULT_POSITION
+  );
+
+  console.log("load", { fen, url, split: url.pathname.split("/") });
 
   const { isConnected, role } = useSocket();
 

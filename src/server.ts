@@ -26,6 +26,18 @@ const app = createExpressServer(routingControllerOptions);
 
 app.use(express.static(path.resolve(__dirname, "../client/build")));
 
+app.get("/computer", function (req, res) {
+  res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
+});
+
+app.get("/computer/:fen", function (req, res) {
+  res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
+});
+
+app.get("/room", function (req, res) {
+  res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
+});
+
 const httpServer = createServer(app);
 const io = Websocket.getInstance(httpServer);
 

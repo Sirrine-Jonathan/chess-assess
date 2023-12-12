@@ -2,27 +2,27 @@ import { Chess, validateFen, type Square } from "chess.js";
 import { Howl } from "howler";
 
 const moveSound = new Howl({
-  src: ["sounds/move.mp3"],
+  src: ["/sounds/move.mp3"],
 });
 
 const captureSound = new Howl({
-  src: ["sounds/capture.mp3"],
+  src: ["/sounds/capture.mp3"],
 });
 
 const checkSound = new Howl({
-  src: ["sounds/move-check.mp3"],
+  src: ["/sounds/move-check.mp3"],
 });
 
 const promoteSound = new Howl({
-  src: ["sounds/promote.mp3"],
+  src: ["/sounds/promote.mp3"],
 });
 
 const gameOverSound = new Howl({
-  src: ["sounds/game-end.mp3"],
+  src: ["/sounds/game-end.mp3"],
 });
 
 const castleSound = new Howl({
-  src: ["sounds/castle.mp3"],
+  src: ["/sounds/castle.mp3"],
 });
 
 export class Game {
@@ -86,22 +86,18 @@ export class Game {
 
     const didCapture = result.flags.includes("e") || result.flags.includes("c");
 
-    let playedSound = false;
     if (this.chess.isGameOver()) {
       gameOverSound.play();
-      playedSound = true;
     } else if (this.chess.inCheck()) {
       checkSound.play();
-      playedSound = true;
     } else if (result.flags.includes("k") || result.flags.includes("q")) {
       castleSound.play();
-      playedSound = true;
     } else if (result.flags.includes("p")) {
       promoteSound.play();
-      playedSound = true;
     } else if (didCapture) {
       captureSound.play();
     } else {
+      console.log("play move sound");
       moveSound.play();
     }
 
