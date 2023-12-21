@@ -1,0 +1,794 @@
+@use "sass:color";
+
+@import "../toggle.scss";
+@import "../variables.scss";
+
+@mixin triangles($color, $offset: 0) {
+  & > .topLayer {
+    clip-path: polygon(0 0, 100% 0, 50% 50%, 0 0);
+    background-color: $color;
+    filter: brightness(1 - $offset);
+  }
+
+  & > .rightLayer {
+    clip-path: polygon(100% 0, 50% 50%, 100% 100%, 100% 0);
+    background-color: $color;
+    filter: brightness(0.95 - $offset);
+  }
+
+  & > .bottomLayer {
+    clip-path: polygon(50% 50%, 100% 100%, 0 100%, 50% 50%);
+    background-color: $color;
+    filter: brightness(0.90 - $offset);
+  }
+
+  & > .leftLayer {
+    clip-path: polygon(0 0, 50% 50%, 0 100%, 0 0);
+    background-color: $color;
+    filter: brightness(0.92 - $offset);
+  }
+}
+
+@mixin layers($darken: 0) {
+  .layer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+
+    
+
+    &.disputedLayer {
+      $color: var(--disputed-color);
+      background-color: $color;
+
+      @include triangles($color, $darken);
+    }
+
+    &.enemyDefenseLayer {
+      $color: var(--enemy-defense-color);
+      background-color: $color;
+
+      @include triangles($color, $darken);
+    }
+
+    &.defenseLayer {
+      $color: var(--defense-color);
+      background-color: $color;
+
+      @include triangles($color, $darken);
+    }
+
+    &.moveLayer {
+      $color: #111;
+      background-color: $color;
+
+      @include triangles($color, $darken);
+    }
+    
+    &.partOfLastMove {
+      $color: #2b2b2b;
+      background-color: $color;
+      z-index: 1;
+    }
+  }
+}
+
+.displayWrapper {
+  display: flex;
+  height: 100%;
+  background: URL('/public/bg.png');
+
+  &.loading {
+    justify-content: center;
+  }
+
+  .chessBoardWrapper {
+    display: flex;
+    flex-direction: column;
+    padding: $topSpacing 20px;
+    flex: 1;
+
+    .outerBoardContainer {
+      width: min-content;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+
+      .innerBoardContainer {
+        display: flex;
+        justify-content: center;
+        position: relative;
+        margin: 7px 0;
+
+        .flip {
+          transform: rotate(180deg);
+        }
+
+        .stateDisplay {
+          position: absolute;
+          z-index: 3;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background-color: rgba(255, 255, 255, 0.2);
+          color: #000;
+          font-size: 1.3em;
+          font-weight: 600;
+          border-radius: 5px;
+          transition: background-color 10s, font-size 5s;
+
+          &.obscure {
+            background-color: rgba(255, 255, 255, 1);
+            font-size: 2em;
+            
+          }
+
+          &.hide {
+            visibility: hidden;
+          }
+
+          .gameOver {
+            padding: 15px;
+            
+            .gameOverReason {
+              font-size: 2rem;
+            }
+      
+            .gameOverTitle {
+              font-size: 2.5rem;
+            }
+          }
+        }
+
+        .board {
+          display: grid;
+          grid-template-columns: repeat(8, 1fr);
+          grid-template-rows: repeat(8, 1fr);
+          border-radius: 5px;
+          overflow: hidden;
+          aspect-ratio: 1;
+          gap: 5px;
+
+          &.blur {
+            transition: filter 5s;
+            filter: blur(2.5px);
+          }
+
+          
+          $darkSquareOffset: 0.3;
+          .square[id*="8"],
+          .square[id*="6"],
+          .square[id*="4"],
+          .square[id*="2"] {
+            &:nth-child(odd) {
+              $color: #{var(--primary-color)};
+              background: $color;
+
+              @include triangles($color);
+              @include layers($darkSquareOffset);
+            }
+            &:nth-child(even) {
+              $color: #{var(--secondary-color)};
+              background: $color;
+
+              @include triangles($color);
+              @include layers(0);
+            }
+          }
+
+          .square[id*="7"],
+          .square[id*="5"],
+          .square[id*="3"],
+          .square[id*="1"] {
+            &:nth-child(odd) {
+              $color: #{var(--secondary-color)};
+              background: $color;
+
+              @include triangles($color);
+              @include layers(0);
+            }
+            &:nth-child(even) {
+              $color: #{var(--primary-color)};
+              background: $color;
+
+              @include triangles($color);
+              @include layers($darkSquareOffset);
+            }
+          }
+
+          .square {
+            position: relative;
+            display: flex;
+            border: 2px solid #fff;
+            box-sizing: border-box;
+            justify-content: center;
+            align-items: center;
+            width: clamp(10px, 8vw, 80px);
+            height: clamp(10px, 8vw, 80px);
+            cursor: pointer;
+
+            .piece {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              margin: 0 auto;
+              z-index: 1;
+              cursor: pointer;
+
+              svg {
+                pointer-events: none;
+                width: 83%;
+                height: 83%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto;
+                filter: drop-shadow(1px 1px #fff) drop-shadow(-1px 1px #fff)
+                  drop-shadow(1px -1px #fff) drop-shadow(-1px -1px #fff);
+              }
+            }
+
+            &.isAttacked .piece svg {
+              filter: drop-shadow(1px 1px red) drop-shadow(-1px 1px red)
+                drop-shadow(1px -1px red) drop-shadow(-1px -1px red);
+            }
+
+            &.isOver {
+              border: 2px solid #333;
+            }
+
+            .squareName {
+              display: none;
+              pointer-events: none;
+            }
+
+            &:hover,
+            &:focus,
+            &.isActive {
+              .squareName {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: absolute;
+                font-size: clamp(13px, 2vw, 20px);
+                color: #000;
+                background: #ffffffaa;
+                width: 100%;
+                height: 100%;
+                padding: 2px;
+                text-align: center;
+                border: 3px solid var(--accent-color);
+                box-sizing: border-box;
+                z-index: 2;
+              }
+            }
+
+            .layer {
+              &.isAttacked {
+                display: none;
+                z-index: 2;
+                top: 50%;
+                left: 50%;
+                width: 100%;
+                height: 100%;
+
+                svg {
+                  width: 2dvw;
+                  height: 2dvh;
+                  position: absolute;
+                  top: 3.3dvh;
+                  left: 4.8dvh;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .gridLabel {
+      font-size: clamp(0.5rem, 1.5vw, 1rem);
+    }
+
+    .rankRuler {
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      width: 18px;
+      padding-right: 4px;
+      margin-right: 10px;
+
+      .gridLabel.rankLabel {
+        box-sizing: border-box;
+        text-align: center;
+        border-top: 1px solid var(--accent-color);
+        border-bottom: 1px solid var(--accent-color);
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:first-of-type {
+          border-top: none;
+          margin-top: 2px;
+        }
+
+        &:last-of-type {
+          border-bottom: none;
+          margin-bottom: 2px;
+        }
+      }
+    }
+
+    .fileRuler {
+      color: #fff;
+      display: flex;
+      margin-left: 35px;
+      margin-top: 10px;
+      height: 13px;
+      position: absolute;
+      bottom: -33px;
+
+      .gridLabel.fileLabel {
+        box-sizing: border-box;
+        border-left: 1px solid var(--accent-color);
+        border-right: 1px solid var(--accent-color);
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: clamp(10px, 8vw, 90px);
+
+        &:first-of-type {
+          border-left: none;
+          margin-left: 2px;
+        }
+
+        &:last-of-type {
+          border-right: none;
+          margin-right: 2px;
+        }
+      }
+    }
+  }
+
+  .sidebar,
+  .bottomDrawer {
+    color: #fff;
+  }
+
+  .sidebar {
+    background: rgba(0,0,0,0.7);
+    padding: $topSpacing 20px;
+    font-size: clamp(12px, 1vw, 14px);
+    flex: 1;
+    max-width: 300px;
+    box-sizing: border-box;
+  }
+
+  .bottomDrawer {
+    font-size: clamp(12px, 1vw, 14px);
+    padding-bottom: 40px;
+    background: #111;
+  }
+
+  .bottomDrawerButton {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+    background: #111;
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    border: none;
+
+    .handle {
+      background: #e3e3e3;
+      height: 5px;
+      width: 70px;
+      border-radius: 5px;
+    }
+  }
+
+  .mobileControls {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+
+    & > div {
+      padding-bottom: 7px;
+      margin-bottom: 23px;
+      border-bottom: 3px solid transparent;
+    }
+
+    .layerControl {
+      &.isTurn {
+        border-bottom: 3px solid #fff;
+      }
+
+      &.layerOn {
+        svg.layerIcon.layerIconDefense {
+          filter: drop-shadow(1px 1px #fff) drop-shadow(-1px 1px #fff)
+            drop-shadow(1px -1px #fff) drop-shadow(-1px -1px #fff);
+        }
+        svg.layerIcon.layerIconEnemyDefense {
+          filter: drop-shadow(1px 1px #fff) drop-shadow(-1px 1px #fff)
+            drop-shadow(1px -1px #fff) drop-shadow(-1px -1px #fff);
+        }
+      }
+    }
+  }
+
+  .turnDisplay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .turnIconBorder {
+      width: 27px;
+      height: 27px;
+      border-width: 2px;
+      border-style: solid;
+      border-color: transparent;
+      border-radius: 40px;
+      padding: 10px;
+      margin: 0 5px;
+
+      &.isTurn {
+        border-color: var(--accent-color);
+      }
+
+      svg.turnIcon {
+        width: 100%;
+        height: 100%;
+        filter: drop-shadow(1px 1px #fff) drop-shadow(-1px 1px #fff)
+          drop-shadow(1px -1px #fff) drop-shadow(-1px -1px #fff);
+      }
+    }
+  }
+
+  .controlRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+
+  .controlsCheckButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 10px 0;
+    align-items: flex-start;
+  }
+
+  .toggleRow {
+    display: flex;
+    align-items: center;
+
+    .optionsToggle {
+      background: #fff;
+      position: relative;
+      display: inline-flex;
+      height: 20px;
+      width: 40px;
+      flex-shrink: 0;
+      cursor: pointer;
+      border-radius: 100px;
+      border: 2px solid transparent;
+      padding: 0;
+      margin-right: 10px;
+      transition: all 0.3s;
+
+      .optionsToggleThumb {
+        pointer-events: none;
+        display: inline-block;
+        height: 16px;
+        width: 16px;
+        border-radius: 100px;
+        background-color: var(--primary-color);
+        transition: all 0.3s;
+        transform: translateX(20px);
+      }
+
+      &[data-headlessui-state~="checked"] {
+        background: var(--primary-color);
+
+        .optionsToggleThumb {
+          transform: none;
+          background-color: #fff;
+        }
+      }
+
+      &.defenseLayerSwitch {
+        .optionsToggleThumb {
+          background-color: var(--defense-color);
+        }
+        &[data-headlessui-state~="checked"] {
+          background: var(--defense-color);
+          .optionsToggleThumb {
+            background-color: #fff;
+          }
+        }
+      }
+
+      &.enemyDefenseLayerSwitch {
+        .optionsToggleThumb {
+          background-color: var(--enemy-defense-color);
+        }
+        &[data-headlessui-state~="checked"] {
+          background: var(--enemy-defense-color);
+          .optionsToggleThumb {
+            background-color: #fff;
+          }
+        }
+      }
+
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+
+  .colorPicker {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    .hiddenColorLabel {
+      display: none;
+    }
+
+    button.colorPickerPreview {
+      position: relative;
+      width: 25px;
+      height: 25px;
+      border: 2px solid #fff;
+      margin-left: 7px;
+      cursor: pointer;
+
+      &.showLabel {
+        margin-right: 17px;
+      }
+    }
+
+    .colorFullWrapper {
+      position: absolute;
+      top: 100%;
+      z-index: 3;
+      visibility: hidden;
+
+      &.visible {
+        visibility: visible;
+      }
+
+      &.left {
+        right: 0;
+      }
+
+      &.center {
+        left: 50%;
+        transform: translate(-50%, 0);
+      }
+
+      &.right {
+        left: 0;
+      }
+    }
+
+  }
+
+  .sidebarSection {
+    padding-bottom: 40px;
+    padding-top: 25px;
+    border-bottom: 1px solid #fff;
+
+    .sidebarSubSection {
+      padding-bottom: 20px;
+
+      &:last-of-type {
+        padding-bottom: 0;
+      }
+    }
+
+    &.information {
+      padding-bottom: 0;
+    }
+
+    &:first-of-type {
+      padding-top: 0;
+    }
+
+    &:last-of-type {
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+  }
+
+  .optionsSwitch {
+    margin: 5px 0;
+  }
+
+  
+
+  .centerRow {
+    display: flex;
+    justify-content: center;
+  }
+
+  .checkButton {
+    align-items: center;
+    background-color: #FFFFFF;
+    border: 2px solid #333;
+    border-radius: .50rem;
+    box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
+    box-sizing: border-box;
+    color: rgba(0, 0, 0, 0.85);
+    cursor: pointer;
+    display: flex;
+    font-size: 2rem;
+    font-weight: 600;
+    justify-content: center;
+    line-height: 1.25;
+    margin: 0;
+    position: relative;
+    text-decoration: none;
+    transition: all 250ms;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: baseline;
+    width: auto;
+    padding: 9px 15px;
+
+    &.dark {
+      background-color: #000000;
+      border: 2px solid #EFEFEF;
+      color: #FFFFFF;
+    }
+
+    &.small {
+      font-size: 1.2em;
+      padding: 6px 10px;
+    }
+  }
+
+  .checkButton:hover,
+  .checkButton:focus {
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+  }
+
+  .checkButton:hover {
+    transform: translateY(-1px);
+  }
+
+  .checkButton:active {
+    background-color: #F0F0F1;
+    border-color: rgba(0, 0, 0, 0.15);
+    box-shadow: rgba(0, 0, 0, 0.06) 0 2px 4px;
+    color: rgba(0, 0, 0, 0.65);
+    transform: translateY(0);
+  }
+
+
+  .gameOverResetButton {
+    margin-top: 25px;
+  }
+
+  .historySection {
+    overflow: auto;
+    max-height: 100px;
+    margin-top: 15px;
+
+    .historyRow {
+      display: flex;
+      justify-content: space-between;
+      width: 33.3%;
+      min-width: 25px;
+    }
+  }
+
+  .sidebar .historySection {
+    max-height: 300px;
+  }
+
+  .sidebarCaptureArea {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    height: 25px;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    
+    .captureArea {
+      display: flex;
+      flex: 1;
+
+      svg {
+        width: 100%;
+        height: 100%;
+        max-width: 1.5dvw;
+        max-height: 1.5dvw;
+
+        filter: drop-shadow(-0.5px 0.5px #fff) drop-shadow(0.5px -0.5px #fff);
+      }
+    }
+  }
+
+  .loadingSpinner {
+    height: calc(($squareSize * 8) + 8px);
+  }
+
+  @keyframes loading {
+    20% {
+      transform: rotate(90deg);
+    }
+    40% {
+      transform: rotate(180deg);
+    }
+    60% {
+      transform: rotate(270deg);
+    }
+    80% {
+      transform: rotate(360deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+/*
+===============================
+        Mobile Styling
+===============================
+*/
+.displayWrapper.isMobile {
+  flex-direction: column;
+
+  .chessBoardWrapper {
+    padding: 40px 0;
+
+    .outerBoardContainer {
+      width: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+
+      .captureArea {
+        height: 8dvw;
+
+        svg {
+          width: 7dvw;
+          height: 7dvw;
+        }
+      }
+
+      .innerBoardContainer {
+        .board {
+          width: 100%;
+          gap: 3px;
+          background: #fff;
+
+          .square {
+            border: none;
+            width: 100%;
+            height: 100%;
+          }
+
+          
+        }
+      }
+    }
+  }
+}
