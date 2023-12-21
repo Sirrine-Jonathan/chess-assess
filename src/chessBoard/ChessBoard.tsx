@@ -151,7 +151,7 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                     key={gameState.ascii}
                     className={clsx([
                       "board",
-                      // gameState.isGameOver && "blur",
+                      gameState.isGameOver && "blur",
                       (gameState.playerColor === "w"
                         ? Options.flipBoard
                         : !Options.flipBoard) && "flip",
@@ -190,7 +190,7 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                       return (
                         <ChessSquare
                           key={name}
-                          name={name}
+                          name={name as Square}
                           flip={
                             gameState.playerColor === "w"
                               ? Options.flipBoard
@@ -221,6 +221,7 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                           }
                           partOfLastMove={partOfLastMove}
                           possibleDestination={possibleDestination}
+                          pieceColor={piece ? piece.color : null}
                         >
                           {piece ? (
                             <BasePiece
@@ -250,7 +251,7 @@ export const ChessBoard = () => {
   initType();
   const type = getGameType();
   const color = getColor();
-  const level = getLevel();
+  const level = type === GameType.Trainer ? -1 : getLevel();
   const fen = getFen();
   return (
     <OptionsProvider>

@@ -5,18 +5,19 @@ import { useDroppable } from "@dnd-kit/core";
 import clsx from "clsx";
 import { useGame } from "../state/game/useGame";
 import { useOptions } from "../state/options/useOptions";
-import { Sweat } from "../pieces/svg";
+import { Sweat, Lock } from "../pieces/svg";
 import { useSelection } from "../state/selection/useSelection";
-import { botDelay } from "../state/game/useGame";
+import { useLongPress } from "../../hooks/useLongPress";
 
 interface SquareProps {
-  name: string;
+  name: Square;
   flip: boolean;
   playerDefending: boolean;
   possibleDestination: boolean;
   enemyDefending: boolean;
   partOfLastMove: boolean;
   isAttacked: boolean;
+  pieceColor: Color | null;
 }
 
 export const ChessSquare = ({
@@ -27,19 +28,35 @@ export const ChessSquare = ({
   enemyDefending,
   partOfLastMove,
   isAttacked,
+  pieceColor,
   children,
 }: PropsWithChildren<SquareProps>) => {
   const nameRef = useRef<HTMLSpanElement>(null);
   const { gameState, Actions } = useGame();
-  const { selectionActions } = useSelection();
-  const { selectionState } = useSelection();
+  const { selectionState, selectionActions } = useSelection();
   const { Options } = useOptions();
   const { isOver, setNodeRef } = useDroppable({ id: name });
 
+  const pieceName = gameState.pieceMap[name as keyof typeof gameState.pieceMap];
+
+  const isLockedShow =
+    pieceName && selectionState.lockedShowPieces.includes(pieceName);
+  const isLockedHide =
+    pieceName && selectionState.lockedHidePieces.includes(pieceName);
+  if (pieceName == "e2") {
+    console.log(pieceName, isLockedShow, isLockedHide);
+    console.log(selectionState.lockedShowPieces);
+  }
+
+  const showDefenseLayer =
+    ((!isLockedHide && Options.showDefenseLayer) || isLockedShow) &&
+    playerDefending;
+  const showEnemyDefenseLayer =
+    ((!isLockedHide && Options.showEnemyDefenseLayer) || isLockedShow) &&
+    enemyDefending;
+
   const nothingSquare =
-    !possibleDestination &&
-    (!playerDefending || !Options.showDefenseLayer) &&
-    (!enemyDefending || !Options.showEnemyDefenseLayer);
+    !possibleDestination && !showDefenseLayer && !showEnemyDefenseLayer;
 
   const pieceOnThisSquare = gameState.board
     .flat()
@@ -48,7 +65,7 @@ export const ChessSquare = ({
     pieceOnThisSquare &&
     pieceOnThisSquare?.square === selectionState.activePiece?.from;
 
-  const getLayer = () => {
+  const getLayers = () => {
     const triangles = [
       <span key="top" className="layer topLayer" />,
       <span key="right" className="layer rightLayer" />,
@@ -57,7 +74,6 @@ export const ChessSquare = ({
     ];
     const layers: ReactNode[] = [...triangles];
 
-    // this can be applied along with any other layer
     if (isAttacked) {
       layers.push(
         <span key="isAttacked" className="layer isAttacked">
@@ -66,36 +82,47 @@ export const ChessSquare = ({
       );
     }
 
-    if (partOfLastMove) {
-      layers.push(<span className="layer partOfLastMove">{triangles}</span>);
+    if (isLockedShow || isLockedHide) {
+      layers.push(
+        <span key="locked" className="layer lockedLayer">
+          <Lock />
+        </span>
+      );
     }
 
     if (possibleDestination) {
-      layers.push(<span className="layer moveLayer">{triangles}</span>);
+      layers.push(
+        <span key="moveLayer" className="layer moveLayer">
+          {triangles}
+        </span>
+      );
       return layers;
-    } else if (Options.showDefenseLayer && playerDefending) {
+    }
+
+    if (partOfLastMove) {
+      layers.push(<span className="layer partOfLastMove">{triangles}</span>);
+      return layers;
+    }
+
+    if (showDefenseLayer) {
       layers.push(
         <span
           key="defense"
           className={clsx([
             "layer",
-            Options.showEnemyDefenseLayer && enemyDefending
-              ? "disputedLayer"
-              : "defenseLayer",
+            showEnemyDefenseLayer ? "disputedLayer" : "defenseLayer",
           ])}
         >
           {triangles}
         </span>
       );
-    } else if (Options.showEnemyDefenseLayer && enemyDefending) {
+    } else if (showEnemyDefenseLayer) {
       layers.push(
         <span
           key="disputed"
           className={clsx([
             "layer",
-            Options.showDefenseLayer && playerDefending
-              ? "disputedLayer"
-              : "enemyDefenseLayer",
+            showDefenseLayer ? "disputedLayer" : "enemyDefenseLayer",
           ])}
         >
           {triangles}
@@ -105,6 +132,72 @@ export const ChessSquare = ({
 
     return layers;
   };
+
+  const onLongPress = () => {
+    if (!pieceName) {
+      console.log("no piece name");
+      return;
+    }
+    if (isLockedHide || isLockedShow) {
+      console.log(pieceName, "is locked");
+      selectionActions.unlockHide(name);
+      selectionActions.unlockShow(name);
+    } else {
+      console.log("locking", pieceName, pieceColor);
+      if (pieceColor === "b") {
+        if (Options.showEnemyDefenseLayer) {
+          selectionActions.lockShow(name);
+        } else {
+          selectionActions.lockHide(name);
+        }
+      } else if (pieceColor === "w") {
+        console.log(pieceName, "is white");
+        if (Options.showDefenseLayer) {
+          console.log("showing defense");
+          selectionActions.lockShow(name);
+        } else {
+          console.log("hiding defense");
+          selectionActions.lockHide(name);
+        }
+      }
+    }
+  };
+
+  const onClick = () => {
+    const piece = gameState.board.flat().find((cell) => cell?.square === name);
+    if (piece && piece.color === gameState.turn) {
+      selectionActions.setActivePiece({
+        color: piece.color as Color,
+        piece: piece.type as PieceSymbol,
+        from: name as Square,
+      });
+    } else if (
+      selectionState.activePiece &&
+      (possibleDestination || playerDefending)
+    ) {
+      const move = {
+        from: selectionState.activePiece.from,
+        to: name as Square,
+      };
+      const captured = Actions.move(move);
+      if (captured) {
+        Actions.setColorCaptured({
+          color: captured.color as Color,
+          piece: captured.piece,
+          type: captured.type as CaptureEvent["type"],
+        });
+      }
+      Actions.performUpdate();
+      Actions.setLastMove(move);
+      selectionActions.setActivePiece(null);
+    }
+  };
+
+  const defaultOptions = {
+    shouldPreventDefault: true,
+    delay: 500,
+  };
+  const longPressEvent = useLongPress(onLongPress, onClick, defaultOptions);
 
   return (
     <div
@@ -125,37 +218,7 @@ export const ChessSquare = ({
       ])}
       style={{ ...(possibleDestination ? { cursor: "pointer" } : {}) }}
       tabIndex={0}
-      onClick={() => {
-        const piece = gameState.board
-          .flat()
-          .find((cell) => cell?.square === name);
-        if (piece && piece.color === gameState.turn) {
-          selectionActions.setActivePiece({
-            color: piece.color as Color,
-            piece: piece.type as PieceSymbol,
-            from: name as Square,
-          });
-        } else if (
-          selectionState.activePiece &&
-          (possibleDestination || playerDefending)
-        ) {
-          const move = {
-            from: selectionState.activePiece.from,
-            to: name as Square,
-          };
-          const captured = Actions.move(move);
-          if (captured) {
-            Actions.setColorCaptured({
-              color: captured.color as Color,
-              piece: captured.piece,
-              type: captured.type as CaptureEvent["type"],
-            });
-          }
-          Actions.performUpdate();
-          Actions.setLastMove(move);
-          selectionActions.setActivePiece(null);
-        }
-      }}
+      {...longPressEvent}
       onKeyDown={(e) => {
         if (e.code === "Space") {
           const piece = gameState.board
@@ -218,7 +281,8 @@ export const ChessSquare = ({
         }
       }}
     >
-      {getLayer()}
+      <span className="pieceName">{pieceName || "NA"}</span>
+      {getLayers()}
       {Options.showSquareName ? (
         <span ref={nameRef} className="squareName">
           {name}
