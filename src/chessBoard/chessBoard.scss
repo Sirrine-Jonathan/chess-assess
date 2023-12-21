@@ -3,6 +3,8 @@
 @import "../toggle.scss";
 @import "../variables.scss";
 
+
+
 @mixin triangles($color, $offset: 0) {
   & > .topLayer {
     clip-path: polygon(0 0, 100% 0, 50% 50%, 0 0);
@@ -29,7 +31,7 @@
   }
 }
 
-@mixin layers($darken: 0) {
+@mixin layers($darken: 0, $defaultColor) {
   .layer {
     position: absolute;
     top: 50%;
@@ -68,11 +70,21 @@
 
       @include triangles($color, $darken);
     }
+
+    &.lockedLayer {
+      z-index: 1;
+
+      svg {
+        height: 100%;
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+    }
     
     &.partOfLastMove {
-      $color: #2b2b2b;
-      background-color: $color;
-      z-index: 1;
+
+      @include triangles($lastMoveColor, 0.5);
     }
   }
 }
@@ -118,15 +130,13 @@
           align-items: center;
           background-color: rgba(255, 255, 255, 0.2);
           color: #000;
-          font-size: 1.3em;
+          font-size: 20px;
           font-weight: 600;
           border-radius: 5px;
-          transition: background-color 10s, font-size 5s;
+          transition: background-color 30s;
 
           &.obscure {
             background-color: rgba(255, 255, 255, 1);
-            font-size: 2em;
-            
           }
 
           &.hide {
@@ -137,11 +147,11 @@
             padding: 15px;
             
             .gameOverReason {
-              font-size: 2rem;
+              font-size: 2em;
             }
       
             .gameOverTitle {
-              font-size: 2.5rem;
+              font-size: 2.5em;
             }
           }
         }
@@ -156,12 +166,12 @@
           gap: 5px;
 
           &.blur {
-            transition: filter 5s;
-            filter: blur(2.5px);
+            transition: filter 15s;
+            filter: blur(3px);
           }
 
           
-          $darkSquareOffset: 0.3;
+          
           .square[id*="8"],
           .square[id*="6"],
           .square[id*="4"],
@@ -171,14 +181,14 @@
               background: $color;
 
               @include triangles($color);
-              @include layers($darkSquareOffset);
+              @include layers($darkSquareOffset, $color);
             }
             &:nth-child(even) {
               $color: #{var(--secondary-color)};
               background: $color;
 
               @include triangles($color);
-              @include layers(0);
+              @include layers(0, $color);
             }
           }
 
@@ -191,14 +201,14 @@
               background: $color;
 
               @include triangles($color);
-              @include layers(0);
+              @include layers(0, $color);
             }
             &:nth-child(even) {
               $color: #{var(--primary-color)};
               background: $color;
 
               @include triangles($color);
-              @include layers($darkSquareOffset);
+              @include layers($darkSquareOffset, $color);
             }
           }
 
@@ -246,6 +256,18 @@
             .squareName {
               display: none;
               pointer-events: none;
+            }
+
+            .pieceName {
+              display: none;
+              position: absolute;
+              top: 0;
+              left: 0;
+              z-index: 3;
+              background: black;
+              padding: 4px;
+              font-size: 12px;
+              letter-spacing: 1px;
             }
 
             &:hover,

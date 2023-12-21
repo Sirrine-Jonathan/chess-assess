@@ -17,12 +17,17 @@ export class Bot {
 
   async getMove(fen: string, moves: Move[]) {
     console.log("getting move of level", this.level);
-    try {
-      console.log("trying to get best move");
-      return this.getBestMove(fen);
-    } catch (err) {}
-    console.log("resolving to random move");
-    return Promise.resolve(this.getRandomMove(moves));
+    if (this.level < 0) {
+      console.log("getting random move since we are in training");
+      return Promise.resolve(this.getRandomMove(moves));
+    } else {
+      try {
+        console.log("trying to get best move");
+        return this.getBestMove(fen);
+      } catch (err) {}
+      console.log("resolving to random move");
+      return Promise.resolve(this.getRandomMove(moves));
+    }
   }
 
   postMessage(message: string) {

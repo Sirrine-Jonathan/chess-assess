@@ -8,6 +8,7 @@ export enum ActionTypeNames {
   SetColorCaptured = "SET_COLOR_CAPTURED",
   SetActiveMoves = "SET_ACTIVE_MOVES",
   SetLastMove = "SET_LAST_MOVE",
+  UpdatePieceMap = "UPDATE_PIECE_MAP",
 }
 
 export type ActionsPayload = {
@@ -22,6 +23,7 @@ export type ActionsPayload = {
   };
   [ActionTypeNames.SetActiveMoves]: Move[];
   [ActionTypeNames.SetLastMove]: Pick<Move, "to" | "from">;
+  [ActionTypeNames.UpdatePieceMap]: GameState["pieceMap"];
 };
 
 export type ActionMap<M extends { [index: string]: unknown }> = {
@@ -63,6 +65,11 @@ export const reducer = (state: GameState, action: ActionType) => {
       return {
         ...state,
         lastMove: action.payload,
+      };
+    case ActionTypeNames.UpdatePieceMap:
+      return {
+        ...state,
+        pieceMap: action.payload,
       };
     default:
       return state;

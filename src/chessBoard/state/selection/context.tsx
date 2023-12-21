@@ -2,7 +2,8 @@ import { createContext } from "react";
 
 export const initialState: SelectionState = {
   activePiece: null,
-  lockedPieces: {},
+  lockedShowPieces: [],
+  lockedHidePieces: [],
 };
 
 export const SelectionContext = createContext<{
