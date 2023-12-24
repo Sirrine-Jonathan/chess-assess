@@ -92,7 +92,7 @@
 .displayWrapper {
   display: flex;
   height: 100%;
-  background: URL('/public/bg.png');
+  background: URL('/bg.png');
 
   &.loading {
     justify-content: center;
@@ -109,6 +109,31 @@
       margin: 0 auto;
       display: flex;
       flex-direction: column;
+      height: 100%;
+      justify-content: center;
+
+      .captureArea {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+
+        &.captureArea--top {
+          flex-direction: column-reverse;
+          .capturerName {
+            margin-top: 10px;
+            margin-bottom: 0;
+          }
+        }
+
+        .capturerName {
+          margin-bottom: 10px;
+        }
+
+        svg {
+          width: 30px;
+          height: 30px;
+        }
+      }
 
       .innerBoardContainer {
         display: flex;
@@ -783,12 +808,15 @@
 
     .outerBoardContainer {
       width: 100%;
+      height: 100%;
       margin: 0;
       display: flex;
       flex-direction: column;
+      justify-content: center;
+      
 
       .captureArea {
-        height: 8dvw;
+        flex: 1;
 
         svg {
           width: 7dvw;
@@ -797,6 +825,8 @@
       }
 
       .innerBoardContainer {
+        flex: 1;
+
         .board {
           width: 100%;
           gap: 3px;

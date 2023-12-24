@@ -134,6 +134,7 @@ export const ChessSquare = ({
   };
 
   const onLongPress = () => {
+    console.log("long press");
     if (!pieceName) {
       console.log("no piece name");
       return;

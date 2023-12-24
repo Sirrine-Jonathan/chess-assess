@@ -19,7 +19,6 @@ import { OptionsProvider } from "./state/options/provider";
 import { useOptions } from "./state/options/useOptions";
 import clsx from "clsx";
 import BottomDrawer from "./parts/bottomDrawer";
-import History from "./parts/history";
 import GameOver from "./parts/gameOver";
 import MobileControls from "./parts/mobileControls";
 import { DisplayWrapper } from "./parts/displayWrapper";
@@ -144,7 +143,15 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
             <>
               {isMobile ? <MobileControls /> : null}
               <div className="outerBoardContainer">
-                {isMobile ? <WhiteCaptured /> : null}
+                {(
+                  gameState.playerColor === "w"
+                    ? Options.flipBoard
+                    : !Options.flipBoard
+                ) ? (
+                  <BlackCaptured isTop={true} />
+                ) : (
+                  <WhiteCaptured isTop={true} />
+                )}
                 <div className="innerBoardContainer">
                   <GameOver />
                   <div
@@ -235,8 +242,15 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                     })}
                   </div>
                 </div>
-                {isMobile ? <BlackCaptured /> : null}
-                {isMobile ? <History /> : null}
+                {(
+                  gameState.playerColor === "w"
+                    ? Options.flipBoard
+                    : !Options.flipBoard
+                ) ? (
+                  <WhiteCaptured />
+                ) : (
+                  <BlackCaptured />
+                )}
               </div>
             </>
           </div>
