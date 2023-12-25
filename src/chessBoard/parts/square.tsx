@@ -11,24 +11,28 @@ import { useLongPress } from "../../hooks/useLongPress";
 
 interface SquareProps {
   name: Square;
+  piece: { square: Square; type: PieceSymbol; color: Color } | null;
   flip: boolean;
   playerDefending: boolean;
+  isPlayerAttackingTargeted: boolean;
   possibleDestination: boolean;
+  possibleDestinationOfLocked: boolean;
   enemyDefending: boolean;
   partOfLastMove: boolean;
   isAttacked: boolean;
-  pieceColor: Color | null;
 }
 
 export const ChessSquare = ({
   name,
+  piece,
   flip,
   playerDefending,
+  isPlayerAttackingTargeted,
   possibleDestination,
+  possibleDestinationOfLocked,
   enemyDefending,
   partOfLastMove,
   isAttacked,
-  pieceColor,
   children,
 }: PropsWithChildren<SquareProps>) => {
   const nameRef = useRef<HTMLSpanElement>(null);
@@ -39,31 +43,21 @@ export const ChessSquare = ({
 
   const pieceName = gameState.pieceMap[name as keyof typeof gameState.pieceMap];
 
-  const isLockedShow =
-    pieceName && selectionState.lockedShowPieces.includes(pieceName);
-  const isLockedHide =
-    pieceName && selectionState.lockedHidePieces.includes(pieceName);
-  if (pieceName == "e2") {
-    console.log(pieceName, isLockedShow, isLockedHide);
-    console.log(selectionState.lockedShowPieces);
-  }
+  const isLockedOwn = pieceName && selectionState.lockedOwn.includes(pieceName);
+  const isLockedTarget =
+    pieceName && selectionState.lockedTarget.includes(pieceName);
 
   const showDefenseLayer =
-    ((!isLockedHide && Options.showDefenseLayer) || isLockedShow) &&
-    playerDefending;
-  const showEnemyDefenseLayer =
-    ((!isLockedHide && Options.showEnemyDefenseLayer) || isLockedShow) &&
-    enemyDefending;
+    (Options.showDefenseLayer && playerDefending) || isPlayerAttackingTargeted;
+  const showEnemyDefenseLayer = Options.showEnemyDefenseLayer && enemyDefending;
 
   const nothingSquare =
-    !possibleDestination && !showDefenseLayer && !showEnemyDefenseLayer;
+    !possibleDestination &&
+    !showDefenseLayer &&
+    !showEnemyDefenseLayer &&
+    !possibleDestinationOfLocked;
 
-  const pieceOnThisSquare = gameState.board
-    .flat()
-    .find((cell) => cell?.square === name);
-  const isActive =
-    pieceOnThisSquare &&
-    pieceOnThisSquare?.square === selectionState.activePiece?.from;
+  const isActive = piece && piece?.square === selectionState.activePiece?.from;
 
   const getLayers = () => {
     const triangles = [
@@ -82,10 +76,18 @@ export const ChessSquare = ({
       );
     }
 
-    if (isLockedShow || isLockedHide) {
+    if (isLockedOwn || isLockedTarget) {
       layers.push(
         <span key="locked" className="layer lockedLayer">
           <Lock />
+        </span>
+      );
+    }
+
+    if (possibleDestinationOfLocked) {
+      layers.push(
+        <span key="lockedMoveLayer" className="layer lockedMoveLayer">
+          {triangles}
         </span>
       );
     }
@@ -96,11 +98,6 @@ export const ChessSquare = ({
           {triangles}
         </span>
       );
-      return layers;
-    }
-
-    if (partOfLastMove) {
-      layers.push(<span className="layer partOfLastMove">{triangles}</span>);
       return layers;
     }
 
@@ -134,32 +131,18 @@ export const ChessSquare = ({
   };
 
   const onLongPress = () => {
-    console.log("long press");
     if (!pieceName) {
-      console.log("no piece name");
       return;
     }
-    if (isLockedHide || isLockedShow) {
-      console.log(pieceName, "is locked");
-      selectionActions.unlockHide(name);
-      selectionActions.unlockShow(name);
+    if (isLockedTarget) {
+      selectionActions.unlockTarget(pieceName);
+    } else if (isLockedOwn) {
+      selectionActions.unlockOwn(pieceName);
     } else {
-      console.log("locking", pieceName, pieceColor);
-      if (pieceColor === "b") {
-        if (Options.showEnemyDefenseLayer) {
-          selectionActions.lockShow(name);
-        } else {
-          selectionActions.lockHide(name);
-        }
-      } else if (pieceColor === "w") {
-        console.log(pieceName, "is white");
-        if (Options.showDefenseLayer) {
-          console.log("showing defense");
-          selectionActions.lockShow(name);
-        } else {
-          console.log("hiding defense");
-          selectionActions.lockHide(name);
-        }
+      if (piece?.color == gameState.playerColor) {
+        selectionActions.lockOwn(pieceName);
+      } else {
+        selectionActions.lockTarget(pieceName);
       }
     }
   };
@@ -195,7 +178,7 @@ export const ChessSquare = ({
   };
 
   const defaultOptions = {
-    shouldPreventDefault: true,
+    shouldPreventDefault: false,
     delay: 500,
   };
   const longPressEvent = useLongPress(onLongPress, onClick, defaultOptions);
@@ -208,7 +191,7 @@ export const ChessSquare = ({
       className={clsx([
         "square",
         flip && "flip",
-        playerDefending && "playerDefending",
+        (playerDefending || isPlayerAttackingTargeted) && "playerDefending",
         possibleDestination && "possibleDestination",
         enemyDefending && "enemyDefending",
         partOfLastMove && "partOfLastMove",

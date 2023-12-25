@@ -5,7 +5,7 @@ import { Switch } from "@headlessui/react";
 import CheckButton from "./checkButton";
 import { ColorPicker } from "./colorPicker";
 import { DEFAULT_POSITION } from "chess.js";
-import { writeFen } from "../../utils";
+import { writeFen, writeColor } from "../../utils";
 
 export const Toggle = ({
   on,
@@ -122,14 +122,26 @@ export const Controls = () => {
             onClick={Actions.resetOptions}
             classes="restoreButton small"
           />
-          <CheckButton
-            label="New Game"
-            onClick={() => {
-              writeFen(DEFAULT_POSITION);
-              window.location.href = window.location.href;
-            }}
-            classes="resetButton small"
-          />
+          <div className="sidbarSubSection">
+            <CheckButton
+              label="Replay as White"
+              onClick={() => {
+                writeColor("w");
+                writeFen(DEFAULT_POSITION);
+                window.location.href = window.location.href;
+              }}
+              classes="resetButton small"
+            />
+            <CheckButton
+              label="Replay as Black"
+              onClick={() => {
+                writeColor("b");
+                writeFen(DEFAULT_POSITION);
+                window.location.href = window.location.href;
+              }}
+              classes="resetButton small"
+            />
+          </div>
           <CheckButton
             label="Main Menu"
             onClick={() => {

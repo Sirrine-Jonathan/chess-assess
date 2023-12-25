@@ -71,14 +71,29 @@
       @include triangles($color, $darken);
     }
 
+    &.lockedMoveLayer {
+      $color: #444;
+      background-color: $color;
+
+      @include triangles($color, $darken);
+    }
+
     &.lockedLayer {
-      z-index: 1;
+      z-index: 2;
+      top: 0%;
+      left: 0%;
+      transform: none;
 
       svg {
-        height: 100%;
-        width: 100%;
-        padding: 10px;
-        box-sizing: border-box;
+        height: 25%;
+        position: absolute;
+        top: 10%;
+        left: 10%;
+        background: black;
+        fill: #fff;
+        padding: 3px;
+        margin: -3px;
+        border-radius: 20px;
       }
     }
     
@@ -247,6 +262,16 @@
             width: clamp(10px, 8vw, 80px);
             height: clamp(10px, 8vw, 80px);
             cursor: pointer;
+
+            &.partOfLastMove {
+              border: 8px solid $lastMoveColor;
+              .piece {
+                svg {
+                  filter: drop-shadow(1px 1px $lastMoveColor) drop-shadow(-1px 1px $lastMoveColor)
+                  drop-shadow(1px -1px $lastMoveColor) drop-shadow(-1px -1px $lastMoveColor);
+                }
+              }
+            }
 
             .piece {
               display: flex;
@@ -817,6 +842,18 @@
 
       .captureArea {
         flex: 1;
+
+        &.captureArea--top {
+          .capturerName {
+            margin-top: 3px;
+            margin-bottom: 0;
+          }
+        }
+
+        .capturerName {
+          font-size: 12px;
+          margin-bottom: 3px;
+        }
 
         svg {
           width: 7dvw;

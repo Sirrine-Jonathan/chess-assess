@@ -9,7 +9,9 @@ export const SelectionProvider = ({ children }: { children: ReactNode }) => {
   const contextValue = useMemo(
     () => ({
       selectionState,
-      setSelectionState,
+      setSelectionState: (stateUpdate: SelectionState) => {
+        setSelectionState(stateUpdate);
+      },
     }),
     [selectionState, setSelectionState]
   );

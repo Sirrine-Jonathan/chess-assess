@@ -44,6 +44,8 @@ declare global {
     pieceMap: Record<Square, Square | null>;
     conflict: Conflict;
     moves: Move[];
+    lockedMoves: Move[];
+    lockedDefense: Move[];
     turn: Color;
     inCheck: boolean;
     isCheckmate: boolean;
@@ -64,8 +66,8 @@ declare global {
   }
   interface SelectionState {
     activePiece: ChessPiece | null;
-    lockedShowPieces: Square[];
-    lockedHidePieces: Square[];
+    lockedOwn: Square[];
+    lockedTarget: Square[];
   }
 
   type Board = ({ square: Square; type: PieceSymbol; color: Color } | null)[][];
