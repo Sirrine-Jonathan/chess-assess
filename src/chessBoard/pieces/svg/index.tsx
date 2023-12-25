@@ -13,6 +13,6 @@ import RB from "./typeTwo/rb.svg?react";
 import RW from "./typeTwo/rw.svg?react";
 
 import Sweat from "./sweat.svg?react";
-import Lock from "./lock.svg?react";
+import Lock from "./lock-cropped.svg?react";
 
 export { BB, BW, KB, KW, NB, NW, PB, PW, QB, QW, RB, RW, Sweat, Lock };

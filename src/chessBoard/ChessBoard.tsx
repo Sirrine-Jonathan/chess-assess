@@ -19,7 +19,6 @@ import { OptionsProvider } from "./state/options/provider";
 import { useOptions } from "./state/options/useOptions";
 import clsx from "clsx";
 import BottomDrawer from "./parts/bottomDrawer";
-import History from "./parts/history";
 import GameOver from "./parts/gameOver";
 import MobileControls from "./parts/mobileControls";
 import { DisplayWrapper } from "./parts/displayWrapper";
@@ -95,11 +94,12 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
   const computerIsMoving = useRef<boolean>(false);
   const timeoutHandle = useRef<ReturnType<typeof window.setTimeout>>();
   useEffect(() => {
+    console.log("Turn", gameState.turn);
     if (
       gameState.turn !== gameState.playerColor &&
       computerIsMoving.current === false
     ) {
-      console.log("bot move");
+      console.log("Computer is moving");
       clearTimeout(timeoutHandle.current);
       timeoutHandle.current = setTimeout(async () => {
         const result = await Actions.computerMove();
@@ -118,7 +118,7 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
       }, botDelay);
       computerIsMoving.current = true;
     } else {
-      console.log("player move");
+      console.log("Waiting for player move");
       computerIsMoving.current = false;
     }
   }, [gameState.turn]);
@@ -144,7 +144,15 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
             <>
               {isMobile ? <MobileControls /> : null}
               <div className="outerBoardContainer">
-                {isMobile ? <WhiteCaptured /> : null}
+                {(
+                  gameState.playerColor === "w"
+                    ? Options.flipBoard
+                    : !Options.flipBoard
+                ) ? (
+                  <BlackCaptured isTop={true} />
+                ) : (
+                  <WhiteCaptured isTop={true} />
+                )}
                 <div className="innerBoardContainer">
                   <GameOver />
                   <div
@@ -176,10 +184,48 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                         return name === move.from;
                       });
 
+                      const flip =
+                        gameState.playerColor === "w"
+                          ? Options.flipBoard
+                          : !Options.flipBoard;
+
+                      const enemyDefending = !!(
+                        gameState.conflict &&
+                        gameState.conflict[name as Square].black
+                      );
+
+                      const playerDefending = !!(
+                        gameState.conflict &&
+                        gameState.conflict[name as Square].white
+                      );
+
+                      const isPlayerAttackingTargeted =
+                        playerDefending &&
+                        gameState.lockedDefense.some(
+                          (move) => move.to === name || move.from === name
+                        );
+
+                      const isAttacked = !!(
+                        piece &&
+                        ((gameState.conflict &&
+                          gameState.conflict[name as Square].white &&
+                          piece.color !== "w") ||
+                          (gameState.conflict &&
+                            gameState.conflict[name as Square].black &&
+                            piece.color !== "b"))
+                      );
+
                       const partOfLastMove =
                         gameState.lastMove !== null &&
                         (name === gameState.lastMove.to ||
                           name === gameState.lastMove.from);
+
+                      const possibleDestinationOfLocked = !!(
+                        gameState.lockedMoves.find(
+                          (move) => name === move.to
+                        ) ||
+                        gameState.lockedDefense.find((move) => name === move.to)
+                      );
 
                       const possibleDestination = selectionState.activePiece
                         ? !!gameState.activeMoves?.find(
@@ -191,37 +237,17 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                         <ChessSquare
                           key={name}
                           name={name as Square}
-                          flip={
-                            gameState.playerColor === "w"
-                              ? Options.flipBoard
-                              : !Options.flipBoard
-                          }
-                          enemyDefending={
-                            !!(
-                              gameState.conflict &&
-                              gameState.conflict[name as Square].black
-                            )
-                          }
-                          playerDefending={
-                            !!(
-                              gameState.conflict &&
-                              gameState.conflict[name as Square].white
-                            )
-                          }
-                          isAttacked={
-                            !!(
-                              piece &&
-                              ((gameState.conflict &&
-                                gameState.conflict[name as Square].white &&
-                                piece.color !== "w") ||
-                                (gameState.conflict &&
-                                  gameState.conflict[name as Square].black &&
-                                  piece.color !== "b"))
-                            )
-                          }
+                          piece={piece}
+                          flip={flip}
+                          enemyDefending={enemyDefending}
+                          playerDefending={playerDefending}
+                          isPlayerAttackingTargeted={isPlayerAttackingTargeted}
+                          isAttacked={isAttacked}
                           partOfLastMove={partOfLastMove}
                           possibleDestination={possibleDestination}
-                          pieceColor={piece ? piece.color : null}
+                          possibleDestinationOfLocked={
+                            possibleDestinationOfLocked
+                          }
                         >
                           {piece ? (
                             <BasePiece
@@ -235,8 +261,15 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                     })}
                   </div>
                 </div>
-                {isMobile ? <BlackCaptured /> : null}
-                {isMobile ? <History /> : null}
+                {(
+                  gameState.playerColor === "w"
+                    ? Options.flipBoard
+                    : !Options.flipBoard
+                ) ? (
+                  <WhiteCaptured />
+                ) : (
+                  <BlackCaptured />
+                )}
               </div>
             </>
           </div>
@@ -247,18 +280,33 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
   );
 };
 
-export const ChessBoard = () => {
+const ChessBoardGame = () => {
   initType();
   const type = getGameType();
   const color = getColor();
   const level = type === GameType.Trainer ? -1 : getLevel();
   const fen = getFen();
+  const { selectionState } = useSelection();
+
+  return (
+    <GameProvider
+      lockedOwn={selectionState.lockedOwn}
+      lockedTarget={selectionState.lockedTarget}
+      fen={fen}
+      color={color}
+      type={type}
+      level={level}
+    >
+      <ChessBoardInner loading={false} />
+    </GameProvider>
+  );
+};
+
+export const ChessBoard = () => {
   return (
     <OptionsProvider>
       <SelectionProvider>
-        <GameProvider fen={fen} color={color} type={type} level={level}>
-          <ChessBoardInner loading={false} />
-        </GameProvider>
+        <ChessBoardGame />
       </SelectionProvider>
     </OptionsProvider>
   );

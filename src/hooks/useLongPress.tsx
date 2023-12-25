@@ -10,7 +10,8 @@ export const useLongPress = (
   const target = useRef<EventTarget>();
 
   const start = useCallback(
-    (event: React.MouseEvent<HTMLElement>) => {
+    (event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>) => {
+      console.log("*** start long press");
       if (shouldPreventDefault && event.target) {
         event.preventDefault();
       }
@@ -24,7 +25,8 @@ export const useLongPress = (
   );
 
   const clear = useCallback(
-    (event: React.MouseEvent<HTMLElement>) => {
+    (event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>) => {
+      console.log("*** clear long press");
       timeout.current && clearTimeout(timeout.current);
       shouldPreventDefault && event.preventDefault();
       setLongPressTriggered(false);
@@ -34,6 +36,7 @@ export const useLongPress = (
 
   const handleClick = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
+      console.log("*** handle click");
       if (longPressTriggered) {
         event.stopPropagation();
         return;
@@ -48,6 +51,9 @@ export const useLongPress = (
     onMouseDown: (e: React.MouseEvent<HTMLElement>) => start(e),
     onMouseUp: (e: React.MouseEvent<HTMLElement>) => clear(e),
     onMouseLeave: (e: React.MouseEvent<HTMLElement>) => clear(e),
+    onTouchStart: (e: React.TouchEvent<HTMLElement>) => start(e),
+    onTouchEnd: (e: React.TouchEvent<HTMLElement>) => clear(e),
+    onTouchCancel: (e: React.TouchEvent<HTMLElement>) => clear(e),
     onClick: handleClick,
   };
 };

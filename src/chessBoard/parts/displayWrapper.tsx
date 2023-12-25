@@ -2,7 +2,6 @@ import { useRef, useEffect, type ReactNode } from "react";
 import { useOptions } from "../state/options/useOptions";
 import clsx from "clsx";
 import { useIsMobile } from "../../hooks/useIsMobile";
-import React from "react";
 
 export const DisplayWrapper = ({
   loading,

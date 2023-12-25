@@ -46,7 +46,6 @@ export const getFen = (): string => {
   const type = getGameType();
   const split = getPathParts();
   const rawFen = split[type === GameType.Stockfish ? 4 : 3];
-  console.log("rawFen", rawFen);
   return rawFen ? decodeURIComponent(rawFen) : DEFAULT_POSITION;
 };
 

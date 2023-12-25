@@ -1,11 +1,12 @@
 import { Move, Square } from "chess.js";
 
-const stockfishJs = new Worker("/src/nmrugg_stockfish_js/stockfish.js");
+const stockfishJs = new Worker("/nmrugg_stockfish_js/stockfish.js");
 
 export class Bot {
   private level = 0;
 
   constructor(level = 0) {
+    console.log("Bot constructor", level);
     this.postMessage(`Skill Level ${level}`);
     this.postMessage(`uci`);
     this.level = level;
@@ -16,16 +17,16 @@ export class Bot {
   }
 
   async getMove(fen: string, moves: Move[]) {
-    console.log("getting move of level", this.level);
+    console.log(`getMove at level ${this.level}`, fen, moves);
     if (this.level < 0) {
-      console.log("getting random move since we are in training");
+      console.log("getMove => random", "level < 0");
       return Promise.resolve(this.getRandomMove(moves));
     } else {
       try {
-        console.log("trying to get best move");
+        console.log("getMove => stockfish", "level > 0");
         return this.getBestMove(fen);
       } catch (err) {}
-      console.log("resolving to random move");
+      console.log("Failed: getMove => random", "level > 0");
       return Promise.resolve(this.getRandomMove(moves));
     }
   }
@@ -41,10 +42,12 @@ export class Bot {
       this.postMessage(`go depth 5`);
 
       stockfishJs.onerror = (error) => {
-        console.error(error);
+        console.error(`Stockfish error ${error}`);
         reject(error);
       };
+
       stockfishJs.onmessage = (message: MessageEvent<string>) => {
+        console.log(`Received: ${message.data}`);
         if (message.data.includes("bestmove")) {
           const arr = message.data.split(" ");
           const move = arr[1];

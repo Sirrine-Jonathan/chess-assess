@@ -9,6 +9,8 @@ export enum ActionTypeNames {
   SetActiveMoves = "SET_ACTIVE_MOVES",
   SetLastMove = "SET_LAST_MOVE",
   UpdatePieceMap = "UPDATE_PIECE_MAP",
+  SetLockedMoves = "SET_LOCKED_MOVES",
+  SetLockedDefense = "SET_LOCKED_DEFENSE",
 }
 
 export type ActionsPayload = {
@@ -24,6 +26,8 @@ export type ActionsPayload = {
   [ActionTypeNames.SetActiveMoves]: Move[];
   [ActionTypeNames.SetLastMove]: Pick<Move, "to" | "from">;
   [ActionTypeNames.UpdatePieceMap]: GameState["pieceMap"];
+  [ActionTypeNames.SetLockedMoves]: Move[];
+  [ActionTypeNames.SetLockedDefense]: Move[];
 };
 
 export type ActionMap<M extends { [index: string]: unknown }> = {
@@ -70,6 +74,16 @@ export const reducer = (state: GameState, action: ActionType) => {
       return {
         ...state,
         pieceMap: action.payload,
+      };
+    case ActionTypeNames.SetLockedMoves:
+      return {
+        ...state,
+        lockedMoves: action.payload,
+      };
+    case ActionTypeNames.SetLockedDefense:
+      return {
+        ...state,
+        lockedDefense: action.payload,
       };
     default:
       return state;

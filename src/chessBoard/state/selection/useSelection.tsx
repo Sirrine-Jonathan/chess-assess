@@ -12,30 +12,31 @@ export const useSelection = () => {
           ...selectionState,
           activePiece,
         }),
-      lockShow: (squareName: Square) => {
+      lockOwn: (squareName: Square) => {
         setSelectionState({
           ...selectionState,
-          lockedShowPieces: [...selectionState.lockedShowPieces, squareName],
+          lockedOwn: [...selectionState.lockedOwn, squareName],
         });
       },
-      unlockShow: (squareName: Square) => {
+      unlockOwn: (squareName: Square) => {
+        const lockedOwn = selectionState.lockedOwn.filter(
+          (lockedSquareName) => lockedSquareName !== squareName
+        );
         setSelectionState({
           ...selectionState,
-          lockedShowPieces: selectionState.lockedShowPieces.filter(
-            (lockedSquareName) => lockedSquareName !== squareName
-          ),
+          lockedOwn: lockedOwn,
         });
       },
-      lockHide: (squareName: Square) => {
+      lockTarget: (squareName: Square) => {
         setSelectionState({
           ...selectionState,
-          lockedHidePieces: [...selectionState.lockedHidePieces, squareName],
+          lockedTarget: [...selectionState.lockedTarget, squareName],
         });
       },
-      unlockHide: (squareName: Square) => {
+      unlockTarget: (squareName: Square) => {
         setSelectionState({
           ...selectionState,
-          lockedHidePieces: selectionState.lockedHidePieces.filter(
+          lockedTarget: selectionState.lockedTarget.filter(
             (lockedSquareName) => lockedSquareName !== squareName
           ),
         });

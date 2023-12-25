@@ -40,9 +40,9 @@ function App() {
                     }
                     styles={{
                       handle: {
-                        backgroundColor: "#e3b03b",
+                        backgroundColor: "#004777",
                         outline: "none",
-                        border: "solid 2px #e3b03b",
+                        border: "solid 2px #0065a9",
                       },
                       rail: { backgroundColor: "#ffffff" },
                       track: { backgroundColor: "#D65757" },

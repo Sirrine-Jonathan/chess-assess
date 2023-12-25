@@ -91,6 +91,45 @@ const pieceMapObject = {
   h1: "h1" as Square,
 };
 
+export const getSurroundingSquares = (square: Square) => {
+  const squares = Object.keys(pieceMapObject);
+  const surroundingSquares: Square[] = [];
+  const indexOfSquare = squares.indexOf(square);
+
+  // adjacent rank
+  if (indexOfSquare > 0) {
+    surroundingSquares.push(squares[indexOfSquare - 1] as Square);
+  }
+  // adjacent rank
+  if (indexOfSquare < 63) {
+    surroundingSquares.push(squares[indexOfSquare + 1] as Square);
+  }
+  // adjacent file
+  if (indexOfSquare % 8 > 0) {
+    surroundingSquares.push(squares[indexOfSquare - 8] as Square);
+  }
+  // adjacent file
+  if (indexOfSquare % 8 < 7) {
+    surroundingSquares.push(squares[indexOfSquare + 8] as Square);
+  }
+  // diagonals
+  if (indexOfSquare % 8 > 0 && indexOfSquare > 0) {
+    surroundingSquares.push(squares[indexOfSquare - 9] as Square);
+  }
+  if (indexOfSquare % 8 > 0 && indexOfSquare < 63) {
+    surroundingSquares.push(squares[indexOfSquare + 7] as Square);
+  }
+  if (indexOfSquare % 8 < 7 && indexOfSquare > 0) {
+    surroundingSquares.push(squares[indexOfSquare - 7] as Square);
+  }
+  if (indexOfSquare % 8 < 7 && indexOfSquare < 63) {
+    surroundingSquares.push(squares[indexOfSquare + 9] as Square);
+  }
+
+  // filter out falsy
+  return surroundingSquares.filter((square) => Boolean(square));
+};
+
 export const initialState: GameState = {
   playerColor: "w",
   ascii: "",
@@ -98,6 +137,8 @@ export const initialState: GameState = {
   pieceMap: pieceMapObject,
   conflict: null,
   moves: [],
+  lockedMoves: [],
+  lockedDefense: [],
   turn: "w",
   inCheck: false,
   isCheckmate: false,
@@ -126,11 +167,15 @@ const GameContext = createContext<{
 });
 
 export const GameProvider = ({
+  lockedOwn,
+  lockedTarget,
   fen,
   color,
   level,
   children,
 }: {
+  lockedOwn: SelectionState["lockedOwn"];
+  lockedTarget: SelectionState["lockedTarget"];
   fen: string;
   color: Color;
   type: GameType;
@@ -150,6 +195,78 @@ export const GameProvider = ({
     skillLevel: level,
     ...game.getUpdate(),
   });
+
+  useEffect(() => {
+    if (gameState.turn === gameState.playerColor) {
+      const lockedSquares = lockedOwn.map((fromPiece) => {
+        const foundEntry = Object.entries(gameState.pieceMap).find(
+          ([square, piece]) => piece === fromPiece
+        );
+        if (foundEntry) {
+          return foundEntry[0] as Square;
+        }
+      });
+      const lockedMoves = gameState.moves.filter((move) =>
+        lockedSquares.includes(move.from)
+      );
+      dispatch({
+        type: ActionTypeNames.SetLockedMoves,
+        payload: lockedMoves,
+      });
+    } else {
+      const lockedSquares = lockedTarget.map((fromPiece) => {
+        const foundEntry = Object.entries(gameState.pieceMap).find(
+          ([square, piece]) => piece === fromPiece
+        );
+        if (foundEntry) {
+          return foundEntry[0] as Square;
+        }
+      });
+      const lockedMoves = gameState.moves.filter((move) =>
+        lockedSquares.includes(move.from)
+      );
+      const piecesOnLockedSquares = lockedSquares.map((square) => {
+        return gameState.board
+          .flat()
+          .find((piece) => piece && piece.square === square);
+      });
+      const kingSquare = piecesOnLockedSquares.find(
+        (piece) => piece && piece.type === "k"
+      );
+      if (kingSquare) {
+        const kingSurroundingSquares = getSurroundingSquares(kingSquare.square);
+        // generate some moves from the king square to each place the king could go
+        const kingMoves = kingSurroundingSquares.map((square) => {
+          return {
+            from: kingSquare.square,
+            to: square,
+          };
+        });
+        // filter out any that are both
+        // - not present in the gameState.moves array
+        // - don't have a piece on the move.to square that is of the same color as the king
+        const lockedDefense = kingMoves.filter((move) => {
+          const movePresent = gameState.moves.find(
+            (move) => move.from === move.to && move.from === move.to
+          );
+          const movePiece = gameState.board
+            .flat()
+            .find((piece) => piece && piece.square === move.to);
+          if (movePresent && movePiece) {
+            return movePiece.color === kingSquare.color;
+          }
+          return true;
+        }) as Move[];
+        // add these pieces to the lockedMoves
+        lockedMoves.push(...lockedDefense);
+        console.log("CHECK", { lockedMoves, lockedDefense });
+      }
+      dispatch({
+        type: ActionTypeNames.SetLockedDefense,
+        payload: lockedMoves,
+      });
+    }
+  }, [lockedOwn, gameState.pieceMap, gameState.moves, gameState.turn]);
 
   const contextValue = useMemo(
     () => ({ gameState, fen, dispatch }),
@@ -171,11 +288,10 @@ export const useGame = () => {
     actions.setActiveMoves(activeMoves);
   }, [selectionState.activePiece]);
 
-  const UpdatePieceMap = (from: Square, to: Square) => {
+  const updatePieceMap = (from: Square, to: Square) => {
     const pieceMap = { ...gameState.pieceMap } as Record<Square, Square | null>;
     pieceMap[to] = pieceMap[from];
     pieceMap[from] = null;
-    console.log({ from, to }, pieceMap);
     dispatch({
       type: ActionTypeNames.UpdatePieceMap,
       payload: pieceMap,
@@ -200,19 +316,20 @@ export const useGame = () => {
             finalMove.promotion = "q";
           }
         }
-        UpdatePieceMap(move.from, move.to);
+        updatePieceMap(move.from, move.to);
         const captured = game.move(finalMove);
         return captured;
       },
       computerMove: async () => {
+        console.log("Computer move");
         const fen = game.getFen();
         if (!bot) {
-          console.log("initializing bot", gameState.skillLevel);
+          console.log("Initializing bot", gameState.skillLevel);
           bot = new Bot(gameState.skillLevel);
         }
         let move = await bot.getMove(fen, game.getMoves());
         if (move) {
-          UpdatePieceMap(move.from, move.to);
+          updatePieceMap(move.from, move.to);
           const captured = game.move(move);
           return { captured, move };
         }
@@ -259,6 +376,14 @@ export const useGame = () => {
           type: ActionTypeNames.SetLastMove,
           payload: move,
         });
+      },
+      findSquareOfPiece: (from: Square) => {
+        const foundEntry = Object.entries(gameState.pieceMap).find(
+          ([square, piece]) => piece === from
+        );
+        if (foundEntry) {
+          return foundEntry[0] as Square;
+        }
       },
     };
   }, [gameState, dispatch]);

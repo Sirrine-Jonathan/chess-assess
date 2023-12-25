@@ -21,6 +21,8 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
         headers: {
           "Cross-Origin-Opener-Policy": "same-origin",
           "Cross-Origin-Embedder-Policy": "require-corp",
+          "Origin-Trial":
+            "Ag9PgT1yKRnLdOr+XPx4NuhYH5aPB/r8nXQC6K4EgaJBeuQUZKYm5pogVqRtWzR39wxo4sbCljOY+T+w5lMGLggAAACBeyJvcmlnaW4iOiJodHRwczovL2NoZXNzLWxheWVycy52ZXJjZWwuYXBwOjQ0MyIsImZlYXR1cmUiOiJVbnJlc3RyaWN0ZWRTaGFyZWRBcnJheUJ1ZmZlciIsImV4cGlyeSI6MTcwOTg1NTk5OSwiaXNTdWJkb21haW4iOnRydWV9",
         },
       },
     };
@@ -45,6 +47,8 @@ export default defineConfig(({ command, mode, ssrBuild }) => {
         headers: {
           "Cross-Origin-Opener-Policy": "same-origin",
           "Cross-Origin-Embedder-Policy": "require-corp",
+          "Origin-Trial":
+            "Ag9PgT1yKRnLdOr+XPx4NuhYH5aPB/r8nXQC6K4EgaJBeuQUZKYm5pogVqRtWzR39wxo4sbCljOY+T+w5lMGLggAAACBeyJvcmlnaW4iOiJodHRwczovL2NoZXNzLWxheWVycy52ZXJjZWwuYXBwOjQ0MyIsImZlYXR1cmUiOiJVbnJlc3RyaWN0ZWRTaGFyZWRBcnJheUJ1ZmZlciIsImV4cGlyeSI6MTcwOTg1NTk5OSwiaXNTdWJkb21haW4iOnRydWV9",
         },
       },
     };

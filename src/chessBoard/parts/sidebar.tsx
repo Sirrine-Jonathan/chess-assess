@@ -52,7 +52,6 @@ const Sidebar = () => {
         </div>
       </div>
       <Controls />
-      <History />
     </div>
   );
 };
