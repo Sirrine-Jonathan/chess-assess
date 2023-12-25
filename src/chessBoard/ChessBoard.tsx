@@ -94,11 +94,12 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
   const computerIsMoving = useRef<boolean>(false);
   const timeoutHandle = useRef<ReturnType<typeof window.setTimeout>>();
   useEffect(() => {
+    console.log("Turn", gameState.turn);
     if (
       gameState.turn !== gameState.playerColor &&
       computerIsMoving.current === false
     ) {
-      console.log("bot move");
+      console.log("Computer is moving");
       clearTimeout(timeoutHandle.current);
       timeoutHandle.current = setTimeout(async () => {
         const result = await Actions.computerMove();
@@ -117,7 +118,7 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
       }, botDelay);
       computerIsMoving.current = true;
     } else {
-      console.log("player move");
+      console.log("Waiting for player move");
       computerIsMoving.current = false;
     }
   }, [gameState.turn]);
