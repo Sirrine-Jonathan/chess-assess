@@ -4,8 +4,8 @@
 /node_modules
 /.pnp
 .pnp.js
-/src/hi-ogawa_stockfish_nnue_wasm
-/src/nmrugg_stockfish_js
+/public/hi-ogawa_stockfish_nnue_wasm
+/public/nmrugg_stockfish_js
 
 # testing
 /coverage

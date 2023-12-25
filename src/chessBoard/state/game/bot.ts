@@ -1,6 +1,6 @@
 import { Move, Square } from "chess.js";
 
-const stockfishJs = new Worker("/src/nmrugg_stockfish_js/stockfish.js");
+const stockfishJs = new Worker("/nmrugg_stockfish_js/stockfish.js");
 
 export class Bot {
   private level = 0;
