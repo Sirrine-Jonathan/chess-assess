@@ -54,9 +54,21 @@
         }
       }
 
+
       .trainerInputs {
         flex: 1;
       }
+
+      .stockfishButtons, .trainerButtons {
+          display: flex;
+          justify-content: center;
+          margin-top: 10px;
+          width: 100%;
+
+          a {
+            margin-right: 10px;
+          }
+        }
     }
 
     input {

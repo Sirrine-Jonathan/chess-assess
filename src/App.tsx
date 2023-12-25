@@ -21,12 +21,15 @@ function App() {
       ) : (
         <div>
           <div className="welcome">
-            <h1>Welcome to Chess Layers</h1>
+            <h1>Chess Layers</h1>
             <div className="welcomeInputs">
               <div className="trainerInputs">
                 <div>Play with computer that always plays random moves</div>
-                <br />
-                <a href={`/trainer`}>Go!</a>
+                <div className="trainerButtons">
+                  <a href={`/trainer/w`}>Play as White</a>
+                  <a href="/trainer/b">Play as Black</a>
+                  <a href="/trainer/random">Random</a>
+                </div>
               </div>
               <div className="stockfishInputsOuter">
                 <div>Challenge Stockfish: Level {level}</div>
@@ -58,7 +61,11 @@ function App() {
                       borderWidth: 1,
                     }}
                   />
-                  <a href={`/stockfish/${level}`}>Go!</a>
+                </div>
+                <div className="stockfishButtons">
+                  <a href={`/stockfish/${level}/w`}>Play as White</a>
+                  <a href={`/stockfish/${level}/b`}>Play as Black</a>
+                  <a href={`/stockfish/${level}`}>Random</a>
                 </div>
               </div>
             </div>
