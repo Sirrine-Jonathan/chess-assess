@@ -1,6 +1,6 @@
 {
-  "short_name": "Check",
-  "name": "Chess Check",
+  "short_name": "Chess Layers",
+  "name": "Chess Layers",
   "icons": [
     {
       "src": "rookIcon.svg",

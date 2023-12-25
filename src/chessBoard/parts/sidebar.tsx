@@ -12,7 +12,6 @@ const Sidebar = () => {
     <div className="sidebar">
       <div className="information sidebarSection ">
         <Turn />
-        <div>Player Color: {gameState.playerColor}</div>
         <div className="sidebarSubSection sidebarCaptureArea">
           <div className="captureArea capturedPieces">
             {gameState.blackCaptured.map((piece, index) => (
