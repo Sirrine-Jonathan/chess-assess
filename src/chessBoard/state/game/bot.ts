@@ -1,15 +1,36 @@
 import { Move, Square } from "chess.js";
 
-const stockfishJs = new Worker("/nmrugg_stockfish_js/stockfish.js");
-
 export class Bot {
   private level = 0;
+  private stockfishJs: Worker;
 
   constructor(level = 0) {
     console.log("Bot constructor", level);
-    this.postMessage(`Skill Level ${level}`);
-    this.postMessage(`uci`);
-    this.level = level;
+    this.stockfishJs = new Worker("/nmrugg_stockfish_js/stockfish.js");
+  }
+
+  async checkStockfish() {
+    return new Promise((resolve, reject) => {
+      this.postMessage("isready");
+      this.stockfishJs.onmessage = (event) => {
+        if (event.data === "readyok") {
+          console.log(`Received: ${event.data}`);
+          resolve(true);
+        }
+        this.stockfishJs.onerror = (error) => {
+          console.log(`Received: ${error}`);
+          reject(false);
+        };
+      };
+    });
+  }
+
+  setSkill(level: number) {
+    if (this.level !== level) {
+      this.postMessage("uci");
+      this.postMessage(`Skill Level ${level}`);
+      this.level = level;
+    }
   }
 
   getRandomMove(moves: Move[]) {
@@ -33,7 +54,11 @@ export class Bot {
 
   postMessage(message: string) {
     console.log(`Sent: ${message}`);
-    stockfishJs.postMessage(message);
+    if (this.stockfishJs) {
+      this.stockfishJs.postMessage(message);
+    } else {
+      console.warn("stockfish is not initialized");
+    }
   }
 
   async getBestMove(fen: string): Promise<Pick<Move, "from" | "to">> {
@@ -41,12 +66,12 @@ export class Bot {
       this.postMessage(`position fen ${fen}`);
       this.postMessage(`go depth 5`);
 
-      stockfishJs.onerror = (error) => {
+      this.stockfishJs.onerror = (error) => {
         console.error(`Stockfish error ${error}`);
         reject(error);
       };
 
-      stockfishJs.onmessage = (message: MessageEvent<string>) => {
+      this.stockfishJs.onmessage = (message: MessageEvent<string>) => {
         console.log(`Received: ${message.data}`);
         if (message.data.includes("bestmove")) {
           const arr = message.data.split(" ");
