@@ -15,12 +15,10 @@ import { writeFen, GameType } from "../../../utils";
 import type { Dispatch } from "react";
 import { DEFAULT_POSITION } from "chess.js";
 import { ActionType } from "./reducer";
-
+import { ChessLayersBot } from "../../../App";
 import { Game } from "./game";
-import { Bot } from "./bot";
 
 const game = new Game();
-let bot: InstanceType<typeof Bot>;
 
 export const botDelay = 1000;
 
@@ -182,6 +180,7 @@ export const GameProvider = ({
   level: number;
   children: ReactNode;
 }) => {
+  ChessLayersBot.setSkill(level);
   const needsLoading = useRef(true);
 
   if (needsLoading.current && fen) {
@@ -323,11 +322,7 @@ export const useGame = () => {
       computerMove: async () => {
         console.log("Computer move");
         const fen = game.getFen();
-        if (!bot) {
-          console.log("Initializing bot", gameState.skillLevel);
-          bot = new Bot(gameState.skillLevel);
-        }
-        let move = await bot.getMove(fen, game.getMoves());
+        let move = await ChessLayersBot.getMove(fen, game.getMoves());
         if (move) {
           updatePieceMap(move.from, move.to);
           const captured = game.move(move);
