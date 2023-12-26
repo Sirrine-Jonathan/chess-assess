@@ -48,8 +48,11 @@ export const ChessSquare = ({
     pieceName && selectionState.lockedTarget.includes(pieceName);
 
   const showDefenseLayer =
-    (Options.showDefenseLayer && playerDefending) || isPlayerAttackingTargeted;
-  const showEnemyDefenseLayer = Options.showEnemyDefenseLayer && enemyDefending;
+    (Options.showDefenseLayer && playerDefending) ||
+    (isPlayerAttackingTargeted && gameState.playerColor === "w");
+  const showEnemyDefenseLayer =
+    (Options.showEnemyDefenseLayer && enemyDefending) ||
+    (isPlayerAttackingTargeted && gameState.playerColor === "b");
 
   const nothingSquare =
     !possibleDestination &&

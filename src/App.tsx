@@ -26,8 +26,8 @@ function App() {
               <div className="trainerInputs">
                 <div>Play with computer that always plays random moves</div>
                 <div className="trainerButtons">
-                  <a href={`/trainer/w`}>Play as White</a>
-                  <a href="/trainer/b">Play as Black</a>
+                  <a href={`/trainer/w`}>White</a>
+                  <a href="/trainer/b">Black</a>
                   <a href="/trainer/random">Random</a>
                 </div>
               </div>
@@ -63,8 +63,8 @@ function App() {
                   />
                 </div>
                 <div className="stockfishButtons">
-                  <a href={`/stockfish/${level}/w`}>Play as White</a>
-                  <a href={`/stockfish/${level}/b`}>Play as Black</a>
+                  <a href={`/stockfish/${level}/w`}>White</a>
+                  <a href={`/stockfish/${level}/b`}>Black</a>
                   <a href={`/stockfish/${level}`}>Random</a>
                 </div>
               </div>
