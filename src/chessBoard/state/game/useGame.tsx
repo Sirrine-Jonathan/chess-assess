@@ -6,7 +6,7 @@ import {
   createContext,
   type ReactNode,
 } from "react";
-import React, { useContext, useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { ActionTypeNames } from "./reducer";
 import { useSelection } from "../selection/useSelection";
 import { reducer } from "./reducer";

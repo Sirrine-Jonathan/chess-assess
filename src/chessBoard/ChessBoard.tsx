@@ -200,7 +200,8 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                       );
 
                       const isPlayerAttackingTargeted =
-                        playerDefending &&
+                        ((playerDefending && gameState.playerColor === "w") ||
+                          (enemyDefending && gameState.playerColor === "b")) &&
                         gameState.lockedDefense.some(
                           (move) => move.to === name || move.from === name
                         );
