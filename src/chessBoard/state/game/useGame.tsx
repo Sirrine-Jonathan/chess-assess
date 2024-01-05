@@ -380,6 +380,47 @@ export const useGame = () => {
           return foundEntry[0] as Square;
         }
       },
+      getNumberOfDefended: () => {
+        const counts = {
+          white: 0,
+          black: 0,
+        };
+        Object.entries(gameState.conflict || {}).forEach(
+          ([key, { white, black }]) => {
+            if (white) {
+              counts.white += 1;
+            }
+            if (black) {
+              counts.black += 1;
+            }
+          }
+        );
+        return counts;
+      },
+      getPoints: () => {
+        const pieceValues: Record<Exclude<PieceSymbol, "k">, number> = {
+          b: 3,
+          n: 3,
+          p: 1,
+          q: 9,
+          r: 5,
+        };
+
+        let whitePoints = 0;
+        gameState.whiteCaptured.forEach((curr) => {
+          whitePoints += pieceValues[curr as Exclude<PieceSymbol, "k">];
+        });
+
+        let blackPoints = 0;
+        gameState.blackCaptured.forEach((curr) => {
+          blackPoints += pieceValues[curr as Exclude<PieceSymbol, "k">];
+        });
+
+        return {
+          black: blackPoints,
+          white: whitePoints,
+        };
+      },
     };
   }, [gameState, dispatch]);
 

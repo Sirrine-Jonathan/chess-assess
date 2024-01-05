@@ -12,43 +12,6 @@ const Sidebar = () => {
     <div className="sidebar">
       <div className="information sidebarSection ">
         <Turn />
-        <div className="sidebarSubSection sidebarCaptureArea">
-          <div className="captureArea capturedPieces">
-            {gameState.blackCaptured.map((piece, index) => (
-              <span
-                className="capturedPiece blackCapturedPiece"
-                style={{
-                  maxWidth: `${
-                    100 /
-                    (gameState.blackCaptured.length +
-                      gameState.whiteCaptured.length)
-                  }%`,
-                  ...(index + 1 === gameState.blackCaptured.length
-                    ? { marginRight: "auto" }
-                    : {}),
-                }}
-              >
-                <Piece color={"b" as Color} type={piece} />
-              </span>
-            ))}
-
-            {gameState.whiteCaptured.map((piece, index) => (
-              <div
-                className="capturedPiece whiteCapturedPiece"
-                style={{
-                  maxWidth: `${
-                    100 /
-                    (gameState.blackCaptured.length +
-                      gameState.whiteCaptured.length)
-                  }%`,
-                  ...(index === 0 ? { marginLeft: "auto" } : {}),
-                }}
-              >
-                <Piece color={"w" as Color} type={piece} />
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
       <Controls />
     </div>

@@ -50,7 +50,7 @@ export const Controls = () => {
             <ColorPicker
               color={Options.primaryColor}
               onChange={Actions.setPrimaryColor}
-              label="Edit primary color"
+              label="Dark color"
               showLabel
               direction="right"
             />
@@ -59,7 +59,7 @@ export const Controls = () => {
             <ColorPicker
               color={Options.secondaryColor}
               onChange={Actions.setSecondaryColor}
-              label="Edit secondary color"
+              label="Light color"
               showLabel
               direction="right"
             />
@@ -68,7 +68,7 @@ export const Controls = () => {
             <ColorPicker
               color={Options.disputedLayerColor}
               onChange={Actions.setDisputedLayerColor}
-              label="Edit disputed territory color"
+              label="Disputed territory color"
               showLabel
               direction="right"
             />
@@ -79,7 +79,7 @@ export const Controls = () => {
             <div className="toggleRow">
               <Toggle
                 on={Options.showDefenseLayer}
-                label="Show defense"
+                label="Show white defense"
                 handleChange={Actions.setShowDefenseLayer}
                 switchClass="defenseLayerSwitch"
               />
@@ -95,7 +95,7 @@ export const Controls = () => {
             <div className="toggleRow">
               <Toggle
                 on={Options.showEnemyDefenseLayer}
-                label="Show enemy defense"
+                label="Show black defense"
                 handleChange={Actions.setShowEnemyDefenseLayer}
                 switchClass="enemyDefenseLayerSwitch"
               />

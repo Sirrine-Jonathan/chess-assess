@@ -1,4 +1,4 @@
-import { Color } from "chess.js";
+import { Color, PieceSymbol } from "chess.js";
 import Piece from "../pieces/Piece";
 import { useGame } from "../state/game/useGame";
 import { useOptions } from "../state/options/useOptions";
@@ -10,16 +10,19 @@ const enemy =
   type === GameType.Trainer ? "Trainer" : `Stockfish level ${getLevel()}`;
 
 export const WhiteCaptured = ({ isTop }: { isTop?: boolean }) => {
-  const { gameState } = useGame();
-  const { Options } = useOptions();
+  const { gameState, Actions } = useGame();
   const black = gameState.playerColor === "b" ? "You" : enemy;
 
-  const above =
-    gameState.playerColor === "w" ? Options.flipBoard : !Options.flipBoard;
+  const score = Actions.getPoints();
+  const advantage = score.white - score.black;
+  const advantageStr = advantage > 0 ? ` +${advantage}` : "";
 
   return (
     <div className={clsx("captureArea", isTop && "captureArea--top")}>
-      <div className="capturerName">Black: {black}</div>
+      <div className="capturerName">
+        Black{advantageStr}, defending {Actions.getNumberOfDefended().black}{" "}
+        squares
+      </div>
       <div>
         {gameState.whiteCaptured.map((piece) => (
           <Piece color={"w" as Color} type={piece} />
@@ -30,16 +33,19 @@ export const WhiteCaptured = ({ isTop }: { isTop?: boolean }) => {
 };
 
 export const BlackCaptured = ({ isTop }: { isTop?: boolean }) => {
-  const { gameState } = useGame();
-  const { Options } = useOptions();
+  const { gameState, Actions } = useGame();
   const white = gameState.playerColor === "w" ? "You" : enemy;
 
-  const above =
-    gameState.playerColor === "b" ? Options.flipBoard : !Options.flipBoard;
+  const score = Actions.getPoints();
+  const advantage = score.black - score.white;
+  const advantageStr = advantage > 0 ? ` +${advantage}` : "";
 
   return (
     <div className={clsx("captureArea", isTop && "captureArea--top")}>
-      <div className="capturerName">White: {white}</div>
+      <div className="capturerName">
+        White{advantageStr}, defending {Actions.getNumberOfDefended().white}{" "}
+        squares
+      </div>
       <div>
         {gameState.blackCaptured.map((piece) => (
           <Piece color={"b" as Color} type={piece} />
