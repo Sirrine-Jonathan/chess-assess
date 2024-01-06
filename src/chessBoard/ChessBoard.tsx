@@ -156,9 +156,17 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                 {!isMobile ? (
                   <div className="files files-top">
                     {(() => {
-                      return "abcdefgh"
+                      const nonFlipped = "abcdefgh"
                         .split("")
                         .map((file) => <div className="file-name">{file}</div>);
+
+                      if (gameState.playerColor === "w"
+                        ? Options.flipBoard
+                        : !Options.flipBoard) {
+                        return nonFlipped.reverse()
+                      }
+
+                      return nonFlipped
                     })()}
                   </div>
                 ) : null}
@@ -167,20 +175,38 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                     <>
                       <div className="ranks ranks-left">
                         {(() => {
-                          return "12345678"
+                          const nonFlipped = "12345678"
                             .split("")
+                            .reverse()
                             .map((rank) => (
                               <div className="rank-name">{rank}</div>
                             ));
+
+                          if (gameState.playerColor === "w"
+                            ? Options.flipBoard
+                            : !Options.flipBoard) {
+                            return nonFlipped.reverse()
+                          }
+
+                          return nonFlipped;
                         })()}
                       </div>
                       <div className="ranks ranks-right">
                         {(() => {
-                          return "12345678"
+                          const nonFlipped = "12345678"
                             .split("")
+                            .reverse()
                             .map((rank) => (
                               <div className="rank-name">{rank}</div>
                             ));
+
+                          if (gameState.playerColor === "w"
+                            ? Options.flipBoard
+                            : !Options.flipBoard) {
+                            return nonFlipped.reverse()
+                          }
+
+                          return nonFlipped;
                         })()}
                       </div>
                     </>
@@ -261,8 +287,8 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
 
                       const possibleDestination = selectionState.activePiece
                         ? !!gameState.activeMoves?.find(
-                            (move) => name === move.to
-                          )
+                          (move) => name === move.to
+                        )
                         : false;
 
                       return (
@@ -296,9 +322,17 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                 {!isMobile ? (
                   <div className="files files-bottom">
                     {(() => {
-                      return "abcdefgh"
+                      const nonFlipped = "abcdefgh"
                         .split("")
                         .map((file) => <div className="file-name">{file}</div>);
+
+                      if (gameState.playerColor === "w"
+                        ? Options.flipBoard
+                        : !Options.flipBoard) {
+                        return nonFlipped.reverse()
+                      }
+
+                      return nonFlipped
                     })()}
                   </div>
                 ) : null}
