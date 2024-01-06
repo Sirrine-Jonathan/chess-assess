@@ -689,6 +689,11 @@
   .optionsSwitch {
     margin: 5px 0;
   }
+  
+  .historySection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
 
   .ranks {
     display: flex;
