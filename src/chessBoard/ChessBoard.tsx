@@ -153,7 +153,28 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                 ) : (
                   <WhiteCaptured isTop={true} />
                 )}
+                <div className="files files-top">
+                  {(() => {
+                    return "abcdefgh"
+                      .split("")
+                      .map((file) => <div className="file-name">{file}</div>);
+                  })()}
+                </div>
                 <div className="innerBoardContainer">
+                  <div className="ranks ranks-left">
+                    {(() => {
+                      return "12345678"
+                        .split("")
+                        .map((rank) => <div className="rank-name">{rank}</div>);
+                    })()}
+                  </div>
+                  <div className="ranks ranks-right">
+                    {(() => {
+                      return "12345678"
+                        .split("")
+                        .map((rank) => <div className="rank-name">{rank}</div>);
+                    })()}
+                  </div>
                   <GameOver />
                   <div
                     key={gameState.ascii}
@@ -261,6 +282,13 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                       );
                     })}
                   </div>
+                </div>
+                <div className="files files-bottom">
+                  {(() => {
+                    return "abcdefgh"
+                      .split("")
+                      .map((file) => <div className="file-name">{file}</div>);
+                  })()}
                 </div>
                 {(
                   gameState.playerColor === "w"

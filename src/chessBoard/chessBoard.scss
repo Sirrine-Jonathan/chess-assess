@@ -690,7 +690,37 @@
     margin: 5px 0;
   }
 
-  
+  .ranks {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+
+    &.ranks-left {
+      transform: translate(-100%);
+      left: -10px;
+    }
+
+    &.ranks-right {
+      transform: translate(100%);
+      right: -10px;
+    }
+  }
+
+  .files {
+    display: flex;
+    justify-content: space-around;
+    
+    &.files-bottom {
+      padding-bottom: 10px;
+    }
+
+    &.files-top {
+      padding-top: 10px;
+    }
+  }
 
   .centerRow {
     display: flex;
