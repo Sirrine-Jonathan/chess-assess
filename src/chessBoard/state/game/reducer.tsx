@@ -11,6 +11,7 @@ export enum ActionTypeNames {
   UpdatePieceMap = "UPDATE_PIECE_MAP",
   SetLockedMoves = "SET_LOCKED_MOVES",
   SetLockedDefense = "SET_LOCKED_DEFENSE",
+  SetNavIndex = "SET_NAV_INDEX",
 }
 
 export type ActionsPayload = {
@@ -28,12 +29,13 @@ export type ActionsPayload = {
   [ActionTypeNames.UpdatePieceMap]: GameState["pieceMap"];
   [ActionTypeNames.SetLockedMoves]: Move[];
   [ActionTypeNames.SetLockedDefense]: Move[];
+  [ActionTypeNames.SetNavIndex]: number;
 };
 
 export type ActionMap<M extends { [index: string]: unknown }> = {
   [Key in keyof M]: M[Key] extends undefined
-    ? { type: Key }
-    : { type: Key; payload: M[Key] };
+  ? { type: Key }
+  : { type: Key; payload: M[Key] };
 };
 
 export type ActionType =
@@ -85,6 +87,11 @@ export const reducer = (state: GameState, action: ActionType) => {
         ...state,
         lockedDefense: action.payload,
       };
+    case ActionTypeNames.SetNavIndex:
+      return {
+        ...state,
+        navIndex: action.payload
+      }
     default:
       return state;
   }

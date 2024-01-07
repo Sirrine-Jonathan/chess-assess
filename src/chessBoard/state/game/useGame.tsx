@@ -151,9 +151,9 @@ export const initialState: GameState = {
   blackCaptured: [],
   lastMove: null,
   activeMoves: [],
-  nav: [],
   skillLevel: -1, // 0 - 20, -1 is for trainer bot
   type: GameType.Trainer,
+  navIndex: 0,
 };
 
 const GameContext = createContext<{
@@ -333,6 +333,7 @@ export const useGame = () => {
       performUpdate: () => {
         const update = game.getUpdate();
         writeFen(update.fen);
+        console.log('== performing update', update.board);
         dispatch({
           type: ActionTypeNames.PerformUpdate,
           payload: update,
@@ -421,6 +422,66 @@ export const useGame = () => {
           white: whitePoints,
         };
       },
+      navRestored: () => {
+        return gameState.navIndex === gameState.history.length - 1;
+      },
+      checkNav: (step: number) => {
+        const nextNav = gameState.navIndex + step;
+        return nextNav >= -1 && nextNav < gameState.history.length;
+      },
+      nav: (step: number) => {
+        if (actions.checkNav(step)) {
+          const nextNav = gameState.navIndex + step;
+
+          const isBackward = gameState.navIndex - nextNav > 0
+          console.log('== isBackward', { isBackward, navIndex: gameState.navIndex, nextNav })
+
+          let move = isBackward ? gameState.history[gameState.navIndex] : gameState.history[gameState.navIndex + 1];
+          console.log(`== move to ${isBackward ? 'undo' : 'redo'}`, move);
+
+          // get move from history to apply to gameState.board
+          const gameBoard = [...gameState.board];
+
+          const reverse = isBackward ? { to: move.from, from: move.to } : move;
+
+          console.log('apply', reverse);
+          const fromRank = reverse.from.split('')[1];
+          const fromFile = reverse.from.split('')[0];
+          const toRank = reverse.to.split('')[1];
+          const toFile = reverse.to.split('')[0];
+          console.log('step one', { fromRank, fromFile, toRank, toFile });
+
+          const ranks = '12345678'.split('').reverse();
+          const files = 'abcdefgh'.split('');
+          console.log('step 1.5', { ranks, files });
+
+          const fromRankIndex = ranks.findIndex(rank => rank === fromRank);
+          const fromFileIndex = files.findIndex(file => file === fromFile);
+          const fromObj = gameBoard[fromRankIndex][fromFileIndex];
+          console.log('step 2', { fromRankIndex, fromFileIndex, fromObj });
+
+          const toRankIndex = ranks.findIndex(rank => rank === toRank);
+          const toFileIndex = files.findIndex(file => file === toFile);
+
+          console.log('== before', game.getBoard());
+          console.log('== fromObj', fromObj)
+          if (fromObj) {
+            gameBoard[fromRankIndex][fromFileIndex] = null;
+            gameBoard[toRankIndex][toFileIndex] = { ...fromObj };
+          }
+          console.log('== after', gameBoard);
+
+
+          dispatch({
+            type: ActionTypeNames.PerformUpdate,
+            payload: { ...gameState, board: gameBoard }
+          })
+          dispatch({
+            type: ActionTypeNames.SetNavIndex,
+            payload: nextNav
+          })
+        }
+      }
     };
   }, [gameState, dispatch]);
 

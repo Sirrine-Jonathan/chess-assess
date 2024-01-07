@@ -14,5 +14,7 @@ import RW from "./typeTwo/rw.svg?react";
 
 import Sweat from "./sweat.svg?react";
 import Lock from "./lock-cropped.svg?react";
+import Left from "./angle-circle-left-icon.svg?react";
+import Right from "./angle-circle-right-icon.svg?react";
 
-export { BB, BW, KB, KW, NB, NW, PB, PW, QB, QW, RB, RW, Sweat, Lock };
+export { BB, BW, KB, KW, NB, NW, PB, PW, QB, QW, RB, RW, Sweat, Lock, Left, Right };

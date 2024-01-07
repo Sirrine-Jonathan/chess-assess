@@ -124,7 +124,7 @@ export const Controls = () => {
           />
           <div className="sidbarSubSection">
             <CheckButton
-              label="Replay as White"
+              label="Restart as White"
               onClick={() => {
                 writeColor("w");
                 writeFen(DEFAULT_POSITION);
@@ -133,7 +133,7 @@ export const Controls = () => {
               classes="resetButton small"
             />
             <CheckButton
-              label="Replay as Black"
+              label="Restart as Black"
               onClick={() => {
                 writeColor("b");
                 writeFen(DEFAULT_POSITION);

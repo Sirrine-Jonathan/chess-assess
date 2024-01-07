@@ -1,7 +1,6 @@
 import type { PropsWithChildren, ReactNode } from "react";
 import type { Square, Color, PieceSymbol } from "chess.js";
-import React, { useRef } from "react";
-import { useDroppable } from "@dnd-kit/core";
+import { useRef } from "react";
 import clsx from "clsx";
 import { useGame } from "../state/game/useGame";
 import { useOptions } from "../state/options/useOptions";
@@ -39,7 +38,6 @@ export const ChessSquare = ({
   const { gameState, Actions } = useGame();
   const { selectionState, selectionActions } = useSelection();
   const { Options } = useOptions();
-  const { isOver, setNodeRef } = useDroppable({ id: name });
 
   const pieceName = gameState.pieceMap[name as keyof typeof gameState.pieceMap];
 
@@ -151,7 +149,16 @@ export const ChessSquare = ({
   };
 
   const onClick = () => {
+    if (!Actions.navRestored()) {
+      console.log('nav not restored')
+      return false;
+    }
     const piece = gameState.board.flat().find((cell) => cell?.square === name);
+    console.log('clicked piece', {
+      piece, turn: gameState.turn,
+      board: gameState.board,
+      name
+    })
     if (piece && piece.color === gameState.turn) {
       selectionActions.setActivePiece({
         color: piece.color as Color,
@@ -190,7 +197,6 @@ export const ChessSquare = ({
     <div
       key={name}
       id={name}
-      ref={possibleDestination ? setNodeRef : null}
       className={clsx([
         "square",
         flip && "flip",
@@ -199,7 +205,6 @@ export const ChessSquare = ({
         enemyDefending && "enemyDefending",
         partOfLastMove && "partOfLastMove",
         isAttacked && "isAttacked",
-        isOver && "isOver",
         isActive && "isActive",
         nothingSquare && "nothingSquare",
       ])}
@@ -208,6 +213,9 @@ export const ChessSquare = ({
       {...longPressEvent}
       onKeyDown={(e) => {
         if (e.code === "Space") {
+          if (!Actions.navRestored()) {
+            return false;
+          }
           const piece = gameState.board
             .flat()
             .find((cell) => cell?.square === name);

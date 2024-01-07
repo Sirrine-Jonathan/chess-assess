@@ -210,6 +210,10 @@
             filter: blur(3px);
           }
 
+          &.navigating {
+            filter: saturate(0.5);
+          }
+
           
           
           .square[id*="8"],
@@ -297,10 +301,6 @@
             &.isAttacked .piece svg {
               filter: drop-shadow(1px 1px red) drop-shadow(-1px 1px red)
                 drop-shadow(1px -1px red) drop-shadow(-1px -1px red);
-            }
-
-            &.isOver {
-              border: 2px solid #333;
             }
 
             .squareName {
@@ -689,10 +689,73 @@
   .optionsSwitch {
     margin: 5px 0;
   }
-  
+
   .historySection {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    .historyNav {
+      display: flex;
+      justify-content: space-evenly;
+    
+
+    .historyNavBtn {
+      cursor: pointer;
+      border: none;
+      background: none;
+      margin-bottom: 15px;
+
+      svg {
+        width: 25px;
+        height: 25px;
+        fill: #fff;
+      }
+
+      &:disabled {
+        svg {
+          fill: #525252
+        }
+      }
+
+      &:hover:not(:disabled) {
+        svg {
+          fill: var(--primary-color)
+        }
+      }
+    }
+  }
+    
+    .historyGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      max-height: 200px;
+      -ms-overflow-style: none;  /* Internet Explorer 10+ */
+      scrollbar-width: none;  /* Firefox */
+
+      &::-webkit-scrollbar { 
+        display: none;  /* Safari and Chrome */
+      }
+
+      .historyGridCol {
+        display: flex;
+        justify-content: center;
+      }
+    }
+
+    .navMove {
+      width: min-content;
+      text-align: center;
+      padding: 2px;
+
+      &.active {
+        font-weight: bolder;
+        position: relative;
+        
+        &:before {
+          content: '\083E';
+          position: absolute;
+          top: 0;
+          left: -10px;
+        }
+      }
+    }
   }
 
   .ranks {

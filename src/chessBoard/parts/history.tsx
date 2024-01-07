@@ -1,14 +1,26 @@
+import { Left, Right } from "../pieces/svg";
 import { useGame } from "../state/game/useGame";
+import clsx from 'clsx'
 
 const History = () => {
-  const { gameState } = useGame();
+  const { gameState, Actions } = useGame();
   return (
     <div className="historySection">
-      {gameState.history.map((move) => {
-        const { lan } = move;
+      <div className="historyNav">
+        <button type="button" className="historyNavBtn historyNavBackward" disabled={!Actions.checkNav(-1)} onClick={() => Actions.nav(-1)}>
+          <Left />
+        </button>
+        <button type="button" className="historyNavBtn historyNavForward" disabled={!Actions.checkNav(1)} onClick={() => Actions.nav(1)}>
+          <Right />
+        </button>
+      </div>
+      <div className="historyGrid">
+        {gameState.history.map((move, index) => {
+          const { lan } = move;
 
-        return <div>{lan}</div>;
-      })}
+          return <div className="historyGridCol"><div className={clsx(index === gameState.navIndex && 'active', 'navMove')}>{lan}</div></div>;
+        })}
+      </div>
     </div>
   );
 };
