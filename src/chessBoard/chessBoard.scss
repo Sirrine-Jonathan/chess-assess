@@ -467,7 +467,7 @@
     }
   }
 
-  .mobileControls {
+  .colorControls {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
@@ -477,10 +477,24 @@
       margin-bottom: 23px;
       border-bottom: 3px solid transparent;
     }
+  }
+
+  .mobileLayerControls {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 25px;
+
+    & > div {
+      padding-bottom: 10px;
+      border-bottom: 1px solid transparent;
+    }
 
     .layerControl {
+      filter: drop-shadow(1px 1px #ddd) drop-shadow(-1px 1px #ddd)
+            drop-shadow(1px -1px #ddd) drop-shadow(-1px -1px #ddd);
+
       &.isTurn {
-        border-bottom: 3px solid #fff;
+        border-bottom: 1px solid #fff;
       }
 
       &.layerOn {
@@ -882,12 +896,14 @@
           .capturerName {
             margin-top: 3px;
             margin-bottom: 0;
+            
           }
         }
 
         .capturerName {
           font-size: 12px;
           margin-bottom: 3px;
+          padding-left: 7px;
         }
 
         svg {

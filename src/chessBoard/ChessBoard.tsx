@@ -1,6 +1,6 @@
 import { type Square, type Color, type PieceSymbol } from "chess.js";
 import { useRef, useEffect } from "react";
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import {
   DndContext,
   DragStartEvent,
@@ -20,11 +20,9 @@ import { useOptions } from "./state/options/useOptions";
 import clsx from "clsx";
 import BottomDrawer from "./parts/bottomDrawer";
 import GameOver from "./parts/gameOver";
-import MobileControls from "./parts/mobileControls";
 import { DisplayWrapper } from "./parts/displayWrapper";
 import { useIsMobile } from "../hooks/useIsMobile";
 import "./chessBoard.scss";
-
 import {
   getGameType,
   getFen,
@@ -37,6 +35,8 @@ import { SelectionProvider } from "./state/selection/provider";
 import { WhiteCaptured, BlackCaptured } from "./parts/captured";
 import { useSelection } from "./state/selection/useSelection";
 import { botDelay } from "./state/game/useGame";
+import ColorControls from "./parts/mobileControls";
+import { LayerQuickControls } from "./parts/LayerQuickControls";
 
 export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
   const { Options } = useOptions();
@@ -142,7 +142,7 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
             }}
           >
             <>
-              {isMobile ? <MobileControls /> : null}
+              {isMobile ? <ColorControls /> : null}
               <div className="outerBoardContainer">
                 {(
                   gameState.playerColor === "w"
@@ -346,6 +346,7 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                   <BlackCaptured />
                 )}
               </div>
+              <LayerQuickControls />
             </>
           </div>
           {isMobile ? <BottomDrawer /> : <Sidebar />}
