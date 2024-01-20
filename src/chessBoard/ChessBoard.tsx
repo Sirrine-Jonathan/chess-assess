@@ -1,6 +1,5 @@
 import { type Square, type Color, type PieceSymbol } from "chess.js";
 import { useRef, useEffect } from "react";
-import { useCallback } from "react";
 import { BasePiece } from "./pieces/BasePiece";
 import { ChessSquare } from "./parts/square";
 import Sidebar from "./parts/sidebar";
@@ -28,6 +27,7 @@ import { useSelection } from "./state/selection/useSelection";
 import { botDelay } from "./state/game/useGame";
 import ColorControls from "./parts/mobileControls";
 import { LayerQuickControls } from "./parts/LayerQuickControls";
+import History from "./parts/history";
 
 export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
   const { Options } = useOptions();
@@ -39,11 +39,19 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
 
   useEffect(() => {
     Actions.performUpdate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only run at start
   }, []);
 
   const computerIsMoving = useRef<boolean>(false);
   const timeoutHandle = useRef<ReturnType<typeof window.setTimeout>>();
+
+  const turnRef = useRef(gameState.turn);
+
   useEffect(() => {
+    if (turnRef.current === gameState.turn) {
+      return;
+    }
+    turnRef.current = gameState.turn;
     console.log("Turn", gameState.turn);
     if (
       gameState.turn !== gameState.playerColor &&
@@ -71,10 +79,9 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
       console.log("Waiting for player move");
       computerIsMoving.current = false;
     }
-  }, [gameState.turn]);
+  }, [gameState.turn, gameState.playerColor, Actions, selectionActions]);
 
   return (
-
     <DisplayWrapper loading={loading}>
       <>
         <div
@@ -106,13 +113,15 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                       .split("")
                       .map((file) => <div className="file-name">{file}</div>);
 
-                    if (gameState.playerColor === "w"
-                      ? Options.flipBoard
-                      : !Options.flipBoard) {
-                      return nonFlipped.reverse()
+                    if (
+                      gameState.playerColor === "w"
+                        ? Options.flipBoard
+                        : !Options.flipBoard
+                    ) {
+                      return nonFlipped.reverse();
                     }
 
-                    return nonFlipped
+                    return nonFlipped;
                   })()}
                 </div>
               ) : null}
@@ -128,10 +137,12 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                             <div className="rank-name">{rank}</div>
                           ));
 
-                        if (gameState.playerColor === "w"
-                          ? Options.flipBoard
-                          : !Options.flipBoard) {
-                          return nonFlipped.reverse()
+                        if (
+                          gameState.playerColor === "w"
+                            ? Options.flipBoard
+                            : !Options.flipBoard
+                        ) {
+                          return nonFlipped.reverse();
                         }
 
                         return nonFlipped;
@@ -146,10 +157,12 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                             <div className="rank-name">{rank}</div>
                           ));
 
-                        if (gameState.playerColor === "w"
-                          ? Options.flipBoard
-                          : !Options.flipBoard) {
-                          return nonFlipped.reverse()
+                        if (
+                          gameState.playerColor === "w"
+                            ? Options.flipBoard
+                            : !Options.flipBoard
+                        ) {
+                          return nonFlipped.reverse();
                         }
 
                         return nonFlipped;
@@ -166,7 +179,7 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                     (gameState.playerColor === "w"
                       ? Options.flipBoard
                       : !Options.flipBoard) && "flip",
-                    !Actions.navRestored() && "navigating"
+                    !Actions.navRestored() && "navigating",
                   ])}
                   onKeyDown={(e) => {
                     if (e.code === "Escape") {
@@ -226,16 +239,14 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                         name === gameState.lastMove.from);
 
                     const possibleDestinationOfLocked = !!(
-                      gameState.lockedMoves.find(
-                        (move) => name === move.to
-                      ) ||
+                      gameState.lockedMoves.find((move) => name === move.to) ||
                       gameState.lockedDefense.find((move) => name === move.to)
                     );
 
                     const possibleDestination = selectionState.activePiece
                       ? !!gameState.activeMoves?.find(
-                        (move) => name === move.to
-                      )
+                          (move) => name === move.to
+                        )
                       : false;
 
                     return (
@@ -273,13 +284,15 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                       .split("")
                       .map((file) => <div className="file-name">{file}</div>);
 
-                    if (gameState.playerColor === "w"
-                      ? Options.flipBoard
-                      : !Options.flipBoard) {
-                      return nonFlipped.reverse()
+                    if (
+                      gameState.playerColor === "w"
+                        ? Options.flipBoard
+                        : !Options.flipBoard
+                    ) {
+                      return nonFlipped.reverse();
                     }
 
-                    return nonFlipped
+                    return nonFlipped;
                   })()}
                 </div>
               ) : null}
@@ -294,6 +307,7 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
               )}
             </div>
             <LayerQuickControls />
+            <History />
           </>
         </div>
         {isMobile ? <BottomDrawer /> : <Sidebar />}

@@ -3,8 +3,6 @@
 @import "../toggle.scss";
 @import "../variables.scss";
 
-
-
 @mixin triangles($color, $offset: 0) {
   & > .topLayer {
     clip-path: polygon(0 0, 100% 0, 50% 50%, 0 0);
@@ -21,7 +19,7 @@
   & > .bottomLayer {
     clip-path: polygon(50% 50%, 100% 100%, 0 100%, 50% 50%);
     background-color: $color;
-    filter: brightness(0.90 - $offset);
+    filter: brightness(0.9 - $offset);
   }
 
   & > .leftLayer {
@@ -40,8 +38,6 @@
     width: 100%;
     height: 100%;
     z-index: 0;
-
-    
 
     &.disputedLayer {
       $color: var(--disputed-color);
@@ -96,9 +92,8 @@
         border-radius: 20px;
       }
     }
-    
-    &.partOfLastMove {
 
+    &.partOfLastMove {
       @include triangles($lastMoveColor, 0.5);
     }
   }
@@ -107,7 +102,7 @@
 .displayWrapper {
   display: flex;
   height: 100%;
-  background: URL('/bg.png');
+  background: URL("/bg.png");
 
   &.loading {
     justify-content: center;
@@ -185,11 +180,11 @@
 
           .gameOver {
             padding: 15px;
-            
+
             .gameOverReason {
               font-size: 2em;
             }
-      
+
             .gameOverTitle {
               font-size: 2.5em;
             }
@@ -214,8 +209,6 @@
             filter: saturate(0.5);
           }
 
-          
-          
           .square[id*="8"],
           .square[id*="6"],
           .square[id*="4"],
@@ -271,8 +264,10 @@
               border: 8px solid $lastMoveColor;
               .piece {
                 svg {
-                  filter: drop-shadow(1px 1px $lastMoveColor) drop-shadow(-1px 1px $lastMoveColor)
-                  drop-shadow(1px -1px $lastMoveColor) drop-shadow(-1px -1px $lastMoveColor);
+                  filter: drop-shadow(1px 1px $lastMoveColor)
+                    drop-shadow(-1px 1px $lastMoveColor)
+                    drop-shadow(1px -1px $lastMoveColor)
+                    drop-shadow(-1px -1px $lastMoveColor);
                 }
               }
             }
@@ -436,7 +431,7 @@
   }
 
   .sidebar {
-    background: rgba(0,0,0,0.7);
+    background: rgba(0, 0, 0, 0.7);
     padding: $topSpacing 20px;
     font-size: clamp(12px, 1vw, 14px);
     flex: 1;
@@ -491,7 +486,7 @@
 
     .layerControl {
       filter: drop-shadow(1px 1px #ddd) drop-shadow(-1px 1px #ddd)
-            drop-shadow(1px -1px #ddd) drop-shadow(-1px -1px #ddd);
+        drop-shadow(1px -1px #ddd) drop-shadow(-1px -1px #ddd);
 
       &.isTurn {
         border-bottom: 1px solid #fff;
@@ -670,7 +665,6 @@
         left: 0;
       }
     }
-
   }
 
   .sidebarSection {
@@ -708,43 +702,42 @@
     .historyNav {
       display: flex;
       justify-content: space-evenly;
-    
 
-    .historyNavBtn {
-      cursor: pointer;
-      border: none;
-      background: none;
-      margin-bottom: 15px;
+      .historyNavBtn {
+        cursor: pointer;
+        border: none;
+        background: none;
+        margin-bottom: 15px;
 
-      svg {
-        width: 25px;
-        height: 25px;
-        fill: #fff;
-      }
-
-      &:disabled {
         svg {
-          fill: #525252
+          width: 25px;
+          height: 25px;
+          fill: #fff;
         }
-      }
 
-      &:hover:not(:disabled) {
-        svg {
-          fill: var(--primary-color)
+        &:disabled {
+          svg {
+            fill: #525252;
+          }
+        }
+
+        &:hover:not(:disabled) {
+          svg {
+            fill: var(--primary-color);
+          }
         }
       }
     }
-  }
-    
+
     .historyGrid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       max-height: 200px;
-      -ms-overflow-style: none;  /* Internet Explorer 10+ */
-      scrollbar-width: none;  /* Firefox */
+      -ms-overflow-style: none; /* Internet Explorer 10+ */
+      scrollbar-width: none; /* Firefox */
 
-      &::-webkit-scrollbar { 
-        display: none;  /* Safari and Chrome */
+      &::-webkit-scrollbar {
+        display: none; /* Safari and Chrome */
       }
 
       .historyGridCol {
@@ -761,9 +754,9 @@
       &.active {
         font-weight: bolder;
         position: relative;
-        
+
         &:before {
-          content: '\083E';
+          content: "-";
           position: absolute;
           top: 0;
           left: -10px;
@@ -794,7 +787,7 @@
   .files {
     display: flex;
     justify-content: space-around;
-    
+
     &.files-bottom {
       padding-bottom: 10px;
     }
@@ -811,9 +804,9 @@
 
   .checkButton {
     align-items: center;
-    background-color: #FFFFFF;
+    background-color: #ffffff;
     border: 2px solid #333;
-    border-radius: .50rem;
+    border-radius: 0.5rem;
     box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
     box-sizing: border-box;
     color: rgba(0, 0, 0, 0.85);
@@ -836,8 +829,8 @@
 
     &.dark {
       background-color: #000000;
-      border: 2px solid #EFEFEF;
-      color: #FFFFFF;
+      border: 2px solid #efefef;
+      color: #ffffff;
     }
 
     &.small {
@@ -857,13 +850,12 @@
   }
 
   .checkButton:active {
-    background-color: #F0F0F1;
+    background-color: #f0f0f1;
     border-color: rgba(0, 0, 0, 0.15);
     box-shadow: rgba(0, 0, 0, 0.06) 0 2px 4px;
     color: rgba(0, 0, 0, 0.65);
     transform: translateY(0);
   }
-
 
   .gameOverResetButton {
     margin-top: 25px;
@@ -893,7 +885,7 @@
     height: 25px;
     margin-top: 20px;
     margin-bottom: 15px;
-    
+
     .captureArea {
       display: flex;
       flex: 1;
@@ -950,7 +942,6 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      
 
       .captureArea {
         flex: 1;
@@ -959,7 +950,6 @@
           .capturerName {
             margin-top: 3px;
             margin-bottom: 0;
-            
           }
         }
 
@@ -988,8 +978,6 @@
             width: 100%;
             height: 100%;
           }
-
-          
         }
       }
     }

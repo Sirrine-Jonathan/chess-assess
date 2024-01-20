@@ -6,11 +6,11 @@ import {
   createContext,
   type ReactNode,
 } from "react";
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useCallback } from "react";
 import { ActionTypeNames } from "./reducer";
 import { useSelection } from "../selection/useSelection";
 import { reducer } from "./reducer";
-import { writeFen, GameType } from "../../../utils";
+import { writeFen, GameType, loadFenForInfo } from "../../../utils";
 
 import type { Dispatch } from "react";
 import { DEFAULT_POSITION } from "chess.js";
@@ -265,7 +265,15 @@ export const GameProvider = ({
         payload: lockedMoves,
       });
     }
-  }, [lockedOwn, gameState.pieceMap, gameState.moves, gameState.turn]);
+  }, [
+    lockedOwn,
+    gameState.pieceMap,
+    gameState.moves,
+    gameState.turn,
+    gameState.board,
+    gameState.playerColor,
+    lockedTarget,
+  ]);
 
   const contextValue = useMemo(
     () => ({ gameState, fen, dispatch }),
@@ -281,21 +289,21 @@ export const useGame = () => {
   const { gameState, dispatch } = useContext(GameContext);
   const { selectionState } = useSelection();
 
-  useEffect(() => {
-    const activeSquare = selectionState.activePiece?.from;
-    const activeMoves = activeSquare ? game.getActiveMoves(activeSquare) : [];
-    actions.setActiveMoves(activeMoves);
-  }, [selectionState.activePiece]);
-
-  const updatePieceMap = (from: Square, to: Square) => {
-    const pieceMap = { ...gameState.pieceMap } as Record<Square, Square | null>;
-    pieceMap[to] = pieceMap[from];
-    pieceMap[from] = null;
-    dispatch({
-      type: ActionTypeNames.UpdatePieceMap,
-      payload: pieceMap,
-    });
-  };
+  const updatePieceMap = useCallback(
+    (from: Square, to: Square) => {
+      const pieceMap = { ...gameState.pieceMap } as Record<
+        Square,
+        Square | null
+      >;
+      pieceMap[to] = pieceMap[from];
+      pieceMap[from] = null;
+      dispatch({
+        type: ActionTypeNames.UpdatePieceMap,
+        payload: pieceMap,
+      });
+    },
+    [dispatch, gameState.pieceMap]
+  );
 
   const actions = useMemo(() => {
     return {
@@ -333,7 +341,7 @@ export const useGame = () => {
       performUpdate: () => {
         const update = game.getUpdate();
         writeFen(update.fen);
-        console.log('== performing update', update.board);
+        console.log("== performing update", update.board);
         dispatch({
           type: ActionTypeNames.PerformUpdate,
           payload: update,
@@ -432,58 +440,77 @@ export const useGame = () => {
       nav: (step: number) => {
         if (actions.checkNav(step)) {
           const nextNav = gameState.navIndex + step;
+          const isBackward = gameState.navIndex - nextNav > 0;
 
-          const isBackward = gameState.navIndex - nextNav > 0
-          console.log('== isBackward', { isBackward, navIndex: gameState.navIndex, nextNav })
-
-          let move = isBackward ? gameState.history[gameState.navIndex] : gameState.history[gameState.navIndex + 1];
-          console.log(`== move to ${isBackward ? 'undo' : 'redo'}`, move);
+          let move = isBackward
+            ? gameState.history[gameState.navIndex]
+            : gameState.history[gameState.navIndex + 1];
+          console.log(`== move to ${isBackward ? "undo" : "redo"}`, move);
+          const chessForInfo = loadFenForInfo(move.before);
+          /*
 
           // get move from history to apply to gameState.board
           const gameBoard = [...gameState.board];
+          const reverseMoves = isBackward
+            ? [{ to: move.from, from: move.to }]
+            : [move];
 
-          const reverse = isBackward ? { to: move.from, from: move.to } : move;
+          if (move)
 
-          console.log('apply', reverse);
-          const fromRank = reverse.from.split('')[1];
-          const fromFile = reverse.from.split('')[0];
-          const toRank = reverse.to.split('')[1];
-          const toFile = reverse.to.split('')[0];
-          console.log('step one', { fromRank, fromFile, toRank, toFile });
+          reverseMoves.forEach((reverse) => {
+            console.log("apply", reverse);
+            const fromRank = reverse.from.split("")[1];
+            const fromFile = reverse.from.split("")[0];
+            const toRank = reverse.to.split("")[1];
+            const toFile = reverse.to.split("")[0];
+            console.log("step one", { fromRank, fromFile, toRank, toFile });
 
-          const ranks = '12345678'.split('').reverse();
-          const files = 'abcdefgh'.split('');
-          console.log('step 1.5', { ranks, files });
+            const ranks = "12345678".split("").reverse();
+            const files = "abcdefgh".split("");
+            console.log("step 1.5", { ranks, files });
 
-          const fromRankIndex = ranks.findIndex(rank => rank === fromRank);
-          const fromFileIndex = files.findIndex(file => file === fromFile);
-          const fromObj = gameBoard[fromRankIndex][fromFileIndex];
-          console.log('step 2', { fromRankIndex, fromFileIndex, fromObj });
+            const fromRankIndex = ranks.findIndex((rank) => rank === fromRank);
+            const fromFileIndex = files.findIndex((file) => file === fromFile);
+            const fromObj = gameBoard[fromRankIndex][fromFileIndex];
+            console.log("step 2", { fromRankIndex, fromFileIndex, fromObj });
 
-          const toRankIndex = ranks.findIndex(rank => rank === toRank);
-          const toFileIndex = files.findIndex(file => file === toFile);
+            const toRankIndex = ranks.findIndex((rank) => rank === toRank);
+            const toFileIndex = files.findIndex((file) => file === toFile);
 
-          console.log('== before', game.getBoard());
-          console.log('== fromObj', fromObj)
-          if (fromObj) {
-            gameBoard[fromRankIndex][fromFileIndex] = null;
-            gameBoard[toRankIndex][toFileIndex] = { ...fromObj };
-          }
-          console.log('== after', gameBoard);
-
+            console.log("== before", game.getBoard());
+            console.log("== fromObj", fromObj);
+            if (fromObj) {
+              gameBoard[fromRankIndex][fromFileIndex] = null;
+              gameBoard[toRankIndex][toFileIndex] = { ...fromObj };
+            }
+            console.log("== after", gameBoard);
+          });
+          */
 
           dispatch({
             type: ActionTypeNames.PerformUpdate,
-            payload: { ...gameState, board: gameBoard }
-          })
+            payload: { ...gameState, board: chessForInfo.board() },
+          });
           dispatch({
             type: ActionTypeNames.SetNavIndex,
-            payload: nextNav
-          })
+            payload: nextNav,
+          });
         }
-      }
+      },
     };
-  }, [gameState, dispatch]);
+  }, [gameState, dispatch, updatePieceMap]);
+
+  const activeSquareRef = useRef(selectionState.activePiece?.from);
+
+  useEffect(() => {
+    const activeSquare = selectionState.activePiece?.from;
+    if (activeSquare === activeSquareRef.current) {
+      return;
+    }
+    activeSquareRef.current = activeSquare;
+    const activeMoves = activeSquare ? game.getActiveMoves(activeSquare) : [];
+    actions.setActiveMoves(activeMoves);
+  }, [selectionState.activePiece, actions]);
 
   return { gameState, Actions: actions };
 };

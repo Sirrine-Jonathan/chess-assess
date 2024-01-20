@@ -70,7 +70,11 @@ declare global {
     lockedTarget: Square[];
   }
 
-  type Board = ({ square: Square; type: PieceSymbol; color: Color } | null)[][];
+  type Board = ({
+    square: Square;
+    type: PieceSymbol;
+    color: Color;
+  } | null)[][];
 
   type GameUpdate = {
     ascii: string;

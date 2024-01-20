@@ -1,4 +1,4 @@
-import { validateFen, DEFAULT_POSITION, type Color } from "chess.js";
+import { Chess, validateFen, DEFAULT_POSITION, type Color } from "chess.js";
 
 export enum GameType {
   Trainer = "TRAINER", // /trainer/color/fen
@@ -49,7 +49,7 @@ export const getFen = (): string => {
   return rawFen ? decodeURIComponent(rawFen) : DEFAULT_POSITION;
 };
 
-export const writeFen = (fen: string) => {
+const getFenUrl = (fen: string) => {
   const type = getGameType();
   const pathParts = [window.location.origin, typeToUrl[type]];
   if (type === GameType.Stockfish) {
@@ -58,9 +58,23 @@ export const writeFen = (fen: string) => {
   pathParts.push(String(getColor()));
   const fenPart = encodeURIComponent(fen);
   pathParts.push(fenPart);
+  return pathParts.join("/");
+};
 
-  window.history.replaceState(null, "", pathParts.join("/"));
-  return true;
+export const writeFen = (fen: string) => {
+  const url = getFenUrl(fen);
+  return window.history.replaceState(null, "", url);
+};
+
+export const goToFen = (fen: string) => {
+  const url = getFenUrl(fen);
+  return (window.location.href = url);
+};
+
+export const loadFenForInfo = (fen: string) => {
+  const chess = new Chess();
+  chess.load(fen);
+  return chess;
 };
 
 export const writeLevel = (level: number) => {
