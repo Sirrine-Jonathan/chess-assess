@@ -128,7 +128,7 @@ export const Controls = () => {
               onClick={() => {
                 writeColor("w");
                 writeFen(DEFAULT_POSITION);
-                window.location.href = window.location.href;
+                window.location.reload();
               }}
               classes="resetButton small"
             />
@@ -137,7 +137,7 @@ export const Controls = () => {
               onClick={() => {
                 writeColor("b");
                 writeFen(DEFAULT_POSITION);
-                window.location.href = window.location.href;
+                window.location.reload();
               }}
               classes="resetButton small"
             />

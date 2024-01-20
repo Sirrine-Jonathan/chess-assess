@@ -735,6 +735,7 @@
       max-height: 200px;
       -ms-overflow-style: none; /* Internet Explorer 10+ */
       scrollbar-width: none; /* Firefox */
+      overflow: auto;
 
       &::-webkit-scrollbar {
         display: none; /* Safari and Chrome */
@@ -862,8 +863,6 @@
   }
 
   .historySection {
-    overflow: auto;
-    max-height: 100px;
     margin-top: 15px;
 
     .historyRow {
@@ -972,6 +971,7 @@
           width: 100%;
           gap: 3px;
           background: #fff;
+          border-radius: 0;
 
           .square {
             border: none;

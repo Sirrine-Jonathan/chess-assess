@@ -120,7 +120,7 @@ export const initType = () => {
   if (type === GameType.Stockfish) {
     const level = getLevel();
     const validLevel = isValidLevel(level) ? level : 0;
-    writeLevel(level);
+    writeLevel(validLevel);
   }
   if (type === GameType.Stockfish || type === GameType.Trainer) {
     const color = getColor();
@@ -133,6 +133,11 @@ export const initType = () => {
 
     const fen = getFen();
     const validFen = fen && validateFen(fen) ? fen : DEFAULT_POSITION;
+    console.log("INITIAL FEN", {
+      fen,
+      validFen,
+      worked: fen === validFen,
+    });
     writeFen(validFen);
   }
 };

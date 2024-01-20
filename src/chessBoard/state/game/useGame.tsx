@@ -440,10 +440,12 @@ export const useGame = () => {
           const nextNav = gameState.navIndex + step;
           const isBackward = gameState.navIndex - nextNav > 0;
 
-          let move = isBackward
+          const move = isBackward
             ? gameState.history[gameState.navIndex]
             : gameState.history[gameState.navIndex + 1];
-          const chessForInfo = loadFenForInfo(move.before);
+          const chessForInfo = loadFenForInfo(
+            isBackward ? move.before : move.after
+          );
 
           dispatch({
             type: ActionTypeNames.PerformUpdate,
@@ -454,6 +456,18 @@ export const useGame = () => {
             payload: nextNav,
           });
         }
+      },
+      navTo: (index: number) => {
+        const move = gameState.history[index];
+        const chessForInfo = loadFenForInfo(move.before);
+        dispatch({
+          type: ActionTypeNames.PerformUpdate,
+          payload: { ...gameState, board: chessForInfo.board() },
+        });
+        dispatch({
+          type: ActionTypeNames.SetNavIndex,
+          payload: index,
+        });
       },
     };
   }, [gameState, dispatch, updatePieceMap]);

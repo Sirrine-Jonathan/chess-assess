@@ -2,6 +2,7 @@
 
 .App {
   min-height: 100%;
+  max-height: 100%;
 
   & > div {
     min-height: 100dvh;
@@ -20,21 +21,22 @@
     border: 3px solid #fff;
     border-top: none;
 
-
     .welcomeInputs {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 20px;
 
-      .roomInputsOuter, .stockfishInputsOuter {
+      .roomInputsOuter,
+      .stockfishInputsOuter {
         display: flex;
         flex-direction: column;
         align-items: start;
         margin-top: 10px;
         width: 100%;
-        
-        .roomInputs, .stockfishInputs {
+
+        .roomInputs,
+        .stockfishInputs {
           display: flex;
           align-items: center;
           flex: 1;
@@ -54,39 +56,58 @@
         }
       }
 
-
       .trainerInputs {
         flex: 1;
       }
 
-      .stockfishButtons, .trainerButtons {
-          display: flex;
-          justify-content: center;
-          margin-top: 30px;
-          width: 100%;
+      .stockfishButtons,
+      .trainerButtons {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+        width: 100%;
 
-          a {
-            margin-right: 10px;
-          }
+        a {
+          margin-right: 10px;
         }
+      }
     }
 
     input {
-      border: 3px solid #D65757;
+      border: 3px solid #d65757;
     }
+  }
 
-    a {
-      display: block;
-      text-decoration: none;
-      background: #D65757;
-      border:none;
-      padding: 6px 10px;
-      color: #fff !important;
-      border: 3px solid #D65757;
-      transition: all 0.3s;
+  a {
+    display: block;
+    text-decoration: none;
+    background: #d65757;
+    border: none;
+    padding: 6px 10px;
+    color: #fff !important;
+    border: 3px solid #d65757;
+    transition: all 0.3s;
+    text-align: center;
 
-      &:hover {
-        border-color: #000;
+    &:hover {
+      border-color: #fff;
+    }
+  }
+
+  .openings {
+    width: min-content;
+    margin: 0 auto;
+    padding: 25px 5px;
+
+    .openingsRow {
+      display: grid;
+      grid-template-columns: 1fr 0.3fr 0.3fr;
+      align-items: center;
+      padding: 20px;
+      gap: 10px;
+
+      &:nth-child(odd) {
+        background: #333;
       }
     }
   }
@@ -95,7 +116,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: $topSpacing;
+    margin: $topSpacing 0;
 
     & > div {
       height: 125px;
@@ -112,7 +133,6 @@
         $lightSquares 270deg,
         $lightSquares 360deg
       );
-
     }
 
     &.animate {
