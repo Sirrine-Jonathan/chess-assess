@@ -150,15 +150,10 @@ export const ChessSquare = ({
 
   const onClick = () => {
     if (!Actions.navRestored()) {
-      console.log('nav not restored')
       return false;
     }
     const piece = gameState.board.flat().find((cell) => cell?.square === name);
-    console.log('clicked piece', {
-      piece, turn: gameState.turn,
-      board: gameState.board,
-      name
-    })
+
     if (piece && piece.color === gameState.turn) {
       selectionActions.setActivePiece({
         color: piece.color as Color,
