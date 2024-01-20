@@ -1,13 +1,10 @@
-console.log("Hello")
+console.log("Hello");
 
-const stockfish  = new Worker("./src/stockfish_15/stockfish.js")
+const stockfish = new Worker("./src/stockfish_15/stockfish.js");
 
-console.log(stockfish)
+console.log(stockfish);
 
-stockfish.onmessage = (message) => console.log(`Received message: ${message.data}`)
+stockfish.onmessage = (message) =>
+  console.log(`Received message: ${message.data}`);
 
-stockfish.postMessage("uci")
-
-// stockfish.addMessageListener((line) => {
-// 	console.log(`Received ${line}`)
-// }
+stockfish.postMessage("uci");

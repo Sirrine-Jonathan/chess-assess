@@ -49,8 +49,13 @@ export class Game {
     return this.state;
   }
 
+  getBoard() {
+    return this.chess.board();
+  }
+
   getUpdate() {
     const board = this.chess.board();
+    const history = this.chess.history({ verbose: true });
     const conflict: Record<string, { white: boolean; black: boolean }> = {};
     board.flat().forEach((piece, index) => {
       const rank = ["a", "b", "c", "d", "e", "f", "g", "h"][index % 8];
@@ -78,7 +83,8 @@ export class Game {
       isStalemate: this.chess.isStalemate(),
       isThreefoldRepetition: this.chess.isThreefoldRepetition(),
       fen: this.chess.fen(),
-      history: this.chess.history({ verbose: true }),
+      history,
+      navIndex: history.length - 1,
     };
     return update;
   }

@@ -1,15 +1,5 @@
 import { type Square, type Color, type PieceSymbol } from "chess.js";
 import { useRef, useEffect } from "react";
-import { useCallback } from "react";
-import {
-  DndContext,
-  DragStartEvent,
-  DragEndEvent,
-  useSensor,
-  useSensors,
-  MouseSensor,
-  TouchSensor,
-} from "@dnd-kit/core";
 import { BasePiece } from "./pieces/BasePiece";
 import { ChessSquare } from "./parts/square";
 import Sidebar from "./parts/sidebar";
@@ -37,6 +27,7 @@ import { useSelection } from "./state/selection/useSelection";
 import { botDelay } from "./state/game/useGame";
 import ColorControls from "./parts/mobileControls";
 import { LayerQuickControls } from "./parts/LayerQuickControls";
+import History from "./parts/history";
 
 export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
   const { Options } = useOptions();
@@ -46,54 +37,21 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
 
   const chessBoardWrapperRef = useRef<HTMLDivElement>(null);
 
-  const mouseSensor = useSensor(MouseSensor, {
-    activationConstraint: { distance: 15 },
-  });
-  const touchSensor = useSensor(TouchSensor, {
-    activationConstraint: { distance: 15 },
-  });
-  const sensors = useSensors(mouseSensor, touchSensor);
-
-  const handleDragStart = useCallback(
-    function handleDragStart(event: DragStartEvent) {
-      const [color, piece, from] = (event.active.id as string).split("-");
-      selectionActions.setActivePiece({ color, piece, from } as ChessPiece);
-    },
-    [Actions]
-  );
-
-  const handleDragEnd = useCallback(
-    function handleDragEnd(event: DragEndEvent) {
-      const parts = (event.active.id as string).split("-");
-      const from = parts[2];
-      if (event.over) {
-        const move = {
-          from: from as Square,
-          to: event.over.id as Square,
-        };
-        const captured = Actions.move(move);
-        if (captured) {
-          Actions.setColorCaptured({
-            color: captured.color as Color,
-            piece: captured.piece,
-            type: captured.type as "en-passant" | "capture",
-          });
-        }
-        Actions.performUpdate();
-        Actions.setLastMove(move);
-        selectionActions.setActivePiece(null);
-      }
-    },
-    [Actions]
-  );
-
   useEffect(() => {
     Actions.performUpdate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only run at start
   }, []);
 
   const computerIsMoving = useRef<boolean>(false);
   const timeoutHandle = useRef<ReturnType<typeof window.setTimeout>>();
+
+  const turnRef = useRef(gameState.turn);
+
   useEffect(() => {
+    if (turnRef.current === gameState.turn) {
+      return;
+    }
+    turnRef.current = gameState.turn;
     console.log("Turn", gameState.turn);
     if (
       gameState.turn !== gameState.playerColor &&
@@ -121,238 +79,240 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
       console.log("Waiting for player move");
       computerIsMoving.current = false;
     }
-  }, [gameState.turn]);
+  }, [gameState.turn, gameState.playerColor, Actions, selectionActions]);
 
   return (
-    <DndContext
-      sensors={sensors}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
-      <DisplayWrapper loading={loading}>
-        <>
-          <div
-            ref={chessBoardWrapperRef}
-            className="chessBoardWrapper"
-            onClick={(e) => {
-              if (e.target === chessBoardWrapperRef.current) {
-                selectionActions.setActivePiece(null);
-                Actions.setActiveMoves([]);
-              }
-            }}
-          >
-            <>
-              {isMobile ? <ColorControls /> : null}
-              <div className="outerBoardContainer">
-                {(
-                  gameState.playerColor === "w"
-                    ? Options.flipBoard
-                    : !Options.flipBoard
-                ) ? (
-                  <BlackCaptured isTop={true} />
-                ) : (
-                  <WhiteCaptured isTop={true} />
-                )}
+    <DisplayWrapper loading={loading}>
+      <>
+        <div
+          ref={chessBoardWrapperRef}
+          className="chessBoardWrapper"
+          onClick={(e) => {
+            if (e.target === chessBoardWrapperRef.current) {
+              selectionActions.setActivePiece(null);
+              Actions.setActiveMoves([]);
+            }
+          }}
+        >
+          <>
+            {isMobile ? <ColorControls /> : null}
+            <div className="outerBoardContainer">
+              {(
+                gameState.playerColor === "w"
+                  ? Options.flipBoard
+                  : !Options.flipBoard
+              ) ? (
+                <BlackCaptured isTop={true} />
+              ) : (
+                <WhiteCaptured isTop={true} />
+              )}
+              {!isMobile ? (
+                <div className="files files-top">
+                  {(() => {
+                    const nonFlipped = "abcdefgh"
+                      .split("")
+                      .map((file) => <div className="file-name">{file}</div>);
+
+                    if (
+                      gameState.playerColor === "w"
+                        ? Options.flipBoard
+                        : !Options.flipBoard
+                    ) {
+                      return nonFlipped.reverse();
+                    }
+
+                    return nonFlipped;
+                  })()}
+                </div>
+              ) : null}
+              <div className="innerBoardContainer">
                 {!isMobile ? (
-                  <div className="files files-top">
-                    {(() => {
-                      const nonFlipped = "abcdefgh"
-                        .split("")
-                        .map((file) => <div className="file-name">{file}</div>);
+                  <>
+                    <div className="ranks ranks-left">
+                      {(() => {
+                        const nonFlipped = "12345678"
+                          .split("")
+                          .reverse()
+                          .map((rank) => (
+                            <div className="rank-name">{rank}</div>
+                          ));
 
-                      if (gameState.playerColor === "w"
-                        ? Options.flipBoard
-                        : !Options.flipBoard) {
-                        return nonFlipped.reverse()
-                      }
+                        if (
+                          gameState.playerColor === "w"
+                            ? Options.flipBoard
+                            : !Options.flipBoard
+                        ) {
+                          return nonFlipped.reverse();
+                        }
 
-                      return nonFlipped
-                    })()}
-                  </div>
+                        return nonFlipped;
+                      })()}
+                    </div>
+                    <div className="ranks ranks-right">
+                      {(() => {
+                        const nonFlipped = "12345678"
+                          .split("")
+                          .reverse()
+                          .map((rank) => (
+                            <div className="rank-name">{rank}</div>
+                          ));
+
+                        if (
+                          gameState.playerColor === "w"
+                            ? Options.flipBoard
+                            : !Options.flipBoard
+                        ) {
+                          return nonFlipped.reverse();
+                        }
+
+                        return nonFlipped;
+                      })()}
+                    </div>
+                  </>
                 ) : null}
-                <div className="innerBoardContainer">
-                  {!isMobile ? (
-                    <>
-                      <div className="ranks ranks-left">
-                        {(() => {
-                          const nonFlipped = "12345678"
-                            .split("")
-                            .reverse()
-                            .map((rank) => (
-                              <div className="rank-name">{rank}</div>
-                            ));
+                <GameOver />
+                <div
+                  key={gameState.ascii}
+                  className={clsx([
+                    "board",
+                    gameState.isGameOver && "blur",
+                    (gameState.playerColor === "w"
+                      ? Options.flipBoard
+                      : !Options.flipBoard) && "flip",
+                    !Actions.navRestored() && "navigating",
+                  ])}
+                  onKeyDown={(e) => {
+                    if (e.code === "Escape") {
+                      selectionActions.setActivePiece(null);
+                      Actions.setActiveMoves([]);
+                    }
+                  }}
+                >
+                  {gameState.board.flat().map((piece, index) => {
+                    const rank = ["a", "b", "c", "d", "e", "f", "g", "h"][
+                      index % 8
+                    ];
+                    const fileNum = ((index - (index % 8)) % 9) - 1;
+                    const file = fileNum < 0 ? 8 : fileNum;
 
-                          if (gameState.playerColor === "w"
-                            ? Options.flipBoard
-                            : !Options.flipBoard) {
-                            return nonFlipped.reverse()
-                          }
+                    const name = `${rank}${file}`;
 
-                          return nonFlipped;
-                        })()}
-                      </div>
-                      <div className="ranks ranks-right">
-                        {(() => {
-                          const nonFlipped = "12345678"
-                            .split("")
-                            .reverse()
-                            .map((rank) => (
-                              <div className="rank-name">{rank}</div>
-                            ));
+                    const pieceCanMove = !!gameState.moves?.find((move) => {
+                      return name === move.from;
+                    });
 
-                          if (gameState.playerColor === "w"
-                            ? Options.flipBoard
-                            : !Options.flipBoard) {
-                            return nonFlipped.reverse()
-                          }
-
-                          return nonFlipped;
-                        })()}
-                      </div>
-                    </>
-                  ) : null}
-                  <GameOver />
-                  <div
-                    key={gameState.ascii}
-                    className={clsx([
-                      "board",
-                      gameState.isGameOver && "blur",
-                      (gameState.playerColor === "w"
+                    const flip =
+                      gameState.playerColor === "w"
                         ? Options.flipBoard
-                        : !Options.flipBoard) && "flip",
-                    ])}
-                    onKeyDown={(e) => {
-                      if (e.code === "Escape") {
-                        selectionActions.setActivePiece(null);
-                        Actions.setActiveMoves([]);
-                      }
-                    }}
-                  >
-                    {gameState.board.flat().map((piece, index) => {
-                      const rank = ["a", "b", "c", "d", "e", "f", "g", "h"][
-                        index % 8
-                      ];
-                      const fileNum = ((index - (index % 8)) % 9) - 1;
-                      const file = fileNum < 0 ? 8 : fileNum;
+                        : !Options.flipBoard;
 
-                      const name = `${rank}${file}`;
+                    const enemyDefending = !!(
+                      gameState.conflict &&
+                      gameState.conflict[name as Square].black
+                    );
 
-                      const pieceCanMove = !!gameState.moves?.find((move) => {
-                        return name === move.from;
-                      });
+                    const playerDefending = !!(
+                      gameState.conflict &&
+                      gameState.conflict[name as Square].white
+                    );
 
-                      const flip =
-                        gameState.playerColor === "w"
-                          ? Options.flipBoard
-                          : !Options.flipBoard;
-
-                      const enemyDefending = !!(
-                        gameState.conflict &&
-                        gameState.conflict[name as Square].black
+                    const isPlayerAttackingTargeted =
+                      ((playerDefending && gameState.playerColor === "w") ||
+                        (enemyDefending && gameState.playerColor === "b")) &&
+                      gameState.lockedDefense.some(
+                        (move) => move.to === name || move.from === name
                       );
 
-                      const playerDefending = !!(
-                        gameState.conflict &&
-                        gameState.conflict[name as Square].white
-                      );
+                    const isAttacked = !!(
+                      piece &&
+                      ((gameState.conflict &&
+                        gameState.conflict[name as Square].white &&
+                        piece.color !== "w") ||
+                        (gameState.conflict &&
+                          gameState.conflict[name as Square].black &&
+                          piece.color !== "b"))
+                    );
 
-                      const isPlayerAttackingTargeted =
-                        ((playerDefending && gameState.playerColor === "w") ||
-                          (enemyDefending && gameState.playerColor === "b")) &&
-                        gameState.lockedDefense.some(
-                          (move) => move.to === name || move.from === name
-                        );
+                    const partOfLastMove =
+                      gameState.lastMove !== null &&
+                      (name === gameState.lastMove.to ||
+                        name === gameState.lastMove.from);
 
-                      const isAttacked = !!(
-                        piece &&
-                        ((gameState.conflict &&
-                          gameState.conflict[name as Square].white &&
-                          piece.color !== "w") ||
-                          (gameState.conflict &&
-                            gameState.conflict[name as Square].black &&
-                            piece.color !== "b"))
-                      );
+                    const possibleDestinationOfLocked = !!(
+                      gameState.lockedMoves.find((move) => name === move.to) ||
+                      gameState.lockedDefense.find((move) => name === move.to)
+                    );
 
-                      const partOfLastMove =
-                        gameState.lastMove !== null &&
-                        (name === gameState.lastMove.to ||
-                          name === gameState.lastMove.from);
-
-                      const possibleDestinationOfLocked = !!(
-                        gameState.lockedMoves.find(
-                          (move) => name === move.to
-                        ) ||
-                        gameState.lockedDefense.find((move) => name === move.to)
-                      );
-
-                      const possibleDestination = selectionState.activePiece
-                        ? !!gameState.activeMoves?.find(
+                    const possibleDestination = selectionState.activePiece
+                      ? !!gameState.activeMoves?.find(
                           (move) => name === move.to
                         )
-                        : false;
+                      : false;
 
-                      return (
-                        <ChessSquare
-                          key={name}
-                          name={name as Square}
-                          piece={piece}
-                          flip={flip}
-                          enemyDefending={enemyDefending}
-                          playerDefending={playerDefending}
-                          isPlayerAttackingTargeted={isPlayerAttackingTargeted}
-                          isAttacked={isAttacked}
-                          partOfLastMove={partOfLastMove}
-                          possibleDestination={possibleDestination}
-                          possibleDestinationOfLocked={
-                            possibleDestinationOfLocked
-                          }
-                        >
-                          {piece ? (
-                            <BasePiece
-                              type={piece.type as PieceSymbol}
-                              color={piece.color as Color}
-                              pieceCanMove={pieceCanMove}
-                            />
-                          ) : null}
-                        </ChessSquare>
-                      );
-                    })}
-                  </div>
+                    return (
+                      <ChessSquare
+                        key={name}
+                        name={name as Square}
+                        piece={piece}
+                        flip={flip}
+                        enemyDefending={enemyDefending}
+                        playerDefending={playerDefending}
+                        isPlayerAttackingTargeted={isPlayerAttackingTargeted}
+                        isAttacked={isAttacked}
+                        partOfLastMove={partOfLastMove}
+                        possibleDestination={possibleDestination}
+                        possibleDestinationOfLocked={
+                          possibleDestinationOfLocked
+                        }
+                      >
+                        {piece ? (
+                          <BasePiece
+                            type={piece.type as PieceSymbol}
+                            color={piece.color as Color}
+                            pieceCanMove={pieceCanMove}
+                          />
+                        ) : null}
+                      </ChessSquare>
+                    );
+                  })}
                 </div>
-                {!isMobile ? (
-                  <div className="files files-bottom">
-                    {(() => {
-                      const nonFlipped = "abcdefgh"
-                        .split("")
-                        .map((file) => <div className="file-name">{file}</div>);
-
-                      if (gameState.playerColor === "w"
-                        ? Options.flipBoard
-                        : !Options.flipBoard) {
-                        return nonFlipped.reverse()
-                      }
-
-                      return nonFlipped
-                    })()}
-                  </div>
-                ) : null}
-                {(
-                  gameState.playerColor === "w"
-                    ? Options.flipBoard
-                    : !Options.flipBoard
-                ) ? (
-                  <WhiteCaptured />
-                ) : (
-                  <BlackCaptured />
-                )}
               </div>
-              <LayerQuickControls />
-            </>
-          </div>
-          {isMobile ? <BottomDrawer /> : <Sidebar />}
-        </>
-      </DisplayWrapper>
-    </DndContext>
+              {!isMobile ? (
+                <div className="files files-bottom">
+                  {(() => {
+                    const nonFlipped = "abcdefgh"
+                      .split("")
+                      .map((file) => <div className="file-name">{file}</div>);
+
+                    if (
+                      gameState.playerColor === "w"
+                        ? Options.flipBoard
+                        : !Options.flipBoard
+                    ) {
+                      return nonFlipped.reverse();
+                    }
+
+                    return nonFlipped;
+                  })()}
+                </div>
+              ) : null}
+              {(
+                gameState.playerColor === "w"
+                  ? Options.flipBoard
+                  : !Options.flipBoard
+              ) ? (
+                <WhiteCaptured />
+              ) : (
+                <BlackCaptured />
+              )}
+            </div>
+            <LayerQuickControls />
+            <History />
+          </>
+        </div>
+        {isMobile ? <BottomDrawer /> : <Sidebar />}
+      </>
+    </DisplayWrapper>
   );
 };
 

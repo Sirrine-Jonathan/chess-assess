@@ -60,9 +60,9 @@ declare global {
     blackCaptured: PieceSymbol[];
     lastMove: Pick<Move, "to" | "from"> | null;
     activeMoves: Move[];
-    nav: Move[][];
     skillLevel: number;
     type: GameType;
+    navIndex: number;
   }
   interface SelectionState {
     activePiece: ChessPiece | null;
@@ -70,12 +70,15 @@ declare global {
     lockedTarget: Square[];
   }
 
-  type Board = ({ square: Square; type: PieceSymbol; color: Color } | null)[][];
+  type Board = ({
+    square: Square;
+    type: PieceSymbol;
+    color: Color;
+  } | null)[][];
 
   type GameUpdate = {
     ascii: string;
     board: Board;
-
     conflict: Conflict;
     moves: Move[];
     turn: Color;

@@ -6,11 +6,11 @@ import {
   createContext,
   type ReactNode,
 } from "react";
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useCallback } from "react";
 import { ActionTypeNames } from "./reducer";
 import { useSelection } from "../selection/useSelection";
 import { reducer } from "./reducer";
-import { writeFen, GameType } from "../../../utils";
+import { writeFen, GameType, loadFenForInfo } from "../../../utils";
 
 import type { Dispatch } from "react";
 import { DEFAULT_POSITION } from "chess.js";
@@ -151,9 +151,9 @@ export const initialState: GameState = {
   blackCaptured: [],
   lastMove: null,
   activeMoves: [],
-  nav: [],
   skillLevel: -1, // 0 - 20, -1 is for trainer bot
   type: GameType.Trainer,
+  navIndex: 0,
 };
 
 const GameContext = createContext<{
@@ -258,14 +258,21 @@ export const GameProvider = ({
         }) as Move[];
         // add these pieces to the lockedMoves
         lockedMoves.push(...lockedDefense);
-        console.log("CHECK", { lockedMoves, lockedDefense });
       }
       dispatch({
         type: ActionTypeNames.SetLockedDefense,
         payload: lockedMoves,
       });
     }
-  }, [lockedOwn, gameState.pieceMap, gameState.moves, gameState.turn]);
+  }, [
+    lockedOwn,
+    gameState.pieceMap,
+    gameState.moves,
+    gameState.turn,
+    gameState.board,
+    gameState.playerColor,
+    lockedTarget,
+  ]);
 
   const contextValue = useMemo(
     () => ({ gameState, fen, dispatch }),
@@ -281,21 +288,21 @@ export const useGame = () => {
   const { gameState, dispatch } = useContext(GameContext);
   const { selectionState } = useSelection();
 
-  useEffect(() => {
-    const activeSquare = selectionState.activePiece?.from;
-    const activeMoves = activeSquare ? game.getActiveMoves(activeSquare) : [];
-    actions.setActiveMoves(activeMoves);
-  }, [selectionState.activePiece]);
-
-  const updatePieceMap = (from: Square, to: Square) => {
-    const pieceMap = { ...gameState.pieceMap } as Record<Square, Square | null>;
-    pieceMap[to] = pieceMap[from];
-    pieceMap[from] = null;
-    dispatch({
-      type: ActionTypeNames.UpdatePieceMap,
-      payload: pieceMap,
-    });
-  };
+  const updatePieceMap = useCallback(
+    (from: Square, to: Square) => {
+      const pieceMap = { ...gameState.pieceMap } as Record<
+        Square,
+        Square | null
+      >;
+      pieceMap[to] = pieceMap[from];
+      pieceMap[from] = null;
+      dispatch({
+        type: ActionTypeNames.UpdatePieceMap,
+        payload: pieceMap,
+      });
+    },
+    [dispatch, gameState.pieceMap]
+  );
 
   const actions = useMemo(() => {
     return {
@@ -421,8 +428,47 @@ export const useGame = () => {
           white: whitePoints,
         };
       },
+      navRestored: () => {
+        return gameState.navIndex === gameState.history.length - 1;
+      },
+      checkNav: (step: number) => {
+        const nextNav = gameState.navIndex + step;
+        return nextNav >= -1 && nextNav < gameState.history.length;
+      },
+      nav: (step: number) => {
+        if (actions.checkNav(step)) {
+          const nextNav = gameState.navIndex + step;
+          const isBackward = gameState.navIndex - nextNav > 0;
+
+          let move = isBackward
+            ? gameState.history[gameState.navIndex]
+            : gameState.history[gameState.navIndex + 1];
+          const chessForInfo = loadFenForInfo(move.before);
+
+          dispatch({
+            type: ActionTypeNames.PerformUpdate,
+            payload: { ...gameState, board: chessForInfo.board() },
+          });
+          dispatch({
+            type: ActionTypeNames.SetNavIndex,
+            payload: nextNav,
+          });
+        }
+      },
     };
-  }, [gameState, dispatch]);
+  }, [gameState, dispatch, updatePieceMap]);
+
+  const activeSquareRef = useRef(selectionState.activePiece?.from);
+
+  useEffect(() => {
+    const activeSquare = selectionState.activePiece?.from;
+    if (activeSquare === activeSquareRef.current) {
+      return;
+    }
+    activeSquareRef.current = activeSquare;
+    const activeMoves = activeSquare ? game.getActiveMoves(activeSquare) : [];
+    actions.setActiveMoves(activeMoves);
+  }, [selectionState.activePiece, actions]);
 
   return { gameState, Actions: actions };
 };
