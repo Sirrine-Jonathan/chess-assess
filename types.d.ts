@@ -63,6 +63,11 @@ declare global {
     skillLevel: number;
     type: GameType;
     navIndex: number;
+    promotion: {
+      to: Square;
+      from: Square;
+      promotion: "n" | "b" | "r" | "q";
+    } | null;
   }
   interface SelectionState {
     activePiece: ChessPiece | null;

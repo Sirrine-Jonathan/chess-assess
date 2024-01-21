@@ -154,6 +154,7 @@ export const initialState: GameState = {
   skillLevel: -1, // 0 - 20, -1 is for trainer bot
   type: GameType.Trainer,
   navIndex: 0,
+  promotion: null,
 };
 
 const GameContext = createContext<{
@@ -310,7 +311,7 @@ export const useGame = () => {
         const finalMove = { ...move } as {
           to: Square;
           from: Square;
-          promotion: "p" | "n" | "b" | "r" | "q" | "k";
+          promotion: "n" | "b" | "r" | "q";
         };
 
         const fromPiece = gameState.board
@@ -319,7 +320,16 @@ export const useGame = () => {
         if (fromPiece?.type === "p") {
           const file = move.to.split("")[1];
           if (file === "8" || file === "1") {
-            finalMove.promotion = "q";
+            if (!finalMove.promotion) {
+              dispatch({
+                type: ActionTypeNames.SetPromotion, payload: finalMove,
+              })
+              return;
+            } else {
+              dispatch({
+                type: ActionTypeNames.SetPromotion, payload: null
+              })
+            }
           }
         }
         updatePieceMap(move.from, move.to);

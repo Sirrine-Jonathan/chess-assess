@@ -1,12 +1,12 @@
 import { Controls } from "./controls";
-import Turn from "./turn";
+import { LayerQuickControls } from "./LayerQuickControls";
 import History from "./history";
 
 const Sidebar = () => {
   return (
     <div className="sidebar">
       <div className="information sidebarSection ">
-        <Turn />
+        <LayerQuickControls />
       </div>
       <Controls />
       <History />

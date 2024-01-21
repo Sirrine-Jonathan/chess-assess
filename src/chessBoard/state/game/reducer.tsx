@@ -1,4 +1,4 @@
-import { PieceSymbol, Color, Move } from "chess.js";
+import { PieceSymbol, Color, Move, Square } from "chess.js";
 
 export enum ActionTypeNames {
   SetActivePiece = "SET_ACTIVE_PIECE",
@@ -12,6 +12,7 @@ export enum ActionTypeNames {
   SetLockedMoves = "SET_LOCKED_MOVES",
   SetLockedDefense = "SET_LOCKED_DEFENSE",
   SetNavIndex = "SET_NAV_INDEX",
+  SetPromotion = 'SET_PROMOTION'
 }
 
 export type ActionsPayload = {
@@ -30,6 +31,11 @@ export type ActionsPayload = {
   [ActionTypeNames.SetLockedMoves]: Move[];
   [ActionTypeNames.SetLockedDefense]: Move[];
   [ActionTypeNames.SetNavIndex]: number;
+  [ActionTypeNames.SetPromotion]: {
+    to: Square;
+    from: Square;
+    promotion: "n" | "b" | "r" | "q";
+  } | null;
 };
 
 export type ActionMap<M extends { [index: string]: unknown }> = {
@@ -91,6 +97,11 @@ export const reducer = (state: GameState, action: ActionType) => {
       return {
         ...state,
         navIndex: action.payload
+      }
+    case ActionTypeNames.SetPromotion:
+      return {
+        ...state,
+        promotion: action.payload
       }
     default:
       return state;

@@ -28,6 +28,7 @@ import { botDelay } from "./state/game/useGame";
 import ColorControls from "./parts/mobileControls";
 import { LayerQuickControls } from "./parts/LayerQuickControls";
 import History from "./parts/history";
+import { PromotionPrompt } from "./parts/promotionPrompt";
 
 export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
   const { Options } = useOptions();
@@ -45,7 +46,7 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
   const computerIsMoving = useRef<boolean>(false);
   const timeoutHandle = useRef<ReturnType<typeof window.setTimeout>>();
 
-  const turnRef = useRef(gameState.turn);
+  const turnRef = useRef<Color | null>(null);
 
   useEffect(() => {
     if (turnRef.current === gameState.turn) {
@@ -170,12 +171,13 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                     </div>
                   </>
                 ) : null}
-                <GameOver />
+                {Actions.navRestored() ? <GameOver /> : null}
+                <PromotionPrompt key={`promotion-at-${name}`} />
                 <div
                   key={gameState.ascii}
                   className={clsx([
                     "board",
-                    gameState.isGameOver && "blur",
+                    gameState.isGameOver && Actions.navRestored() && "blur",
                     (gameState.playerColor === "w"
                       ? Options.flipBoard
                       : !Options.flipBoard) && "flip",
@@ -245,8 +247,8 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
 
                     const possibleDestination = selectionState.activePiece
                       ? !!gameState.activeMoves?.find(
-                          (move) => name === move.to
-                        )
+                        (move) => name === move.to
+                      )
                       : false;
 
                     return (
@@ -306,8 +308,8 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
                 <BlackCaptured />
               )}
             </div>
-            <LayerQuickControls />
-            <History />
+            {isMobile ? <LayerQuickControls /> : null}
+            {isMobile ? <History /> : null}
           </>
         </div>
         {isMobile ? <BottomDrawer /> : <Sidebar />}

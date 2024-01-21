@@ -149,7 +149,7 @@ export const ChessSquare = ({
   };
 
   const onClick = () => {
-    if (!Actions.navRestored()) {
+    if (!Actions.navRestored() || gameState.promotion !== null) {
       return false;
     }
     const piece = gameState.board.flat().find((cell) => cell?.square === name);
@@ -202,6 +202,7 @@ export const ChessSquare = ({
         isAttacked && "isAttacked",
         isActive && "isActive",
         nothingSquare && "nothingSquare",
+        gameState.promotion && 'pendingPromotion'
       ])}
       style={{ ...(possibleDestination ? { cursor: "pointer" } : {}) }}
       tabIndex={0}

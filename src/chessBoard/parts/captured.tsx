@@ -23,7 +23,7 @@ export const WhiteCaptured = ({ isTop }: { isTop?: boolean }) => {
         Black{advantageStr}, defending {Actions.getNumberOfDefended().black}{" "}
         squares
       </div>
-      <div>
+      <div className="capturePieceList">
         {gameState.whiteCaptured.map((piece) => (
           <Piece color={"w" as Color} type={piece} />
         ))}
@@ -46,7 +46,7 @@ export const BlackCaptured = ({ isTop }: { isTop?: boolean }) => {
         White{advantageStr}, defending {Actions.getNumberOfDefended().white}{" "}
         squares
       </div>
-      <div>
+      <div className="capturePieceList">
         {gameState.blackCaptured.map((piece) => (
           <Piece color={"b" as Color} type={piece} />
         ))}
