@@ -1,4 +1,5 @@
-import { Move, Square } from "chess.js";
+import { Move, Square, Chess, PieceSymbol, Piece } from "chess.js";
+import { Game } from "./game";
 
 export class Bot {
   private level = 0;
@@ -37,23 +38,8 @@ export class Bot {
     return moves[Math.floor(Math.random() * moves.length)];
   }
 
-  async getCommonMove(fen: string, moves: Move[]) {
-    return await fetch(`https://explorer.lichess.ovh/masters?fen=${fen}`)
-      .then((data) => data.json())
-      .then((data) => {
-        const move = data.moves[Math.floor(Math.random() * data.moves.length)];
-        if (move) {
-          console.log("playing san", move.san);
-          return move.san;
-        } else {
-          const random = this.getRandomMove(moves);
-          console.log("playing random", random);
-          return random;
-        }
-      });
-  }
-
-  async getMove(fen: string, moves: Move[]) {
+  async getMove(fen: string, game: Game) {
+    const moves = game.getMoves();
     console.log(`getMove at level ${this.level}`, fen, moves);
     if (this.level < 0) {
       console.log("getMove => random", "level < 0");
@@ -66,6 +52,15 @@ export class Bot {
       console.log("Failed: getMove => random", "level > 0");
       return Promise.resolve(this.getRandomMove(moves));
     }
+  }
+
+  async getBetterMove(fen: string, game: Game) {
+    const betterMove = calculateBestMove(fen);
+    const actualMove = betterMove?.includes("x")
+      ? betterMove
+      : this.getRandomMove(game.getMoves());
+    console.log("BETTER MOVE", betterMove, "playing", actualMove);
+    return actualMove;
   }
 
   postMessage(message: string) {
@@ -101,3 +96,62 @@ export class Bot {
     });
   }
 }
+
+const calculateBestMove = function (fen: string) {
+  const game = new Chess();
+  game.load(fen);
+  const moves = game.moves();
+  let bestMove = null;
+  //use any negative large number
+  let bestValue = -9999;
+
+  for (let i = 0; i < moves.length; i++) {
+    const newGameMove = moves[i];
+    game.move(newGameMove);
+
+    //take the negative as AI plays as black
+    const boardValue = -evaluateBoard(game.board());
+    game.undo();
+    if (boardValue > bestValue) {
+      bestValue = boardValue;
+      bestMove = newGameMove;
+    }
+  }
+
+  return bestMove;
+};
+
+const evaluateBoard = function (board: Board) {
+  let totalEvaluation = 0;
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
+      totalEvaluation = totalEvaluation + getPieceValue(board[i][j]);
+    }
+  }
+  return totalEvaluation;
+};
+
+const getPieceValue = function (piece: Piece | null) {
+  if (piece === null) {
+    return 0;
+  }
+  const getAbsoluteValue = function (piece: PieceSymbol) {
+    if (piece === "p") {
+      return 10;
+    } else if (piece === "r") {
+      return 50;
+    } else if (piece === "n") {
+      return 30;
+    } else if (piece === "b") {
+      return 30;
+    } else if (piece === "q") {
+      return 90;
+    } else if (piece === "k") {
+      return 900;
+    }
+    throw "Unknown piece type: " + piece;
+  };
+
+  const absoluteValue = getAbsoluteValue(piece.type);
+  return piece.color === "w" ? absoluteValue : -absoluteValue;
+};

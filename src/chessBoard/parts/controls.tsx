@@ -122,26 +122,24 @@ export const Controls = () => {
             onClick={Actions.resetOptions}
             classes="restoreButton small"
           />
-          <div className="sidbarSubSection">
-            <CheckButton
-              label="Restart as White"
-              onClick={() => {
-                writeColor("w");
-                writeFen(DEFAULT_POSITION);
-                window.location.reload();
-              }}
-              classes="resetButton small"
-            />
-            <CheckButton
-              label="Restart as Black"
-              onClick={() => {
-                writeColor("b");
-                writeFen(DEFAULT_POSITION);
-                window.location.reload();
-              }}
-              classes="resetButton small"
-            />
-          </div>
+          <CheckButton
+            label="Restart as White"
+            onClick={() => {
+              writeColor("w");
+              writeFen(DEFAULT_POSITION);
+              window.location.reload();
+            }}
+            classes="resetButton small"
+          />
+          <CheckButton
+            label="Restart as Black"
+            onClick={() => {
+              writeColor("b");
+              writeFen(DEFAULT_POSITION);
+              window.location.reload();
+            }}
+            classes="resetButton small"
+          />
           <CheckButton
             label="Main Menu"
             onClick={() => {

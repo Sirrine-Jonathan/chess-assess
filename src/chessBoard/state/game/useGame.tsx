@@ -340,7 +340,7 @@ export const useGame = () => {
       computerMove: async () => {
         console.log("Computer move");
         const fen = game.getFen();
-        let move = await ChessLayersBot.getMove(fen, game.getMoves());
+        let move = await ChessLayersBot.getBetterMove(fen, game);
         if (move) {
           updatePieceMap(move.from, move.to);
           const captured = game.move(move);

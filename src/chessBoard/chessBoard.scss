@@ -322,8 +322,8 @@
             box-sizing: border-box;
             justify-content: center;
             align-items: center;
-            width: clamp(10px, 6vw, 80px);
-            height: clamp(10px, 6vw, 80px);
+            width: clamp(10px, 7dvh, 80px);
+            height: clamp(10px, 7dvh, 80px);
             cursor: pointer;
 
             &.partOfLastMove:not(.pendingPromotion) {
