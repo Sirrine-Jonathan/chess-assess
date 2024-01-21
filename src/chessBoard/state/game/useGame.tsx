@@ -20,7 +20,7 @@ import { Game } from "./game";
 
 const game = new Game();
 
-export const botDelay = 0;
+export const botDelay = 1000;
 
 const pieceMapObject = {
   a8: "a8" as Square,
