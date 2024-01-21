@@ -155,6 +155,7 @@ export const initialState: GameState = {
   type: GameType.Trainer,
   navIndex: 0,
   promotion: null,
+  opening: null
 };
 
 const GameContext = createContext<{
@@ -354,6 +355,14 @@ export const useGame = () => {
           type: ActionTypeNames.PerformUpdate,
           payload: update,
         });
+        fetch(`https://explorer.lichess.ovh/masters?fen=${update.fen}`)
+          .then(data => data.json())
+          .then(data => {
+            dispatch({
+              type: ActionTypeNames.SetOpening,
+              payload: data?.opening?.name
+            })
+          })
       },
       setColorCaptured: (event: CaptureEvent) => {
         const { whiteCaptured, blackCaptured } = gameState;

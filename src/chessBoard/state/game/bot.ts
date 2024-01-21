@@ -37,6 +37,22 @@ export class Bot {
     return moves[Math.floor(Math.random() * moves.length)];
   }
 
+  async getCommonMove(fen: string, moves: Move[]) {
+    return await fetch(`https://explorer.lichess.ovh/masters?fen=${fen}`)
+      .then((data) => data.json())
+      .then((data) => {
+        const move = data.moves[Math.floor(Math.random() * data.moves.length)];
+        if (move) {
+          console.log("playing san", move.san);
+          return move.san;
+        } else {
+          const random = this.getRandomMove(moves);
+          console.log("playing random", random);
+          return random;
+        }
+      });
+  }
+
   async getMove(fen: string, moves: Move[]) {
     console.log(`getMove at level ${this.level}`, fen, moves);
     if (this.level < 0) {

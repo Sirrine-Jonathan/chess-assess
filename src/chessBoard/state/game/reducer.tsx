@@ -12,7 +12,8 @@ export enum ActionTypeNames {
   SetLockedMoves = "SET_LOCKED_MOVES",
   SetLockedDefense = "SET_LOCKED_DEFENSE",
   SetNavIndex = "SET_NAV_INDEX",
-  SetPromotion = 'SET_PROMOTION'
+  SetPromotion = 'SET_PROMOTION',
+  SetOpening = 'SET_OPENING',
 }
 
 export type ActionsPayload = {
@@ -36,6 +37,7 @@ export type ActionsPayload = {
     from: Square;
     promotion: "n" | "b" | "r" | "q";
   } | null;
+  [ActionTypeNames.SetOpening]: string | undefined | null;
 };
 
 export type ActionMap<M extends { [index: string]: unknown }> = {
@@ -102,6 +104,11 @@ export const reducer = (state: GameState, action: ActionType) => {
       return {
         ...state,
         promotion: action.payload
+      }
+    case ActionTypeNames.SetOpening:
+      return {
+        ...state,
+        opening: action.payload,
       }
     default:
       return state;

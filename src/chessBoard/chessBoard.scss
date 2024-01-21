@@ -543,6 +543,12 @@
     }
   }
 
+  .opening {
+    text-align: center;
+    padding: 20px 0 0;
+    font-size: 16px;
+  }
+
   .mobileLayerControls {
     display: flex;
     justify-content: space-evenly;
@@ -771,6 +777,7 @@
     .historyNav {
       display: flex;
       justify-content: space-evenly;
+      border-radius: 100px;
 
       .historyNavBtn {
         cursor: pointer;
@@ -792,7 +799,7 @@
 
         &:hover:not(:disabled) {
           svg {
-            fill: var(--primary-color);
+            background: var(--primary-color);
           }
         }
       }
@@ -820,9 +827,9 @@
       width: min-content;
       text-align: center;
       padding: 2px;
+      cursor: pointer;
 
       &.active {
-        font-weight: bolder;
         position: relative;
 
         &:before {

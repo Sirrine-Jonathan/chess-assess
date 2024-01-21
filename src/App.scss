@@ -95,9 +95,8 @@
   }
 
   .openings {
-    width: min-content;
-    margin: 0 auto;
-    padding: 25px 5px;
+    width: calc(100% - 100px);
+    padding: 25px 50px;
 
     .openingsRow {
       display: grid;
@@ -150,5 +149,33 @@
       border-radius: 0;
       width: auto;
     }
+    .openings {
+      width: 100%;
+      padding: 25px 0;
+    }
+  }
+
+  footer {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    a {
+      display: inline-block;
+      text-decoration: underline;
+      background: none;
+      border: none;
+      padding: 0;
+      color: #fff !important;
+      border: none;
+      transition: all 0.3s;
+      text-align: center;
+      text-underline-offset: 3px;
+  
+      &:hover {
+        color: #d65757 !important;
+        text-decoration-color: #fff;
+      }
+    }
   }
 }
+

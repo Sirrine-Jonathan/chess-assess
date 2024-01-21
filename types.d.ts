@@ -68,6 +68,7 @@ declare global {
       from: Square;
       promotion: "n" | "b" | "r" | "q";
     } | null;
+    opening: string | undefined | null;
   }
   interface SelectionState {
     activePiece: ChessPiece | null;

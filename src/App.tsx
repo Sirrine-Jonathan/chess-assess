@@ -15,30 +15,61 @@ export const ChessLayersBot = new Bot(-1);
 
 // prettier-ignore
 const openings = {
-  "Ruy Lopez":                 "r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/8/PPPP1PPP/R1BQK1NR b KQkq - 0 4",
-  "French Defense":            "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/8/PPPP1PPP/R1BQKBNR w KQkq - 0 3",
-  "Scotch Game":               "r1bqkbnr/pppp1ppp/2n5/3Np3/8/8/PPPP1PPP/R1BQKB1R b KQkq - 0 4",
-  "Queen's Indian Defense":    "rnbqkbnr/pp2pppp/2p5/3p4/3P4/8/PPP2PPP/RNBQKBNR w KQkq - 0 4",
-  "Nimzo-Indian Defense":      "rnbqkbnr/pp2pppp/2p5/3p4/3P4/8/PPPN1PPP/R1BQKBNR b KQkq - 0 4",
-  "Alekhine's Defense":        "rnbqkbnr/pppp1ppp/8/3p4/3P4/8/PPP2PPP/RNBQKBNR w KQkq - 0 3",
-  "Dutch Defense":             "rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP2PPP/RNBQKBNR w KQkq - 0 3",
-  "King's Gambit Accepted":    "rnbqkbnr/pppp2pp/8/4p3/4P3/8/PPP2PPP/R1BQKBNR b KQkq - 0 3",
-  "Modern Defense":            "rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PP1P1PPP/RNBQKBNR b KQkq - 0 3",
-  "Benoni Defense":            "rnbqkbnr/pppppppp/8/8/3P4/8/PPP2PPP/RNBQKBNR w KQkq - 0 3",
-  "Sicilian Dragon":           "rnbqkbnr/pp1ppppp/8/8/3P4/8/PPP2PPP/RNBQKBNR w KQkq - 0 3",
-  "Catalan Opening":           "rnbqkbnr/pp1ppppp/8/3P4/8/8/PPP2PPP/R1BQKBNR b KQkq - 0 3",
-  "Grünfeld Defense":          "rnbqkbnr/pp1ppppp/8/3p4/3P4/8/PPP1QPPP/R1B1KBNR b KQkq - 0 3",
-  "Sicilian Najdorf":          "rnbqkbnr/pp1ppppp/8/8/3P4/8/PPP2PPP/RNBQKBNR w KQkq - 0 3",
-  "Evans Gambit":              "rnbqkbnr/pppp1ppp/8/4p3/2B1P3/8/PPPP1PPP/R1BQKBNR b KQkq - 0 3",
-  "Gruenfeld Exchange":        "rnbqkbnr/pp2pppp/2p5/3p4/3P4/8/PPP2PPP/R1BQKBNR w KQkq - 0 4",
-  "Slav Defense":              "rnbqkbnr/pp2pppp/2p5/3p4/3P4/8/PPPN1PPP/R1BQKBNR b KQkq - 0 4",
-  "Trompowsky Attack":         "rnbqkbnr/pppppppp/8/8/3P4/8/PPP2PPP/R1BQKBNR w KQkq - 0 3",
-  "Colle System":              "rnbqkbnr/pppppppp/8/8/3P4/8/PPP2PPP/RNBQKBNR w KQkq - 0 3",
-  "Bird Opening":              "rnbqkbnr/pppppppp/8/8/3P4/8/PPP2PPP/RNBQKBNR w KQkq - 0 3",
-  "Scandinavian Defense":      "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPP2PPP/R1BQKBNR w KQkq - 0 3",
-  "Elephant Gambit":           "rnbqkbnr/pppp1ppp/8/4p3/2B1P3/8/PPPP1PPP/R1BQKBNR b KQkq - 0 3",
-  "King's Indian Attack":      "rnbqkbnr/pppppppp/8/8/3P4/8/PPP2PPP/RNBQKBNR",
+  "Sicilian Defense": "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2",
+  "French Defense": "rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+  "Scandinavian Defense": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPP2PPP/R1BQKBNR w KQkq - 0 3",
+  "Philidor's Defense": "rnbqkbnr/ppp2ppp/3p4/4p3/4P3/5N1P/PPPP1PP1/RNBQKB1R b KQkq - 0 3",
+  "Italian Game": "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3",
+  "Van't Kruijs Opening": "rnbqkb1r/pppppppp/5n2/8/6P1/4P3/PPPP1P1P/RNBQKBNR b KQkq g3 0 2",
+  "English Opening": "rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq c3 0 1",
+  "Spanish Game": "",
+  "Caro Kann Defense": "",
+  "Owen Defense": "",
+  "Robatsch (Modern) Defense": "",
+  "Bishop's Opening": "",
+  "Hungarian Opening": "",
+  "Queen's Gambit Declined": "",
+  "Scotch Game": "",
+  "Horwitz Defense": "",
+  "Zukertort Opening": "",
+  "Pirc Defense": "",
+  "Nimzowitsch Defense": "",
+  "King's Gambit Accepted": "",
+  "Ruy Lopez": "r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3",
+  "Scotch Opening": "",
+  "Queen's Indian Defense": "",
+  "Nimzo-Indian Defense": "",
+  "Alekhine's Defense": "",
+  "Dutch Defense": "",
+  "Modern Defense": "",
+  "Benoni Defense": "",
+  "Sicilian Dragon": "",
+  "Catalan Opening": "",
+  "Grünfeld Defense": "",
+  "Sicilian Najdorf": "",
+  "Evans Gambit": "",
+  "Gruenfeld Exchange": "",
+  "Slav Defense": "",
+  "Trompowsky Attack": "",
+  "Colle System": "",
+  "Bird's Opening": "rnbqkbnr/pppppppp/8/8/5P2/8/PPPPP1PP/RNBQKBNR b KQkq f3 0 1",
+  "Elephant Gambit": "rnbqkbnr/ppp2ppp/8/3pp3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq d6 0 3",
+  "King's Indian Attack": "rnbqkbnr/ppp1pppp/8/3p4/8/5NP1/PPPPPP1P/RNBQKB1R b KQkq - 0 2",
+  "London System": "rnbqkb1r/ppp1pppp/5n2/3p4/3P1B2/5N2/PPP1PPPP/RN1QKB1R b KQkq - 3 3"
 };
+
+const openingNames = Object.keys(openings);
+const findDuplicates = (arr: string[]) => {
+  let sorted_arr = arr.slice().sort();
+  let results = [];
+  for (let i = 0; i < sorted_arr.length - 1; i++) {
+    if (sorted_arr[i + 1] == sorted_arr[i]) {
+      results.push(sorted_arr[i]);
+    }
+  }
+  return results;
+}
+console.log('dulpicates', findDuplicates(openingNames))
 
 function App() {
   const isMobile = useIsMobile();
@@ -120,7 +151,7 @@ function App() {
           </div>
           <div className="openings">
             <h2>Openings</h2>
-            {Object.entries(openings).map(([key, val]) => {
+            {Object.entries(openings).filter(([key, val]) => Boolean(val)).map(([key, val]) => {
               return (
                 <div className="openingsRow">
                   <div className="openingName">{key}</div>
@@ -133,6 +164,10 @@ function App() {
           <div className="loadingSpinner">
             <div />
           </div>
+          <footer>
+            <div>
+              <a href="https://github.com/Sirrine-Jonathan/chess-layers">Made</a> by <a href="http://www.jonathansirrine.com">Jonathan Sirrine</a></div>
+          </footer>
         </div>
       )}
     </div>
