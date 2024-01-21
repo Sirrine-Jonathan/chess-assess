@@ -61,19 +61,20 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
       console.log("Computer is moving");
       clearTimeout(timeoutHandle.current);
       timeoutHandle.current = setTimeout(async () => {
-        const result = await Actions.computerMove();
-        if (result) {
-          if (result.captured) {
-            Actions.setColorCaptured({
-              color: result.captured.color as Color,
-              piece: result.captured.piece,
-              type: result.captured.type as CaptureEvent["type"],
-            });
+        Actions.computerMove().then(result => {
+          if (result) {
+            if (result.captured) {
+              Actions.setColorCaptured({
+                color: result.captured.color as Color,
+                piece: result.captured.piece,
+                type: result.captured.type as CaptureEvent["type"],
+              });
+            }
+            Actions.setLastMove(result.move);
+            selectionActions.setActivePiece(null);
           }
-          Actions.setLastMove(result.move);
-          selectionActions.setActivePiece(null);
-        }
-        Actions.performUpdate();
+          Actions.performUpdate();
+        });
       }, botDelay);
       computerIsMoving.current = true;
     } else {

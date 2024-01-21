@@ -20,7 +20,7 @@ import { Game } from "./game";
 
 const game = new Game();
 
-export const botDelay = 1000;
+export const botDelay = 0;
 
 const pieceMapObject = {
   a8: "a8" as Square,
@@ -340,7 +340,7 @@ export const useGame = () => {
       computerMove: async () => {
         console.log("Computer move");
         const fen = game.getFen();
-        let move = await ChessLayersBot.getBetterMove(fen, game);
+        let move = await ChessLayersBot.getMinMaxMove(fen, game)
         if (move) {
           updatePieceMap(move.from, move.to);
           const captured = game.move(move);

@@ -1,9 +1,11 @@
 import { Move, Square, Chess, PieceSymbol, Piece } from "chess.js";
 import { Game } from "./game";
 
+let positionCount = 0;
 export class Bot {
   private level = 0;
   private stockfishJs: Worker;
+  private receivedOpener = true;
 
   constructor(level = 0) {
     console.log("Bot constructor", level);
@@ -56,11 +58,50 @@ export class Bot {
 
   async getBetterMove(fen: string, game: Game) {
     const betterMove = calculateBestMove(fen);
-    const actualMove = betterMove?.includes("x")
+    const actualMove = betterMove?.captured
       ? betterMove
       : this.getRandomMove(game.getMoves());
     console.log("BETTER MOVE", betterMove, "playing", actualMove);
     return actualMove;
+  }
+
+  async getMinMaxMove(fen: string, game: Game, depth = 2) {
+    let openerMove = null;
+    if (this.receivedOpener) {
+      console.log("SEARCHING FOR OPENER");
+      openerMove = await fetch(
+        `https://explorer.lichess.ovh/masters?fen=${fen}`
+      )
+        .then((data) => data.json())
+        .then((data) => {
+          if (data.moves.length > 0) {
+            let bestRating = 0;
+            let bestRatingIndex = 0;
+            data.moves.forEach(
+              (move: { averageRating: number; uci: string }, index: number) => {
+                if (move.averageRating > bestRating) {
+                  bestRating = move.averageRating;
+                  bestRatingIndex = index;
+                }
+              }
+            );
+            const bestOpener = data.moves[bestRatingIndex];
+            const bestOpenerMove = {
+              to: bestOpener.uci.charAt(2) + bestOpener.uci.charAt(3),
+              from: bestOpener.uci.charAt(0) + bestOpener.uci.charAt(1),
+            };
+            return bestOpenerMove;
+          }
+          this.receivedOpener = false;
+          return null;
+        });
+    }
+    if (openerMove !== null) {
+      return openerMove;
+    }
+
+    positionCount = 0;
+    return minimaxRoot(depth, fen, true);
   }
 
   postMessage(message: string) {
@@ -100,7 +141,7 @@ export class Bot {
 const calculateBestMove = function (fen: string) {
   const game = new Chess();
   game.load(fen);
-  const moves = game.moves();
+  const moves = game.moves({ verbose: true });
   let bestMove = null;
   //use any negative large number
   let bestValue = -9999;
@@ -154,4 +195,75 @@ const getPieceValue = function (piece: Piece | null) {
 
   const absoluteValue = getAbsoluteValue(piece.type);
   return piece.color === "w" ? absoluteValue : -absoluteValue;
+};
+
+var minimaxRoot = function (
+  depth: number,
+  fen: string,
+  isMaximisingPlayer: boolean
+) {
+  const game = new Chess();
+  game.load(fen);
+  const newGameMoves = game.moves({ verbose: true });
+  var bestMove = -9999;
+  var bestMoveFound;
+
+  for (var i = 0; i < newGameMoves.length; i++) {
+    var newGameMove = newGameMoves[i];
+    game.move(newGameMove);
+    var value = minimax(depth - 1, game, -10000, 10000, !isMaximisingPlayer);
+    game.undo();
+    if (value >= bestMove) {
+      bestMove = value;
+      bestMoveFound = newGameMove;
+    }
+  }
+  return bestMoveFound;
+};
+
+var minimax = function (
+  depth: number,
+  game: Chess,
+  alpha: number,
+  beta: number,
+  isMaximisingPlayer: boolean
+) {
+  positionCount++;
+  if (depth === 0) {
+    return -evaluateBoard(game.board());
+  }
+
+  var newGameMoves = game.moves({ verbose: true });
+
+  if (isMaximisingPlayer) {
+    var bestMove = -9999;
+    for (var i = 0; i < newGameMoves.length; i++) {
+      game.move(newGameMoves[i]);
+      bestMove = Math.max(
+        bestMove,
+        minimax(depth - 1, game, alpha, beta, !isMaximisingPlayer)
+      );
+      game.undo();
+      alpha = Math.max(alpha, bestMove);
+      if (beta <= alpha) {
+        return bestMove;
+      }
+    }
+    return bestMove;
+  } else {
+    var bestMove = 9999;
+    for (var i = 0; i < newGameMoves.length; i++) {
+      game.move(newGameMoves[i]);
+      bestMove = Math.min(
+        bestMove,
+        minimax(depth - 1, game, alpha, beta, !isMaximisingPlayer)
+      );
+      game.undo();
+      beta = Math.min(beta, bestMove);
+      if (beta <= alpha) {
+        return bestMove;
+      }
+    }
+    return bestMove;
+  }
 };

@@ -101,7 +101,7 @@ function App() {
             <h1>Chess Layers</h1>
             <div className="welcomeInputs">
               <div className="trainerInputs">
-                <div>Play with computer that always plays random moves,<br />unless it can capture</div>
+                <div>Play against a bot that uses a min max algorithm with beta pruning</div>
                 <div className="trainerButtons">
                   <a href={`/trainer/w`}>White</a>
                   <a href="/trainer/b">Black</a>
