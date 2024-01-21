@@ -133,11 +133,6 @@ export const initType = () => {
 
     const fen = getFen();
     const validFen = fen && validateFen(fen) ? fen : DEFAULT_POSITION;
-    console.log("INITIAL FEN", {
-      fen,
-      validFen,
-      worked: fen === validFen,
-    });
     writeFen(validFen);
   }
 };

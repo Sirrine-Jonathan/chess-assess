@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, type MouseEvent } from "react";
 import "./App.scss";
 import { ChessBoard } from "./chessBoard/ChessBoard";
 import { useIsMobile } from "./hooks/useIsMobile";
@@ -7,6 +7,7 @@ import { GameType, getGameType } from "./utils";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import { Bot } from "./chessBoard/state/game/bot";
+import PWAInstallerPrompt from 'react-pwa-installer-prompt';
 
 const DEFAULT_LEVEL = 3;
 
@@ -58,25 +59,14 @@ const openings = {
   "London System": "rnbqkb1r/ppp1pppp/5n2/3p4/3P1B2/5N2/PPP1PPPP/RN1QKB1R b KQkq - 3 3"
 };
 
-const openingNames = Object.keys(openings);
-const findDuplicates = (arr: string[]) => {
-  let sorted_arr = arr.slice().sort();
-  let results = [];
-  for (let i = 0; i < sorted_arr.length - 1; i++) {
-    if (sorted_arr[i + 1] == sorted_arr[i]) {
-      results.push(sorted_arr[i]);
-    }
-  }
-  return results;
-}
-console.log('dulpicates', findDuplicates(openingNames))
-
 function App() {
   const isMobile = useIsMobile();
   const [level, setLevel] = useState(DEFAULT_LEVEL);
   const [isBotOk, setIsBotOk] = useState(false);
   const type = getGameType();
   let inGame = Object.values(GameType).includes(type);
+
+  const promptRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (isBotOk) {
@@ -91,6 +81,14 @@ function App() {
       });
   }, [isBotOk]);
 
+  useEffect(() => {
+    setTimeout(() => {
+      if (promptRef.current) {
+        promptRef.current.classList.add('slideIn');
+      }
+    }, 1500);
+  }, [])
+
   return (
     <div className={clsx(["App", isMobile && "isMobile"])}>
       {inGame ? (
@@ -98,7 +96,17 @@ function App() {
       ) : (
         <div>
           <div className="welcome">
-            <h1>Chess Layers</h1>
+            <h1>Chess Trainer</h1>
+            <PWAInstallerPrompt
+              render={({ onClick }: { onClick: (e: MouseEvent<HTMLButtonElement>) => void }) => (
+                <button
+                  ref={promptRef}
+                  className="installerPrompt" type="button" onClick={onClick}>
+                  Add to Home screen
+                </button>
+              )}
+              callback={(data: any) => console.log(data)}
+            />
             <div className="welcomeInputs">
               <div className="trainerInputs">
                 <div>Play against a bot that uses a min max algorithm with beta pruning</div>

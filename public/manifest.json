@@ -1,6 +1,6 @@
 {
-  "short_name": "Chess Layers",
-  "name": "Chess Layers",
+  "short_name": "Chess Trainer",
+  "name": "Chess Trainer",
   "icons": [
     {
       "src": "rookIcon.svg",

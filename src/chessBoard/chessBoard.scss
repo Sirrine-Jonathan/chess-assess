@@ -784,8 +784,9 @@
         border: none;
         background: none;
         margin-bottom: 15px;
-
+        
         svg {
+          border-radius: 100px;
           width: 25px;
           height: 25px;
           fill: #fff;
@@ -1006,6 +1007,14 @@
 */
 .displayWrapper.isMobile {
   flex-direction: column;
+
+  .opening {
+    position: absolute;
+    top: -10px;
+    font-size: 14px;
+    left: 50%;
+    transform: translate(-50%, 0);
+  }
 
   .chessBoardWrapper {
     padding: 40px 0;

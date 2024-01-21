@@ -29,6 +29,7 @@ import ColorControls from "./parts/mobileControls";
 import { LayerQuickControls } from "./parts/LayerQuickControls";
 import History from "./parts/history";
 import { PromotionPrompt } from "./parts/promotionPrompt";
+import { Opening } from "./parts/opening";
 
 export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
   const { Options } = useOptions();
@@ -97,6 +98,7 @@ export const ChessBoardInner = ({ loading }: { loading: boolean }) => {
           }}
         >
           <>
+            {isMobile ? <Opening /> : null}
             {isMobile ? <ColorControls /> : null}
             <div className="outerBoardContainer">
               {(
